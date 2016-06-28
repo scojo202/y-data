@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.o
 *.lo
 *.la
@@ -43,3 +44,38 @@ docs/reference/yttrium-0.0.prerequisites
 docs/reference/yttrium-0.0.signals
 docs/reference/yttrium-0.0.types
 
+=======
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+>>>>>>> 165903ba813710caff6809cfa82c47fbcf63dafe
