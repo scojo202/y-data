@@ -29,8 +29,8 @@ content_files = \
 
 expand_content_files=
 
-GTKDOC_CFLAGS = -I$(top_srcdir) -I$(top_builddir) $(YTTRIUM_CFLAGS)
-GTKDOC_LIBS = $(top_builddir)/src/libydata-@YDATA_API_VER@.la $(YTTRIUM_LIBS)
+GTKDOC_CFLAGS = -I$(top_srcdir) -I$(top_builddir) $(YDATA_CFLAGS)
+GTKDOC_LIBS = $(top_builddir)/src/libydata-@YDATA_API_VER@.la $(YDATA_LIBS)
 
 include $(top_srcdir)/gtk-doc.make
 
@@ -38,13 +38,13 @@ include $(top_srcdir)/gtk-doc.make
 EXTRA_DIST += version.xml.in version.xml
 
 CLEANFILES += \
-	yttrium-@YDATA_API_VER@-decl-list.txt	\
-	yttrium-@YDATA_API_VER@-unused.txt	\
-	yttrium-@YDATA_API_VER@-decl.txt   	\
-	yttrium-@YDATA_API_VER@-undeclared.txt	\
-	yttrium-@YDATA_API_VER@-overrides.txt	\
-	yttrium-@YDATA_API_VER@-undocumented.txt	\
-	yttrium-@YDATA_API_VER@.types	\
+	y-@YDATA_API_VER@-decl-list.txt	\
+	y-@YDATA_API_VER@-unused.txt	\
+	y-@YDATA_API_VER@-decl.txt   	\
+	y-@YDATA_API_VER@-undeclared.txt	\
+	y-@YDATA_API_VER@-overrides.txt	\
+	y-@YDATA_API_VER@-undocumented.txt	\
+	y-@YDATA_API_VER@.types	\
 	html/* tmpl/* xml/*
 
 $(top_srcdir)/docs/reference/version.xml:
