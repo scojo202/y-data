@@ -2,7 +2,6 @@ YData is a set of array GObjects. It currently supports scalar, vector, and 2-d 
 
 Data types:
 - simple array types - double precision by default
-- linear (TODO: make this polynomial)
 - structure that maps onto an HDF5 group
 
 Functionality:
@@ -13,11 +12,5 @@ Functionality:
 - GObject introspection
 
 TODO:
-- derived (TODO: base slice on this)
-- subdata changed a la guppi - for struct
 - finalize operation object
 - integer array types
-
-Derived data types:
-- VectorDerived - derive from Vector, base slice on this
-- ScalarDerived - derive from Scalar
