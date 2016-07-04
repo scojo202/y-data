@@ -174,9 +174,9 @@ y_vector_derived_class_init (YVectorDerivedClass *slice_klass)
   YVectorClass *vector_klass = (YVectorClass *) gobject_klass;
 
 	gobject_klass->finalize = vector_derived_finalize;
-	//godata_klass->dup	= data_vector_slice_dup;
+	//ydata_klass->dup	= data_vector_slice_dup;
 	ydata_klass->eq	= vector_derived_eq;
-	//godata_klass->serialize	= data_vector_slice_serialize;
+	//ydata_klass->serialize	= data_vector_slice_serialize;
 	vector_klass->load_len    = vector_derived_load_len;
 	vector_klass->load_values = vector_derived_load_values;
 	//vector_klass->get_value   = data_vector_slice_get_value;

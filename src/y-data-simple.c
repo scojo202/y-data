@@ -1,5 +1,5 @@
 /*
- * go-data-simple.c :
+ * y-data-simple.c :
  *
  * Copyright (C) 2003-2005 Jody Goldberg (jody@gnome.org)
  * Copyright (C) 2016 Scott O. Johnson (scojo202@gmail.com)
@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+ 
 #include "y-data.h"
 #include "y-data-simple.h"
 #include <math.h>
@@ -129,15 +130,15 @@ y_scalar_val_get_str (YScalar *dat)
 static void
 y_scalar_val_class_init (YScalarValClass *scalarval_klass)
 {
-	YDataClass *godata_klass = (YDataClass *) scalarval_klass;
+	YDataClass *ydata_klass = (YDataClass *) scalarval_klass;
 	YScalarClass *scalar_klass = (YScalarClass *) scalarval_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) scalarval_klass;
 
 	gobject_klass->finalize   = y_scalar_val_finalize;
-	godata_klass->dup	  = y_scalar_val_dup;
-	godata_klass->eq	  = y_scalar_val_eq;
-	godata_klass->serialize	  = y_scalar_val_serialize;
-	godata_klass->unserialize = y_scalar_val_unserialize;
+	ydata_klass->dup	  = y_scalar_val_dup;
+	ydata_klass->eq	  = y_scalar_val_eq;
+	ydata_klass->serialize	  = y_scalar_val_serialize;
+	ydata_klass->unserialize = y_scalar_val_unserialize;
 	scalar_klass->get_value	  = y_scalar_val_get_value;
 	scalar_klass->get_str	  = y_scalar_val_get_str;
 }
@@ -345,15 +346,15 @@ void y_vector_val_append_ring(YVectorVal *d, double val)
 static void
 y_vector_val_class_init (YVectorValClass *val_klass)
 {
-	YDataClass *godata_klass = (YDataClass *) val_klass;
+	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	YVectorClass *vector_klass = (YVectorClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
 	gobject_klass->finalize = y_vector_val_finalize;
-	godata_klass->dup	= y_vector_val_dup;
-	godata_klass->eq	= y_vector_val_eq;
-	godata_klass->serialize	= y_vector_val_serialize;
-	godata_klass->unserialize	= y_vector_val_unserialize;
+	ydata_klass->dup	= y_vector_val_dup;
+	ydata_klass->eq	= y_vector_val_eq;
+	ydata_klass->serialize	= y_vector_val_serialize;
+	ydata_klass->unserialize	= y_vector_val_unserialize;
 	vector_klass->load_len    = y_vector_val_load_len;
 	vector_klass->load_values = y_vector_val_load_values;
 	vector_klass->get_value   = y_vector_val_get_value;
@@ -592,14 +593,14 @@ static void
 y_matrix_val_class_init (YMatrixValClass *val_klass)
 {
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
-	YDataClass *godata_klass = (YDataClass *) gobject_klass;
+	YDataClass *ydata_klass = (YDataClass *) gobject_klass;
 	YMatrixClass *matrix_klass = (YMatrixClass *) gobject_klass;
 
 	gobject_klass->finalize = y_matrix_val_finalize;
-	godata_klass->dup	= y_matrix_val_dup;
-	godata_klass->eq	= y_matrix_val_eq;
-	godata_klass->serialize	= y_matrix_val_serialize;
-	godata_klass->unserialize = y_matrix_val_unserialize;
+	ydata_klass->dup	= y_matrix_val_dup;
+	ydata_klass->eq	= y_matrix_val_eq;
+	ydata_klass->serialize	= y_matrix_val_serialize;
+	ydata_klass->unserialize = y_matrix_val_unserialize;
 	matrix_klass->load_size   = y_matrix_val_load_size;
 	matrix_klass->load_values = y_matrix_val_load_values;
 	matrix_klass->get_value   = y_matrix_val_get_value;

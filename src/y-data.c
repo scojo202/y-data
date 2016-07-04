@@ -1010,8 +1010,8 @@ y_struct_class_init (YStructClass *val_klass)
 
 	gobject_klass->finalize = y_struct_finalize;
   	ydata_klass->n_dimensions = -1;
-	//godata_klass->dup	= y_vector_val_dup;
-	//godata_klass->eq	= y_vector_val_eq;
+	//ydata_klass->dup	= y_vector_val_dup;
+	//ydata_klass->eq	= y_vector_val_eq;
 }
 
 static void
