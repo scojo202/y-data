@@ -32,19 +32,19 @@ G_DECLARE_FINAL_TYPE(YDataTcpSender,y_data_tcp_sender,Y,DATA_TCP_SENDER,GObject)
 
 void y_data_tcp_server_init (guint16 port);
 
-YDataTcpSender	*y_data_tcp_sender_new      (YData *data, int id);
+YDataTcpSender	*y_data_tcp_sender_new      (YData *data, gint id);
 
 G_DECLARE_FINAL_TYPE(YScalarTcpReceiver,y_scalar_tcp_receiver,Y,SCALAR_TCP_RECEIVER,YScalar)
 
 #define Y_TYPE_SCALAR_TCP_RECEIVER	(y_scalar_tcp_receiver_get_type ())
 
-YScalarTcpReceiver	*y_scalar_tcp_receiver_new      (const gchar *url, guint16 port, int id);
+YScalarTcpReceiver	*y_scalar_tcp_receiver_new      (const gchar *url, guint16 port, guint16 id);
 
 G_DECLARE_FINAL_TYPE(YVectorTcpReceiver,y_vector_tcp_receiver,Y,VECTOR_TCP_RECEIVER,YVector)
 
 #define Y_TYPE_VECTOR_TCP_RECEIVER	(y_vector_tcp_receiver_get_type ())
 
-YVectorTcpReceiver	*y_vector_tcp_receiver_new      (const gchar *url, guint16 port, int id);
+YVectorTcpReceiver	*y_vector_tcp_receiver_new      (const gchar *url, guint16 port, guint16 id);
 
 G_END_DECLS
 
