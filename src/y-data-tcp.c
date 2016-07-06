@@ -92,12 +92,22 @@ on_data_changed_after(YData *data, gpointer   user_data) {
   }
   g_output_stream_write(s,header,3*sizeof(gint),NULL,NULL);
   /* send data */
-  if(n_dims==0) {
+  if(n_dims==1) {
+    double *d = y_vector_get_values(Y_VECTOR(data));
+    int i;
+    const int len = y_vector_get_len(Y_VECTOR(data));
+    guint64 ii[len];
+    for(i=0;i<len;i++) {
+      double dd = d[i];
+      ii[i]=GUINT64_TO_LE(*(guint64 *)(&dd));
+    }
+    g_output_stream_write(s,&ii,len*sizeof(guint64),NULL,NULL);
+  }
+  else if(n_dims==0) {
     double d = y_scalar_get_value(Y_SCALAR(data));
     guint64 i = GUINT64_TO_LE(*(guint64 *)(&d));
     g_output_stream_write(s,&i,sizeof(guint64),NULL,NULL);
   }
-  
 }
 
 YDataTcpSender	*y_data_tcp_sender_new      (YData *data, gint id)
@@ -164,8 +174,7 @@ YScalarTcpReceiver	*y_scalar_tcp_receiver_new      (const gchar *url, guint16 po
 
 struct _YVectorTcpReceiver {
 	YVector      base;
-        gchar *url;
-	guint16 port;
+	GSocketConnection *socket_conn;
         guint16 id;
 };
 
@@ -177,12 +186,42 @@ y_vector_tcp_receiver_class_init (YVectorTcpReceiverClass *klass)
 	GObjectClass *gobject_klass = (GObjectClass *) klass;
 }
 
+static
+gboolean vector_poll_func(GObject *pollable_stream,gpointer user_data)
+{
+  YVectorTcpReceiver *r = (YVectorTcpReceiver *) user_data;
+  gint buffer[3];
+  g_pollable_input_stream_read_nonblocking(pollable_stream,buffer,3*sizeof(gint),NULL,NULL);
+  if(g_ntohl(buffer[0])==r->id) {
+    //g_message("hello (%d %d)",g_ntohl(buffer[1]),g_ntohl(buffer[2]));
+    const int len = buffer[1];
+    g_assert(buffer[2]==0);
+    guint64 buffer2[len];
+    g_pollable_input_stream_read_nonblocking(pollable_stream,buffer2,len*sizeof(guint64),NULL,NULL);
+    int i;
+    for(i=0;i<len;i++) {
+      guint64 i2 = GUINT64_FROM_LE(buffer2[i]);
+      double d = *(double *)&i2;
+    }
+  }
+  
+  return TRUE;
+}
+
 static void
 y_vector_tcp_receiver_init(YVectorTcpReceiver *val)
 {}
 
 YVectorTcpReceiver	*y_vector_tcp_receiver_new      (const gchar *url, guint16 port, guint16 id)
 {
-   return NULL;
+  YVectorTcpReceiver *r = g_object_new(Y_TYPE_VECTOR_TCP_RECEIVER,NULL);
+  r->id = id;
+  GSocketClient *client = g_socket_client_new();
+  r->socket_conn = g_socket_client_connect_to_host(client,url,port,NULL,NULL);
+  GInputStream *i = g_io_stream_get_input_stream(r->socket_conn);
+  GSource *source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM(i), NULL);
+  g_source_set_callback(source,vector_poll_func,r,NULL);
+  g_source_attach(source,NULL);
+  return r;
 }
 
