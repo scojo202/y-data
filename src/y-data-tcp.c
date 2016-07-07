@@ -69,12 +69,11 @@ on_data_changed_after(YData *data, gpointer   user_data) {
   /* send it over the socket */
   GOutputStream *s;
   if(socket_conns==NULL) return;
-  /* send id */
-  /* send type */
-  /* send dimensions */
+  /* send id, dimensions */
   gint header[3];
   header[0]=g_htonl(sender->id);
   int n_dims = y_data_get_n_dimensions (data);
+  g_message("dims: %d",n_dims);
   if(n_dims==2) {
     YMatrixSize s = y_matrix_get_size (Y_MATRIX(data));
     header[1]=g_htonl(s.columns);
