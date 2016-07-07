@@ -46,9 +46,9 @@ void y_data_tcp_server_init (guint16 port)
 }
 
 struct _YDataTcpSender {
-	GObject      base;
-	YData        *data;
-        gint id;
+  GObject      base;
+  YData        *data;
+  gint id;
 };
 
 G_DEFINE_TYPE (YDataTcpSender, y_data_tcp_sender, G_TYPE_OBJECT);
@@ -121,19 +121,68 @@ YDataTcpSender	*y_data_tcp_sender_new      (YData *data, gint id)
 }
 
 struct _YScalarTcpReceiver {
-	YScalar      base;
-	GSocketConnection *socket_conn;
-        gchar *url;
-	guint16 port;
-        int id;
+  YScalar      base;
+  double val;
+  GSocketConnection *socket_conn;
+  gchar *url;
+  guint16 port;
+  int id;
 };
 
 G_DEFINE_TYPE (YScalarTcpReceiver, y_scalar_tcp_receiver, Y_TYPE_SCALAR);
+
+static char *
+render_val2 (double val)
+{
+		char buf[G_ASCII_DTOSTR_BUF_SIZE];
+		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+		return g_strdup (buf);
+}
+
+static YData *
+y_scalar_tcp_receiver_dup (YData const *src)
+{
+	YScalarTcpReceiver *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
+	YScalarTcpReceiver const *src_val = (YScalarTcpReceiver const *)src;
+	dst->val = src_val->val;
+	return Y_DATA (dst);
+}
+
+static gboolean
+y_scalar_tcp_receiver_eq (YData const *a, YData const *b)
+{
+	YScalarTcpReceiver const *sval_a = (YScalarTcpReceiver const *)a;
+	YScalarTcpReceiver const *sval_b = (YScalarTcpReceiver const *)b;
+
+	/* YData::eq is used for identity, not arithmetic */
+	return sval_a->val == sval_b->val;
+}
+
+static double
+y_scalar_tcp_receiver_get_value (YScalar *dat)
+{
+	YScalarTcpReceiver const *sval = (YScalarTcpReceiver const *)dat;
+	return sval->val;
+}
+
+static char const *
+y_scalar_tcp_receiver_get_str (YScalar *dat)
+{
+  YScalarTcpReceiver *sval = (YScalarTcpReceiver *)dat;
+
+  return render_val2 (sval->val);
+}
 
 static void
 y_scalar_tcp_receiver_class_init (YScalarTcpReceiverClass *klass)
 {
   GObjectClass *gobject_klass = (GObjectClass *) klass;
+  YDataClass *ydata_klass = (YDataClass *) klass;
+	YScalarClass *scalar_klass = (YScalarClass *) klass;
+  ydata_klass->dup	  = y_scalar_tcp_receiver_dup;
+	ydata_klass->eq	  = y_scalar_tcp_receiver_eq;
+	scalar_klass->get_value	  = y_scalar_tcp_receiver_get_value;
+	scalar_klass->get_str	  = y_scalar_tcp_receiver_get_str;
 }
 
 static void
@@ -141,33 +190,45 @@ y_scalar_tcp_receiver_init(YScalarTcpReceiver *val)
 {}
 
 static
-gboolean poll_func(GObject *pollable_stream,gpointer user_data)
+gboolean scalar_poll_func(GObject *pollable_stream,gpointer user_data)
 {
   YScalarTcpReceiver *r = (YScalarTcpReceiver *) user_data;
   gint buffer[3];
-  g_pollable_input_stream_read_nonblocking(pollable_stream,buffer,3*sizeof(gint),NULL,NULL);
+  GError *err = NULL;
+  g_pollable_input_stream_read_nonblocking(G_POLLABLE_INPUT_STREAM(pollable_stream),buffer,3*sizeof(gint),NULL,&err);
+  if(err!=NULL) {
+    g_warning("error during read");
+    g_error_free(err);
+    return TRUE;
+  }
   if(g_ntohl(buffer[0])==r->id) {
     //g_message("hello (%d %d)",g_ntohl(buffer[1]),g_ntohl(buffer[2]));
     g_assert(buffer[1]==0 && buffer[2]==0);
     guint64 i;
-    g_pollable_input_stream_read_nonblocking(pollable_stream,&i,sizeof(guint64),NULL,NULL);
+    g_pollable_input_stream_read_nonblocking(G_POLLABLE_INPUT_STREAM(pollable_stream),&i,sizeof(guint64),NULL,&err);
+    if(err!=NULL) {
+      g_warning("error during read2");
+      g_error_free(err);
+      return TRUE;
+    }
     guint64 i2 = GUINT64_FROM_LE(i);
-    double d = *(double *)&i2;
-    g_message("read %e",d);
+    r->val = *(double *)&i2;
+    y_data_emit_changed(Y_DATA(r));
+    g_message("read %f",r->val);
   }
   
   return TRUE;
 }
 
-YScalarTcpReceiver	*y_scalar_tcp_receiver_new      (const gchar *url, guint16 port, guint16 id)
+YScalarTcpReceiver *y_scalar_tcp_receiver_new (const gchar *url, guint16 port, guint16 id)
 {
   YScalarTcpReceiver *r = g_object_new(Y_TYPE_SCALAR_TCP_RECEIVER,NULL);
   r->id = id;
   GSocketClient *client = g_socket_client_new();
   r->socket_conn = g_socket_client_connect_to_host(client,url,port,NULL,NULL);
-  GInputStream *i = g_io_stream_get_input_stream(r->socket_conn);
+  GInputStream *i = g_io_stream_get_input_stream(G_IO_STREAM(r->socket_conn));
   GSource *source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM(i), NULL);
-  g_source_set_callback(source,poll_func,r,NULL);
+  g_source_set_callback(source,scalar_poll_func,r,NULL);
   g_source_attach(source,NULL);
   return r;
 }
@@ -183,7 +244,7 @@ G_DEFINE_TYPE (YVectorTcpReceiver, y_vector_tcp_receiver, Y_TYPE_VECTOR);
 static void
 y_vector_tcp_receiver_class_init (YVectorTcpReceiverClass *klass)
 {
-	GObjectClass *gobject_klass = (GObjectClass *) klass;
+  GObjectClass *gobject_klass = (GObjectClass *) klass;
 }
 
 static
@@ -218,7 +279,7 @@ YVectorTcpReceiver	*y_vector_tcp_receiver_new      (const gchar *url, guint16 po
   r->id = id;
   GSocketClient *client = g_socket_client_new();
   r->socket_conn = g_socket_client_connect_to_host(client,url,port,NULL,NULL);
-  GInputStream *i = g_io_stream_get_input_stream(r->socket_conn);
+  GInputStream *i = g_io_stream_get_input_stream(G_IO_STREAM(r->socket_conn));
   GSource *source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM(i), NULL);
   g_source_set_callback(source,vector_poll_func,r,NULL);
   g_source_attach(source,NULL);
