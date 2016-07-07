@@ -25,7 +25,7 @@ main (int argc, char *argv[])
   
   YDataTcpSender *s = y_data_tcp_sender_new (d1, 1);
   
-  g_timeout_add(100, change_data_timer, d1);
+  g_timeout_add(1000, change_data_timer, d1);
   
   YScalarTcpReceiver *r = y_scalar_tcp_receiver_new("localhost",60000,1);
   

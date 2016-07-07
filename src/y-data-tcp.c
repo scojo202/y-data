@@ -23,15 +23,15 @@
 #include <y-data-tcp.h>
 
 static GSocketService *listener = NULL;
-static GSocketConnection *socket_conn = NULL;
+static GList *socket_conns = NULL;
 
 static gboolean
 conn_incoming (GSocketService *service, GSocketConnection *connection,
 	       GObject *source_object, gpointer user_data)
 {
   g_object_ref(connection);
-  socket_conn = connection;
-  g_info("Incoming connection received\n");
+  socket_conns = g_list_prepend(socket_conns,connection);
+  //g_info("Incoming connection received\n");
   return FALSE;
 }
 
@@ -68,9 +68,7 @@ on_data_changed_after(YData *data, gpointer   user_data) {
   YDataTcpSender *sender = (YDataTcpSender *) user_data;
   /* send it over the socket */
   GOutputStream *s;
-  if(socket_conn)
-    s = g_io_stream_get_output_stream(G_IO_STREAM(socket_conn));
-  else return;
+  if(socket_conns==NULL) return;
   /* send id */
   /* send type */
   /* send dimensions */
@@ -90,23 +88,30 @@ on_data_changed_after(YData *data, gpointer   user_data) {
     header[1]=0;
     header[2]=0;
   }
-  g_output_stream_write(s,header,3*sizeof(gint),NULL,NULL);
-  /* send data */
-  if(n_dims==1) {
-    double *d = y_vector_get_values(Y_VECTOR(data));
-    int i;
-    const int len = y_vector_get_len(Y_VECTOR(data));
-    guint64 ii[len];
-    for(i=0;i<len;i++) {
-      double dd = d[i];
-      ii[i]=GUINT64_TO_LE(*(guint64 *)(&dd));
+  GList *iter;
+  for(iter = socket_conns;iter!=NULL;iter=iter->next) {
+    s = g_io_stream_get_output_stream(G_IO_STREAM(iter->data));
+    //g_message("%d",g_io_stream_is_closed(G_IO_STREAM(iter->data)));
+    g_output_stream_write(s,header,3*sizeof(gint),NULL,NULL);
+    /* send data */
+    if(n_dims==1) {
+      const double *d = y_vector_get_values(Y_VECTOR(data));
+      int i;
+      const int len = y_vector_get_len(Y_VECTOR(data));
+      guint64 ii[len];
+      for(i=0;i<len;i++) {
+        double dd = d[i];
+        gpointer pd = &dd;
+        ii[i]=GUINT64_TO_BE(*(guint64 *)(pd));
+      }
+      g_output_stream_write(s,&ii,len*sizeof(guint64),NULL,NULL);
     }
-    g_output_stream_write(s,&ii,len*sizeof(guint64),NULL,NULL);
-  }
-  else if(n_dims==0) {
-    double d = y_scalar_get_value(Y_SCALAR(data));
-    guint64 i = GUINT64_TO_LE(*(guint64 *)(&d));
-    g_output_stream_write(s,&i,sizeof(guint64),NULL,NULL);
+    else if(n_dims==0) {
+      double d = y_scalar_get_value(Y_SCALAR(data));
+      gpointer pd = &d;
+      guint64 i = GUINT64_TO_BE(*(guint64 *)(pd));
+      g_output_stream_write(s,&i,sizeof(guint64),NULL,NULL);
+    }
   }
 }
 
@@ -211,8 +216,9 @@ gboolean scalar_poll_func(GObject *pollable_stream,gpointer user_data)
       g_error_free(err);
       return TRUE;
     }
-    guint64 i2 = GUINT64_FROM_LE(i);
-    r->val = *(double *)&i2;
+    guint64 i2 = GUINT64_FROM_BE(i);
+    gpointer id = &i2;
+    r->val = *(double *)id;
     y_data_emit_changed(Y_DATA(r));
     g_message("read %f",r->val);
   }
@@ -252,17 +258,18 @@ gboolean vector_poll_func(GObject *pollable_stream,gpointer user_data)
 {
   YVectorTcpReceiver *r = (YVectorTcpReceiver *) user_data;
   gint buffer[3];
-  g_pollable_input_stream_read_nonblocking(pollable_stream,buffer,3*sizeof(gint),NULL,NULL);
+  g_pollable_input_stream_read_nonblocking(G_POLLABLE_INPUT_STREAM(pollable_stream),buffer,3*sizeof(gint),NULL,NULL);
   if(g_ntohl(buffer[0])==r->id) {
     //g_message("hello (%d %d)",g_ntohl(buffer[1]),g_ntohl(buffer[2]));
     const int len = buffer[1];
     g_assert(buffer[2]==0);
     guint64 buffer2[len];
-    g_pollable_input_stream_read_nonblocking(pollable_stream,buffer2,len*sizeof(guint64),NULL,NULL);
+    g_pollable_input_stream_read_nonblocking(G_POLLABLE_INPUT_STREAM(pollable_stream),buffer2,len*sizeof(guint64),NULL,NULL);
     int i;
     for(i=0;i<len;i++) {
-      guint64 i2 = GUINT64_FROM_LE(buffer2[i]);
-      double d = *(double *)&i2;
+      guint64 i2 = GUINT64_FROM_BE(buffer2[i]);
+      gpointer id = &i2;
+      double d = *(double *)id;
     }
   }
   
