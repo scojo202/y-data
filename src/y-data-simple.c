@@ -627,6 +627,16 @@ YData *y_matrix_val_new_copy (double   *val,
   return y_matrix_val_new(g_memdup(val,sizeof(double)*n*m),n,m,g_free);
 }
 
+YData *y_matrix_val_new_alloc (unsigned n, unsigned m)
+{
+    YMatrixVal *res = g_object_new (Y_TYPE_MATRIX_VAL, NULL);
+	res->val = g_new(double, n*m);
+	res->size.rows = n;
+	res->size.columns = m;
+	res->notify = g_free;
+	return Y_DATA (res);
+}
+
 /**
  * y_matrix_val_get_array :
  * @s: #YVectorVal
