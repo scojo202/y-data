@@ -220,16 +220,16 @@ gpointer vector_slice_op(gpointer input)
     end=MIN(end,(int)(nrow-1));
     unsigned int j;
     int k;
-    int n=0;
     for(j=0;j<ncol;j++) {
+      int n=0;
       v[j]=0.;
       for(k=start;k<=end;k++) {
-	      v[j]+=m[j+k*ncol];
-	      n++;
-	    }
-	    if(d->sop.mean)
-	      v[j]/=n;
-    }
+        v[j]+=m[j+k*ncol];
+	n++;
+      }
+      if(d->sop.mean)
+        v[j]/=n;
+      }
   }
   else if(d->sop.type == SLICE_SUMCOLS) {
     int w = d->sop.width;
@@ -239,15 +239,15 @@ gpointer vector_slice_op(gpointer input)
     end=MIN(end,(int)(ncol-1));
     unsigned int j;
     int k;
-    int n=0;
     for(j=0;j<nrow;j++) {
+      int n=0;
       v[j]=0.;
       for(k=start;k<=end;k++) {
         v[j]+=m[k+j*ncol];
         n++;
       }
       if(d->sop.mean)
-	      v[j]/=n;
+        v[j]/=n;
     }
   }
   return v;
