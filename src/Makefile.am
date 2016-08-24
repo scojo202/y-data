@@ -25,7 +25,8 @@ ydata_SOURCES =				\
 	y-data-vector-slice.c \
 	y-operation.c \
 	y-data-derived.c \
-	y-linear-range.c
+	y-linear-range.c \
+	y-scalar-property.c
 
 ydatadir = $(y_include_dir)
 
@@ -37,7 +38,8 @@ ydata_HEADERS =					\
 	y-data-vector-slice.h \
 	y-operation.h \
 	y-data-derived.h \
-	y-linear-range.h
+	y-linear-range.h \
+	y-scalar-property.h
 
 lib_LTLIBRARIES = libydata-@YDATA_API_VER@.la
 
