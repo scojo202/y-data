@@ -34,7 +34,9 @@
  *
  * Data classes #YScalarVal, #YVectorVal, and #YMatrixVal.
  *
- * In these objects, an array is maintained that is also the data cache.
+ * In these objects, an array (or, in the case of a #YScalarVal, a single double
+ * precision value) is maintained that is also the data cache. Therefore, the
+ * array should not be freed.
  */
 
 static char *
@@ -146,6 +148,14 @@ y_scalar_val_class_init (YScalarValClass *scalarval_klass)
 static void
 y_scalar_val_init(YScalarVal *val) {}
 
+/**
+ * y_scalar_val_new:
+ * @val: initial value
+ *
+ * Creates a new #YScalarVal object.
+ *
+ * Returns: (transfer full): The new object.
+ **/
 YData *
 y_scalar_val_new (double val)
 {
@@ -155,7 +165,15 @@ y_scalar_val_new (double val)
 	return Y_DATA (res);
 }
 
-double *y_scalar_val_get_val (YScalarVal *s)
+/**
+ * y_scalar_val_get_val:
+ * @s: a #YScalarVal
+ *
+ * Gets a pointer to the value of a #YScalarVal.
+ *
+ * Returns: (transfer none): A pointer to the scalar value.
+ **/
+double * y_scalar_val_get_val (YScalarVal *s)
 {
   return &s->val;
 }
@@ -411,7 +429,7 @@ y_vector_val_new_copy (double *val, unsigned n)
 
 /**
  * y_vector_val_get_array :
- * @vec: #YVectorVal
+ * @s: #YVectorVal
  *
  * Get the array of values of @vec. 
  *
@@ -610,6 +628,15 @@ y_matrix_val_class_init (YMatrixValClass *val_klass)
 static void
 y_matrix_val_init(YMatrixVal *val) {}
 
+/**
+ * y_matrix_val_new: (skip)
+ * @val: array of doubles
+ * @rows: number of rows
+ * @columns: number of columns
+ * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
+ *
+ * Returns: a #YData
+ **/
 YData *
 y_matrix_val_new (double *val, unsigned rows, unsigned columns, GDestroyNotify   notify)
 {
@@ -621,18 +648,35 @@ y_matrix_val_new (double *val, unsigned rows, unsigned columns, GDestroyNotify  
 	return Y_DATA (res);
 }
 
+/**
+ * y_matrix_val_new_copy:
+ * @val: array of doubles with at least @rows*@columns elements
+ * @rows: number of rows
+ * @columns: number of columns
+ *
+ * Returns: a #YData
+ **/
 YData *y_matrix_val_new_copy (double   *val,
-                                     unsigned  n, unsigned m)
+                                     unsigned  rows, unsigned columns)
 {
-  return y_matrix_val_new(g_memdup(val,sizeof(double)*n*m),n,m,g_free);
+  return y_matrix_val_new(g_memdup(val,sizeof(double)*rows*columns),rows,columns,g_free);
 }
 
-YData *y_matrix_val_new_alloc (unsigned n, unsigned m)
+/**
+ * y_matrix_val_new_alloc:
+ * @rows: number of rows
+ * @columns: number of columns
+ *
+ * Allocate a new array with @rows rows and @columns columns and use it in a new #YMatrixVal.
+ *
+ * Returns: a #YData
+ **/
+YData *y_matrix_val_new_alloc (unsigned rows, unsigned columns)
 {
-    YMatrixVal *res = g_object_new (Y_TYPE_MATRIX_VAL, NULL);
-	res->val = g_new(double, n*m);
-	res->size.rows = n;
-	res->size.columns = m;
+  YMatrixVal *res = g_object_new (Y_TYPE_MATRIX_VAL, NULL);
+	res->val = g_new(double, rows*columns);
+	res->size.rows = rows;
+	res->size.columns = columns;
 	res->notify = g_free;
 	return Y_DATA (res);
 }

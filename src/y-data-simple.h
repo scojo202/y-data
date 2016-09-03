@@ -55,7 +55,7 @@ G_DECLARE_FINAL_TYPE(YMatrixVal,y_matrix_val,Y,MATRIX_VAL,YMatrix)
 
 YData	*y_matrix_val_new      (double *val, unsigned rows, unsigned columns, GDestroyNotify   notify);
 YData *y_matrix_val_new_copy (double   *val,
-                                     unsigned  n, unsigned m);
+                                     unsigned  rows, unsigned columns);
 YData *y_matrix_val_new_alloc (unsigned n, unsigned m);
                                      
 double *y_matrix_val_get_array (YMatrixVal *s);

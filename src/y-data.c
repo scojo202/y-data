@@ -53,9 +53,9 @@
  * @eq: tests if the data are equal.
  * @serialize: serializes to text.
  * @unserialize: unserializes from text.
- * @emit_changed: signals the data have changed.
  * @get_sizes: gets the sizes.
  * @get_bounds: gets the bounds.
+ * @emit_changed: changed signal default handler
  **/
 
 /**
@@ -144,7 +144,7 @@ y_data_class_init (YDataClass *klass)
 	y_data_signals [CHANGED] = g_signal_new ("changed",
 		G_TYPE_FROM_CLASS (klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET (YDataClass, changed),
+		G_STRUCT_OFFSET (YDataClass, emit_changed),
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);

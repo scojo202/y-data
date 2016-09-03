@@ -46,13 +46,12 @@ struct _YDataClass {
 
 	char *		(*serialize)	    	(YData const *dat, gpointer user);
 	gboolean   	(*unserialize)	    	(YData *dat, char const *str, gpointer user);
-	void	   	(*emit_changed)  	(YData *dat);
 
 	void		(*get_sizes)		(YData *data, unsigned int *sizes);
 	void		(*get_bounds)		(YData *data, double *minimum, double *maximum);
 
 	/* signals */
-	void (*changed)	(YData *dat);
+	void (*emit_changed)	(YData *dat);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)

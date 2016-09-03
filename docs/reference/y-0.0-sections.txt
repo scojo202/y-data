@@ -68,6 +68,7 @@ YStruct
 
 <SECTION>
 <FILE>y-data-derived</FILE>
+<TITLE>Data derived from other data through operations</TITLE>
 Y_TYPE_VECTOR_DERIVED
 y_vector_derived_new
 y_vector_derived_set_input
@@ -77,6 +78,7 @@ YVectorDerived
 
 <SECTION>
 <FILE>y-hdf</FILE>
+<TITLE>HDF5 utilities</TITLE>
 y_data_attach_h5
 y_vector_attach_h5
 y_matrix_attach_h5
@@ -86,6 +88,7 @@ y_vector_val_replace_h5
 
 <SECTION>
 <FILE>y-data-simple</FILE>
+<TITLE>Simple array data objects</TITLE>
 Y_TYPE_SCALAR_VAL
 y_scalar_val_new
 y_scalar_val_get_val
@@ -107,7 +110,8 @@ YVectorVal
 </SECTION>
 
 <SECTION>
-<FILE>y-data-vector-slice</FILE>
+<FILE>y-operation-slice</FILE>
+<TITLE>Slice operations</TITLE>
 Y_TYPE_SLICE_OPERATION
 SLICE_ELEMENT
 y_slice_operation_new
