@@ -21,7 +21,6 @@
 
 #include <memory.h>
 #include <math.h>
-#include <y-data.h>
 #include "y-data-derived.h"
 
 /**

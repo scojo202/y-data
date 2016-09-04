@@ -24,7 +24,7 @@
 #define Y_DATA_SIMPLE_H
 
 #include <glib-object.h>
-#include <y-data.h>
+#include <y-data-class.h>
 
 G_BEGIN_DECLS
 

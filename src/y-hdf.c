@@ -20,7 +20,6 @@
  */
 
 #include <gio/gio.h>
-#include <y-data-simple.h>
 #include <y-hdf.h>
 
 #define DEFLATE_LEVEL 5

@@ -32,6 +32,7 @@ ydatadir = $(y_include_dir)
 
 ydata_HEADERS =					\
 	y-data.h \
+	y-data-class.h \
 	y-data-simple.h \
 	y-hdf.h \
 	y-data-tcp.h \

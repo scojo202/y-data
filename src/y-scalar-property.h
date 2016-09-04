@@ -22,7 +22,7 @@
 #ifndef Y_SCALAR_PROP_H
 #define Y_SCALAR_PROP_H
 
-#include <y-data.h>
+#include <y-data-class.h>
 
 G_BEGIN_DECLS
 

@@ -20,7 +20,6 @@
  * USA
  */
 
-#include "y-data.h"
 #include "y-linear-range.h"
 #include <math.h>
 

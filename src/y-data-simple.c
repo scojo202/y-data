@@ -20,7 +20,6 @@
  * USA
  */
  
-#include "y-data.h"
 #include "y-data-simple.h"
 #include <math.h>
 
