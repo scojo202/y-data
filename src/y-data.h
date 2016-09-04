@@ -36,6 +36,12 @@ typedef struct {
 	unsigned int columns;
 } YMatrixSize;
 
+typedef struct {
+	unsigned int layers;
+	unsigned int rows;
+	unsigned int columns;
+} YThreeDArraySize;
+
 struct _YDataClass {
 	GObjectClass base;
 
@@ -90,6 +96,19 @@ struct _YMatrixClass {
 	char	*(*get_str)	(YMatrix *mat, unsigned i, unsigned j);
 };
 
+G_DECLARE_DERIVABLE_TYPE(YThreeDArray,y_three_d_array,Y,THREE_D_ARRAY,YData)
+
+#define Y_TYPE_THREE_D_ARRAY (y_three_d_array_get_type())
+
+struct _YThreeDArrayClass {
+	YDataClass base;
+
+	YThreeDArraySize	 (*load_size)    (YThreeDArray *vec);
+	double	 *(*load_values) (YThreeDArray *vec);
+	double	 (*get_value)   (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
+	char	*(*get_str)	(YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
+};
+
 YData *	y_data_dup			(YData const *src);
 YData * y_data_dup_to_simple (YData const *src);
 gboolean  	y_data_eq			(YData const *a, YData const *b);
@@ -128,6 +147,17 @@ const double	*y_matrix_get_values (YMatrix *mat);
 double	 y_matrix_get_value  (YMatrix *mat, unsigned i, unsigned j);
 char	*y_matrix_get_str    (YMatrix *mat, unsigned i, unsigned j);
 void	 y_matrix_get_minmax (YMatrix *mat, double *min, double *max);
+
+/*************************************************************************/
+
+YThreeDArraySize	 y_three_d_array_get_size    (YThreeDArray *mat);
+unsigned int 	 y_three_d_array_get_rows   (YThreeDArray *mat);
+unsigned int 	 y_three_d_array_get_columns (YThreeDArray *mat);
+unsigned int 	 y_three_d_array_get_layers (YThreeDArray *mat);
+const double	*y_three_d_array_get_values (YThreeDArray *mat);
+double	 y_three_d_array_get_value  (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
+char	*y_three_d_array_get_str    (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
+void	 y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max);
 
 /*************************************************************************/
 

@@ -59,6 +59,17 @@ YData *y_matrix_val_new_copy (double   *val,
 YData *y_matrix_val_new_alloc (unsigned n, unsigned m);
                                      
 double *y_matrix_val_get_array (YMatrixVal *s);
+
+G_DECLARE_FINAL_TYPE(YThreeDArrayVal,y_three_d_array_val,Y,THREE_D_ARRAY_VAL,YThreeDArray)
+
+#define Y_TYPE_THREE_D_ARRAY_VAL  (y_three_d_array_val_get_type ())
+
+YData	*y_three_d_array_val_new      (double *val, unsigned rows, unsigned columns, unsigned layers, GDestroyNotify   notify);
+YData *y_three_d_array_val_new_copy (double   *val,
+                                     unsigned  rows, unsigned columns, unsigned layers);
+YData *y_three_d_array_val_new_alloc (unsigned n, unsigned m, unsigned l);
+                                     
+double *y_three_d_array_val_get_array (YThreeDArrayVal *s);
                                      
 G_END_DECLS
 

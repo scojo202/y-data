@@ -57,6 +57,23 @@ YMatrix
 </SECTION>
 
 <SECTION>
+<FILE>y-three-d-array</FILE>
+<TITLE>YThreeDArray</TITLE>
+YThreeDArraySize
+Y_TYPE_THREE_D_ARRAY
+YThreeDArrayClass
+y_three_d_array_get_size
+y_three_d_array_get_rows
+y_three_d_array_get_columns
+y_three_d_array_get_layers
+y_three_d_array_get_values
+y_three_d_array_get_value
+y_three_d_array_get_str
+y_three_d_array_get_minmax
+YThreeDArray
+</SECTION>
+
+<SECTION>
 <FILE>y-struct</FILE>
 <TITLE>YStruct</TITLE>
 Y_TYPE_STRUCT
