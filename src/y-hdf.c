@@ -36,7 +36,7 @@ hid_t y_open_hdf5_file_for_writing(const gchar *filename, GError **err) {
   gboolean exists = g_file_query_exists(file,NULL);
   g_object_unref(file);
   if(exists) {
-    g_set_error(err,G_IO_ERROR,G_IO_ERROR_EXISTS,"File not found: %s",filename);
+    g_set_error(err,G_IO_ERROR,G_IO_ERROR_EXISTS,"file already exists: %s",filename);
     return 0;
   }
   hid_t hfile = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
@@ -49,7 +49,7 @@ hid_t y_open_hdf5_file_for_reading(const gchar *filename, GError **err) {
   gboolean exists = g_file_query_exists(file,NULL);
   g_object_unref(file);
   if(!exists) {
-    g_set_error(err,G_IO_ERROR,G_IO_ERROR_NOT_FOUND,"File not found: %s",filename);
+    g_set_error(err,G_IO_ERROR,G_IO_ERROR_NOT_FOUND,"file not found: %s",filename);
     return 0;
   }
   hid_t hfile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
