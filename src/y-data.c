@@ -1278,8 +1278,8 @@ y_struct_class_init (YStructClass *val_klass)
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
-	gobject_klass->finalize = y_struct_finalize;
-  	ydata_klass->n_dimensions = -1;
+  gobject_klass->finalize = y_struct_finalize;
+  ydata_klass->n_dimensions = -1;
 	//ydata_klass->dup	= y_vector_val_dup;
 	//ydata_klass->eq	= y_vector_val_eq;
 }

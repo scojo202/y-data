@@ -32,6 +32,7 @@ struct _YLinearRangeVector {
   double v0;
   double dv;
   unsigned n;
+  double *values;
 };
 
 G_DEFINE_TYPE (YLinearRangeVector, y_linear_range_vector, Y_TYPE_VECTOR);
@@ -47,12 +48,23 @@ render_val (double val)
 }
 
 static void
+_linear_range_vector_get_bounds (YData *data, double *minimum, double *maximum)
+{
+  YLinearRangeVector const *v = (YLinearRangeVector const *)data;
+  if(minimum!=NULL) {
+    *minimum=(v->dv>0) ? v->v0 : v->v0+v->dv*(v->n-1);
+  }
+  if(maximum!=NULL) {
+    *maximum=(v->dv>0) ? v->v0+v->dv*(v->n-1) : v->v0;
+  }
+}
+
+static void
 data_vector_val_finalize (GObject *obj)
 {
-	//YLinearRangeVector *vec = (YLinearRangeVector *)obj;
+	YLinearRangeVector *vec = (YLinearRangeVector *)obj;
 	
-	//YVector *vec2 = (YVector *) obj;
-	//g_free(vec2->values);
+	g_free(vec->values);
 
 	(*vector_parent_klass->finalize) (obj);
 }
@@ -89,10 +101,10 @@ data_vector_val_load_len (YVector *vec)
 static double *
 data_vector_val_load_values (YVector *vec)
 {
-	YLinearRangeVector const *val = (YLinearRangeVector const *)vec;
+	YLinearRangeVector *val = (YLinearRangeVector *)vec;
 	int i = val->n;
 	
-  double *values = g_new(double, val->n);
+  val->values = g_new(double, val->n);
 
 	if(y_vector_get_len(vec) != val->n) {
 	  data_vector_val_load_len(vec);
@@ -101,9 +113,9 @@ data_vector_val_load_values (YVector *vec)
   g_assert(isfinite(val->dv));
 
 	while (i-- > 0) {
-	  values[i]=get_val(val,i);
+	  val->values[i]=get_val(val,i);
 	}
-	return values;
+	return val->values;
 }
 
 static double
@@ -138,6 +150,7 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
 	gobject_klass->finalize = data_vector_val_finalize;
 	ydata_klass->dup	= data_vector_val_dup;
 	ydata_klass->eq	= data_vector_val_eq;
+	ydata_klass->get_bounds =	_linear_range_vector_get_bounds;
 	//ydata_klass->serialize	= data_vector_val_serialize;
 	vector_klass->load_len    = data_vector_val_load_len;
 	vector_klass->load_values = data_vector_val_load_values;
