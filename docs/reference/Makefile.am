@@ -1,12 +1,8 @@
-## Process this file with automake to produce Makefile.in
-
 DOC_MODULE=y-@YDATA_API_VER@
-
 DOC_MAIN_SGML_FILE=ydata-docs.xml
-
 DOC_SOURCE_DIR=../../src
 
-SCANGOBJ_OPTIONS= --nogtkinit --type-init-func="g_type_init ()"
+SCANGOBJ_OPTIONS= --nogtkinit
 
 SCAN_OPTIONS= --deprecated-guards="Y_DISABLE_DEPRECATED" --rebuild-types
 

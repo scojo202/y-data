@@ -24,7 +24,7 @@
 #define Y_DATA_SIMPLE_H
 
 #include <glib-object.h>
-#include <y-data.h>
+#include <y-data-class.h>
 
 G_BEGIN_DECLS
 
@@ -55,10 +55,21 @@ G_DECLARE_FINAL_TYPE(YMatrixVal,y_matrix_val,Y,MATRIX_VAL,YMatrix)
 
 YData	*y_matrix_val_new      (double *val, unsigned rows, unsigned columns, GDestroyNotify   notify);
 YData *y_matrix_val_new_copy (double   *val,
-                                     unsigned  n, unsigned m);
+                                     unsigned  rows, unsigned columns);
 YData *y_matrix_val_new_alloc (unsigned n, unsigned m);
                                      
 double *y_matrix_val_get_array (YMatrixVal *s);
+
+G_DECLARE_FINAL_TYPE(YThreeDArrayVal,y_three_d_array_val,Y,THREE_D_ARRAY_VAL,YThreeDArray)
+
+#define Y_TYPE_THREE_D_ARRAY_VAL  (y_three_d_array_val_get_type ())
+
+YData	*y_three_d_array_val_new      (double *val, unsigned rows, unsigned columns, unsigned layers, GDestroyNotify   notify);
+YData *y_three_d_array_val_new_copy (double   *val,
+                                     unsigned  rows, unsigned columns, unsigned layers);
+YData *y_three_d_array_val_new_alloc (unsigned n, unsigned m, unsigned l);
+                                     
+double *y_three_d_array_val_get_array (YThreeDArrayVal *s);
                                      
 G_END_DECLS
 

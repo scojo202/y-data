@@ -20,7 +20,7 @@
  * USA
  */
 
-#include "y-data.h"
+#include "y-data-class.h"
 #include "y-operation.h"
 #include <math.h>
 #include <string.h>
@@ -53,9 +53,9 @@
  * @eq: tests if the data are equal.
  * @serialize: serializes to text.
  * @unserialize: unserializes from text.
- * @emit_changed: signals the data have changed.
  * @get_sizes: gets the sizes.
  * @get_bounds: gets the bounds.
+ * @emit_changed: changed signal default handler
  **/
 
 /**
@@ -144,7 +144,7 @@ y_data_class_init (YDataClass *klass)
 	y_data_signals [CHANGED] = g_signal_new ("changed",
 		G_TYPE_FROM_CLASS (klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET (YDataClass, changed),
+		G_STRUCT_OFFSET (YDataClass, emit_changed),
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
@@ -450,7 +450,7 @@ typedef struct {
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YVector, y_vector, Y_TYPE_DATA);
 
 static void
-_data_vector_emit_changed (YData *data)
+_data_array_emit_changed (YData *data)
 {
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE | Y_DATA_MINMAX_CACHED);
@@ -478,7 +478,7 @@ static void
 y_vector_class_init (YVectorClass *vec_class)
 {
   YDataClass *data_class = (YDataClass *) vec_class;
-	data_class->emit_changed = 	_data_vector_emit_changed;
+	data_class->emit_changed = 	_data_array_emit_changed;
 	data_class->n_dimensions = 	1;
 	data_class->get_sizes =		_data_vector_get_sizes;
 	data_class->get_bounds =	_data_vector_get_bounds;
@@ -728,20 +728,13 @@ y_vector_vary_uniformly (YVector *vec)
  * Abstract base class for data classes representing two dimensional arrays.
  */
 
- typedef struct {
+typedef struct {
 	YMatrixSize size;	/* negative if dirty, includes missing values */
 	double *values;	/* NULL = uninitialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YMatrixPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YMatrix, y_matrix, Y_TYPE_DATA);
-
-static void
-_data_matrix_emit_changed (YData *data)
-{
-	YDataPrivate *priv = y_data_get_instance_private(data);
-	priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE | Y_DATA_MINMAX_CACHED);
-}
 
 static void
 _data_matrix_get_sizes (YData *data, unsigned int *sizes)
@@ -766,7 +759,7 @@ y_matrix_class_init (YMatrixClass *mat_class)
 {
   YDataClass *data_class = Y_DATA_CLASS(mat_class);
 
-	data_class->emit_changed = 	_data_matrix_emit_changed;
+	data_class->emit_changed = 	_data_array_emit_changed;
 	data_class->n_dimensions = 	2;
 	data_class->get_sizes =		_data_matrix_get_sizes;
 	data_class->get_bounds =	_data_matrix_get_bounds;
@@ -978,6 +971,283 @@ y_matrix_get_minmax (YMatrix *mat, double *min, double *max)
 /**********************/
 
 /**
+ * SECTION: y-three-d-array
+ * @short_description: Base class for three-dimensional array data objects.
+ *
+ * Abstract base class for data classes representing three dimensional arrays.
+ */
+
+typedef struct {
+	YThreeDArraySize size;	/* negative if dirty, includes missing values */
+	double *values;	/* NULL = uninitialized/unsupported, nan = missing */
+	double minimum, maximum;
+} YThreeDArrayPrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YThreeDArray, y_three_d_array, Y_TYPE_DATA);
+
+static void
+_data_tda_get_sizes (YData *data, unsigned int *sizes)
+{
+	YThreeDArray *matrix = (YThreeDArray *) data;
+	YThreeDArraySize size;
+
+	size = y_three_d_array_get_size (matrix);
+
+	sizes[0] = size.columns;
+	sizes[1] = size.rows;
+	sizes[2] = size.layers;
+}
+
+static void
+_data_tda_get_bounds (YData *data, double *minimum, double *maximum)
+{
+	y_three_d_array_get_minmax ((YThreeDArray *) data, minimum, maximum);
+}
+
+static void
+y_three_d_array_class_init (YThreeDArrayClass *mat_class)
+{
+  YDataClass *data_class = Y_DATA_CLASS(mat_class);
+
+	data_class->emit_changed = 	_data_array_emit_changed;
+	data_class->n_dimensions = 	3;
+	data_class->get_sizes =		_data_tda_get_sizes;
+	data_class->get_bounds =	_data_tda_get_bounds;
+}
+
+static void
+y_three_d_array_init (YThreeDArray *mat) {}
+
+/**
+ * y_three_d_array_get_size: (skip)
+ * @mat: #YThreeDArray
+ *
+ * Returns: the matrix size
+ **/
+YThreeDArraySize
+y_three_d_array_get_size (YThreeDArray *mat)
+{
+	static YThreeDArraySize null_size = {0, 0, 0};
+	if (!mat)
+		return null_size;
+	YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+
+		g_return_val_if_fail (klass != NULL, null_size);
+
+		mpriv->size = (*klass->load_size) (mat);
+		priv->flags |= Y_DATA_SIZE_CACHED;
+	}
+
+	return mpriv->size;
+}
+
+/**
+ * y_three_d_array_get_rows:
+ * @mat: #YThreeDArray
+ *
+ * Returns: the number of rows in @mat
+ **/
+unsigned int
+y_three_d_array_get_rows (YThreeDArray *mat)
+{
+	if (!mat)
+		return 0;
+  YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+
+		g_return_val_if_fail (klass != NULL, 0);
+
+		mpriv->size = (*klass->load_size) (mat);
+		priv->flags |= Y_DATA_SIZE_CACHED;
+	}
+
+	return mpriv->size.rows;
+}
+
+/**
+ * y_three_d_array_get_columns :
+ * @mat: #YThreeDArray
+ *
+ * Returns: the number of columns in @mat
+ **/
+unsigned int
+y_three_d_array_get_columns (YThreeDArray *mat)
+{
+	if (!mat)
+		return 0;
+	YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+
+		g_return_val_if_fail (klass != NULL, 0);
+
+		mpriv->size = (*klass->load_size) (mat);
+		priv->flags |= Y_DATA_SIZE_CACHED;
+	}
+
+	return mpriv->size.columns;
+}
+
+/**
+ * y_three_d_array_get_layers :
+ * @mat: #YThreeDArray
+ *
+ * Returns: the number of layers in @mat
+ **/
+unsigned int
+y_three_d_array_get_layers (YThreeDArray *mat)
+{
+	if (!mat)
+		return 0;
+	YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+
+		g_return_val_if_fail (klass != NULL, 0);
+
+		mpriv->size = (*klass->load_size) (mat);
+		priv->flags |= Y_DATA_SIZE_CACHED;
+	}
+
+	return mpriv->size.layers;
+}
+
+/**
+ * y_three_d_array_get_values :
+ * @mat: #YThreeDArray
+ *
+ * Get the array of values of @mat.
+ *
+ * Returns: an array.
+ **/
+const double *
+y_three_d_array_get_values (YThreeDArray *mat)
+{
+  YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+
+		g_return_val_if_fail (klass != NULL, NULL);
+
+		mpriv->values = (*klass->load_values) (mat);
+
+    priv->flags |= Y_DATA_CACHE_IS_VALID;
+	}
+
+	return mpriv->values;
+}
+
+/**
+ * y_three_d_array_get_value :
+ * @mat: #YThreeDArray
+ * @i: layer
+ * @j: row
+ * @k: column
+ *
+ * Get a value in @mat.
+ *
+ * Returns: the value
+ **/
+double
+y_three_d_array_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
+{
+  YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	g_return_val_if_fail ((i < mpriv->size.rows) && (j < mpriv->size.columns) && (k < mpriv->size.layers), NAN);
+	YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+		g_return_val_if_fail (klass != NULL, NAN);
+		return (*klass->get_value) (mat, i, j, k);
+	}
+
+	return mpriv->values[i * mpriv->size.rows*mpriv->size.columns + j*mpriv->size.columns + k];
+}
+
+char *
+y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
+{
+	YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+	char *res;
+
+	g_return_val_if_fail (klass != NULL, g_strdup (""));
+	YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
+		(*klass->load_size) (mat);
+		g_return_val_if_fail (priv->flags & Y_DATA_SIZE_CACHED, g_strdup (""));
+	}
+	g_return_val_if_fail ((i < mpriv->size.rows) && (j < mpriv->size.columns) && (k < mpriv->size.layers), g_strdup (""));
+
+	res = (*klass->get_str) (mat, i, j, k);
+	if (res == NULL)
+		return g_strdup ("");
+	return res;
+}
+
+/**
+ * y_three_d_array_get_minmax :
+ * @mat: #YThreeDArray
+ * @min: (out)(nullable): return location for minimum value, or @NULL
+ * @max: (out)(nullable): return location for maximum value, or @NULL
+ *
+ * Get the minimum and maximum values in @mat.
+ **/
+void
+y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max)
+{
+  YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	if(!(priv->flags & Y_DATA_MINMAX_CACHED)) {
+	  const double *v = y_three_d_array_get_values (mat);
+
+	  double minimum = DBL_MAX, maximum = -DBL_MAX;
+
+	  YThreeDArraySize s = y_three_d_array_get_size(mat);
+	  int i = s.rows*s.columns*s.layers;
+
+	  while (i-- > 0) {
+		  if (!isfinite (v[i]))
+			  continue;
+		  if (minimum > v[i])
+			  minimum = v[i];
+		  if (maximum < v[i])
+			  maximum = v[i];
+	  }
+	  mpriv->minimum = minimum;
+	  mpriv->maximum = maximum;
+	  priv->flags |= Y_DATA_MINMAX_CACHED;
+	  {
+			if (isfinite (minimum) && isfinite (maximum) && minimum <= maximum)
+				priv->flags |= Y_DATA_HAS_VALUE;
+		}
+
+	}
+
+	if (min != NULL)
+		*min = mpriv->minimum;
+	if (max != NULL)
+		*max = mpriv->maximum;
+}
+
+/**********************/
+
+/**
  * SECTION: y-struct
  * @short_description: A dictionary containing data objects.
  *
@@ -1008,8 +1278,8 @@ y_struct_class_init (YStructClass *val_klass)
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
-	gobject_klass->finalize = y_struct_finalize;
-  	ydata_klass->n_dimensions = -1;
+  gobject_klass->finalize = y_struct_finalize;
+  ydata_klass->n_dimensions = -1;
 	//ydata_klass->dup	= y_vector_val_dup;
 	//ydata_klass->eq	= y_vector_val_eq;
 }

@@ -21,12 +21,11 @@
 
 #include <memory.h>
 #include <math.h>
-#include "y-data.h"
 #include "y-data-vector-slice.h"
 
 /**
  * SECTION: y-operation-slice
- * @short_description: Operation that slices matrices, outputing vectors or matrices.
+ * @short_description: Operation that slices matrices, outputting vectors or matrices.
  *
  * 
  *
@@ -225,7 +224,7 @@ gpointer vector_slice_op(gpointer input)
       v[j]=0.;
       for(k=start;k<=end;k++) {
         v[j]+=m[j+k*ncol];
-	n++;
+        n++;
       }
       if(d->sop.mean)
         v[j]/=n;
@@ -287,7 +286,7 @@ y_slice_operation_class_init (YSliceOperationClass *slice_klass)
 	g_object_class_install_property (gobject_klass,
 		SLICE_PROP_MEAN,
 		g_param_spec_boolean ("mean", "average over elements",
-			"Whether to average over elements.",
+			"Average over elements if TRUE, sum over them if FALSE.",
 			FALSE, G_PARAM_READWRITE));
 }
 

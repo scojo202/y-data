@@ -1,9 +1,5 @@
 #include <math.h>
-#include <y-data-simple.h>
-#include <y-hdf.h>
-#include <y-data-vector-slice.h>
-#include <y-data-derived.h>
-#include <hdf5.h>
+#include <y-data.h>
 
 YData *d1, *d2, *d3;
 
@@ -112,10 +108,15 @@ main (int argc, char *argv[])
 
   g_usleep(2000000);
 
-  hid_t hfile = H5Fcreate("test.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  y_data_attach_h5(s,hfile,NULL);
-  H5Fclose(hfile);
-  
+  GError *err = NULL;
+  hid_t hfile = y_open_hdf5_file_for_writing("test.h5", &err);
+  if(err==NULL) {
+    y_data_attach_h5(s,hfile,NULL);
+    H5Fclose(hfile);
+  }
+  else {
+    fprintf (stderr, "Error, %s\n", err->message);
+  }
   g_object_unref(s);
 
   return 0;

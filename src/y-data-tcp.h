@@ -22,7 +22,7 @@
 #ifndef Y_DATA_TCP_H
 #define Y_DATA_TCP_H
 
-#include <y-data.h>
+#include <y-data-class.h>
 
 G_BEGIN_DECLS
 
