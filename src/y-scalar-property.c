@@ -60,6 +60,7 @@ void on_notify (GObject    *gobject,
 YScalarProperty	*y_scalar_property_new (GObject *obj, const gchar *name)
 {
   YScalarProperty *p = g_object_new(Y_TYPE_SCALAR_PROPERTY,NULL);
+  /* should verify that there is a property with this name and that it can be interpreted as a scalar value */
   p->obj = g_object_ref(obj);
   p->name = g_strdup(name);
   /* connect to notify signal and emit changed */

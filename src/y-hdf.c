@@ -71,6 +71,10 @@ void y_vector_attach_h5 (YVector *v, hid_t group_id, const gchar *data_name)
   g_return_if_fail(Y_IS_VECTOR(v));
   g_return_if_fail(group_id != 0);
   hsize_t dims[1] = {y_vector_get_len(v)};
+  if(dims[0]==0) {
+    g_warning("skipping HDF5 save due to zero length vector");
+    return;
+  }
 
   hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
   hid_t plist_id = H5Pcreate(H5P_DATASET_CREATE);
