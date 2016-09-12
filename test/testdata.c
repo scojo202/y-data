@@ -109,7 +109,7 @@ main (int argc, char *argv[])
   g_usleep(2000000);
 
   GError *err = NULL;
-  hid_t hfile = y_open_hdf5_file_for_writing("test.h5", &err);
+  hid_t hfile = y_open_hdf5_file_for_writing("test.h5", FALSE, &err);
   if(err==NULL) {
     y_data_attach_h5(s,hfile,NULL);
     H5Fclose(hfile);

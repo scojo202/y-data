@@ -30,14 +30,15 @@
  *
  **/
 
-hid_t y_open_hdf5_file_for_writing(const gchar *filename, GError **err) {
+hid_t y_open_hdf5_file_for_writing(const gchar *filename, gboolean overwrite, GError **err) {
   /* make sure file doesn't already exist */
   GFile *file = g_file_new_for_path(filename);
   gboolean exists = g_file_query_exists(file,NULL);
   g_object_unref(file);
   if(exists) {
     g_set_error(err,G_IO_ERROR,G_IO_ERROR_EXISTS,"file already exists: %s",filename);
-    return 0;
+    if(!overwrite)
+      return 0;
   }
   hid_t hfile = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
   return hfile;

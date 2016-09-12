@@ -29,7 +29,7 @@
 
 G_BEGIN_DECLS
 
-hid_t y_open_hdf5_file_for_writing(const gchar *filename, GError **err);
+hid_t y_open_hdf5_file_for_writing(const gchar *filename, gboolean overwrite, GError **err);
 hid_t y_open_hdf5_file_for_reading(const gchar *filename, GError **err);
 
 void y_data_attach_h5(YData *d, hid_t group_id, const gchar *data_name);
