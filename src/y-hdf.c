@@ -223,5 +223,5 @@ void y_vector_val_replace_h5 (YVectorVal *v, hid_t group_id, const gchar *data_n
   g_assert(current_dims[0]>0);
   double *d = g_new(double,current_dims[0]);
   H5Dread(dataset_h5,H5T_NATIVE_DOUBLE, H5S_ALL, dspace_id, H5P_DEFAULT, d);
-  y_vector_val_replace_array(v,d,current_dims[0]);
+  y_vector_val_replace_array(v,d,current_dims[0],g_free);
 }

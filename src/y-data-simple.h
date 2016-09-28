@@ -40,14 +40,11 @@ G_DECLARE_FINAL_TYPE(YVectorVal,y_vector_val,Y,VECTOR_VAL,YVector)
 #define Y_TYPE_VECTOR_VAL  (y_vector_val_get_type ())
 
 YData	*y_vector_val_new      (double *val, unsigned n, GDestroyNotify   notify);
-YData *y_vector_val_new_alloc (unsigned nmax, unsigned n);
+YData	*y_vector_val_new_alloc (unsigned n);
 YData	*y_vector_val_new_copy (double *val, unsigned n);
 
 double *y_vector_val_get_array (YVectorVal *s);
-void y_vector_val_replace_array(YVectorVal *d, double *array, unsigned n);
-void y_vector_val_set_length(YVectorVal *d, unsigned newlength);
-
-void y_vector_val_append_ring(YVectorVal *d, double val);
+void y_vector_val_replace_array(YVectorVal *s, double *array, unsigned n, GDestroyNotify notify);
 
 G_DECLARE_FINAL_TYPE(YMatrixVal,y_matrix_val,Y,MATRIX_VAL,YMatrix)
 

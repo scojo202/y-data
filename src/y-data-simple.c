@@ -182,7 +182,6 @@ double * y_scalar_val_get_val (YScalarVal *s)
 struct _YVectorVal {
 	YVector	 base;
 	unsigned	 n;
-	unsigned int nmax;
 	double *val;
 	GDestroyNotify notify;
 };
@@ -325,41 +324,6 @@ y_vector_val_unserialize (YData *dat, char const *str, gpointer user)
 	return TRUE;
 }
 
-void y_vector_val_replace_array(YVectorVal *d, double *array, unsigned n)
-{
-  if(d->val && d->notify)
-    (*d->notify)(d->val);
-  d->val = array;
-  d->n = n;
-  y_data_emit_changed(Y_DATA(d));
-}
-
-void y_vector_val_set_length(YVectorVal *d, unsigned newlength)
-{
-  if(newlength<=d->nmax) {
-    d->n = newlength;
-    y_data_emit_changed(Y_DATA(d));
-  }
-}
-
-// ring buffer - add new value, keep length constant once it reaches nmax
-
-void y_vector_val_append_ring(YVectorVal *d, double val)
-{
-  unsigned int l = MIN(d->nmax,y_vector_get_len(Y_VECTOR(d)));
-  double *frames = y_vector_val_get_array(Y_VECTOR_VAL(d));
-  if(l<d->nmax) {
-    frames[l]=val;
-    y_vector_val_set_length(d, l+1);
-  }
-  else if (l==d->nmax) {
-    memmove(frames, &frames[1], (l-1)*sizeof(double));
-    frames[l-1]=val;
-  }
-  else return;
-  y_data_emit_changed(Y_DATA(d));
-}
-
 static void
 y_vector_val_class_init (YVectorValClass *val_klass)
 {
@@ -400,13 +364,18 @@ y_vector_val_new (double *val, unsigned n, GDestroyNotify notify)
 	return Y_DATA (res);
 }
 
+/**
+ * y_vector_val_new_alloc:
+ * @n: length of array
+ *
+ * Returns: a #YData
+ **/
 YData *
-y_vector_val_new_alloc (unsigned nmax, unsigned n)
+y_vector_val_new_alloc (unsigned n)
 {
-	YVectorVal *res = g_object_new (Y_TYPE_VECTOR_VAL, NULL);
-	res->val = g_new(double, nmax);
+        YVectorVal *res = g_object_new (Y_TYPE_VECTOR_VAL, NULL);
+	res->val = g_malloc(sizeof(double)*n);
 	res->n = n;
-	res->nmax = nmax;
 	res->notify = g_free;
 	return Y_DATA (res);
 }
@@ -424,6 +393,27 @@ y_vector_val_new_copy (double *val, unsigned n)
 {
 	double *val2 = g_memdup (val, sizeof(double)*n);
 	return y_vector_val_new(val2,n,g_free);
+}
+
+/**
+ * y_vector_val_replace_array :
+ * @s: #YVectorVal
+ * @array: (array length=n): array of doubles
+ * @n: length of array
+ * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
+ *
+ * Get the array of values of @vec. 
+ *
+ * Returns: an array. Should not be freed.
+ **/
+void y_vector_val_replace_array(YVectorVal *s, double *array, unsigned n, GDestroyNotify notify)
+{
+  if(s->val && s->notify)
+    (*s->notify)(s->val);
+  s->val = array;
+  s->n = n;
+  s->notify = notify;
+  y_data_emit_changed(Y_DATA(s));
 }
 
 /**
