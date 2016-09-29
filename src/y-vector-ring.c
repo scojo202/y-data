@@ -26,6 +26,16 @@
 #include <errno.h>
 #include <stdlib.h>
 
+/**
+ * SECTION: y-vector-ring
+ * @short_description: A vector that grows as scalar values are added, up to a
+ * maximum length, after which it throws away the first elements to make room
+ * for more.
+ *
+ * Data class #YVectorRing
+ *
+ */
+
 struct _YVectorRing {
 	YVector	 base;
 	unsigned	 n;
@@ -180,6 +190,15 @@ y_vector_ring_unserialize (YData *dat, char const *str, gpointer user)
 	return TRUE;
 }
 
+/**
+ * y_vector_ring_set_length :
+ * @d: #YVectorRing
+ * @newlength: new length of array
+ *
+ * Set the current length of the #YVectorRing to a new value. If the new
+ * length is longer than the previous length, tailing elements are set to
+ * zero.
+ **/
 void y_vector_ring_set_length(YVectorRing *d, unsigned newlength)
 {
   if(newlength<=d->nmax) {
@@ -188,8 +207,14 @@ void y_vector_ring_set_length(YVectorRing *d, unsigned newlength)
   }
 }
 
-// ring buffer - add new value, keep length constant once it reaches nmax
-
+/**
+ * y_vector_ring_append :
+ * @d: #YVectorRing
+ * @val: new value
+ *
+ * Append a new value to the vector.
+ *
+ **/
 void y_vector_ring_append(YVectorRing *d, double val)
 {
   unsigned int l = MIN(d->nmax,y_vector_get_len(Y_VECTOR(d)));
@@ -227,11 +252,21 @@ y_vector_ring_class_init (YVectorRingClass *val_klass)
 static void
 y_vector_ring_init(YVectorRing *val) {}
 
+/**
+ * y_vector_ring_new:
+ * @nmax: maximum length of array
+ * @n: initial length of array
+ *
+ * If @n is not zero, elements are initialized to zero.
+ *
+ * Returns: a #YData
+ *
+ **/
 YData *
 y_vector_ring_new (unsigned nmax, unsigned n)
 {
 	YVectorRing *res = g_object_new (Y_TYPE_VECTOR_RING, NULL);
-	res->val = g_new(double, nmax);
+	res->val = g_new0(double, nmax);
 	res->n = n;
 	res->nmax = nmax;
 	return Y_DATA (res);

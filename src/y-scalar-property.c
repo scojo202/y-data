@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include <y-scalar-property.h>
 
+/**
+ * SECTION: y-scalar-property
+ * @short_description: A scalar data object that reflects the value of a GObject property.
+ *
+ * Data classes #YScalarProperty
+ *
+ */
+
 struct _YScalarProperty {
   YScalar      base;
   GObject *obj;
@@ -57,6 +65,15 @@ void on_notify (GObject    *gobject,
   y_data_emit_changed(d);
 }
 
+/**
+ * y_scalar_property_new:
+ * @obj: a GObject
+ * @name: the property name
+ *
+ * Creates a new #YScalarProperty object. The property should be interpretable as a number.
+ *
+ * Returns: (transfer full): The new object.
+ **/
 YScalarProperty	*y_scalar_property_new (GObject *obj, const gchar *name)
 {
   YScalarProperty *p = g_object_new(Y_TYPE_SCALAR_PROPERTY,NULL);
