@@ -34,6 +34,7 @@ G_DECLARE_FINAL_TYPE(YVectorRing,y_vector_ring,Y,VECTOR_RING,YVector)
 YData *y_vector_ring_new (unsigned nmax, unsigned n);
 void y_vector_ring_set_length(YVectorRing *d, unsigned newlength);
 void y_vector_ring_append(YVectorRing *d, double val);
+void y_vector_ring_set_source(YVectorRing *d, YScalar *source);
 
 G_END_DECLS
 

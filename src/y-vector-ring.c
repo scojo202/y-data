@@ -31,6 +31,8 @@ struct _YVectorRing {
 	unsigned	 n;
 	unsigned int nmax;
 	double *val;
+	YScalar *source;
+	gulong handler;
 };
 
 G_DEFINE_TYPE (YVectorRing, y_vector_ring, Y_TYPE_VECTOR);
@@ -41,6 +43,10 @@ y_vector_ring_finalize (GObject *obj)
 	YVectorRing *vec = (YVectorRing *)obj;
 	if (vec->val)
 		g_free(vec->val);
+        if (vec->source) {
+                g_object_unref(vec->source);
+                g_signal_handler_disconnect(vec->source,vec->handler);
+        }
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_vector_ring_parent_class);
 
@@ -230,3 +236,27 @@ y_vector_ring_new (unsigned nmax, unsigned n)
 	res->nmax = nmax;
 	return Y_DATA (res);
 }
+
+static void
+on_source_changed(YData *data, gpointer   user_data) {
+        YVectorRing *d = Y_VECTOR_RING(user_data);
+        YScalar *source = Y_SCALAR(data);
+        y_vector_ring_append(d,y_scalar_get_value(source));
+}
+
+void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
+{
+        if(d->source) {
+                g_object_unref(d->source);
+                g_signal_handler_disconnect(d->source,d->handler);
+        }
+        if(Y_IS_SCALAR(source)) {
+                d->source = g_object_ref(source);
+        }
+        else if(source==NULL) {
+                d->source = NULL;
+                return;
+        }
+        d->handler = g_signal_connect_after(source,"changed",G_CALLBACK(on_source_changed),d);
+}
+
