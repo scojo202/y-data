@@ -190,47 +190,6 @@ y_vector_ring_unserialize (YData *dat, char const *str, gpointer user)
 	return TRUE;
 }
 
-/**
- * y_vector_ring_set_length :
- * @d: #YVectorRing
- * @newlength: new length of array
- *
- * Set the current length of the #YVectorRing to a new value. If the new
- * length is longer than the previous length, tailing elements are set to
- * zero.
- **/
-void y_vector_ring_set_length(YVectorRing *d, unsigned newlength)
-{
-  if(newlength<=d->nmax) {
-    d->n = newlength;
-    y_data_emit_changed(Y_DATA(d));
-  }
-}
-
-/**
- * y_vector_ring_append :
- * @d: #YVectorRing
- * @val: new value
- *
- * Append a new value to the vector.
- *
- **/
-void y_vector_ring_append(YVectorRing *d, double val)
-{
-  unsigned int l = MIN(d->nmax,y_vector_get_len(Y_VECTOR(d)));
-  double *frames = d->val;
-  if(l<d->nmax) {
-    frames[l]=val;
-    y_vector_ring_set_length(d, l+1);
-  }
-  else if (l==d->nmax) {
-    memmove(frames, &frames[1], (l-1)*sizeof(double));
-    frames[l-1]=val;
-  }
-  else return;
-  y_data_emit_changed(Y_DATA(d));
-}
-
 static void
 y_vector_ring_class_init (YVectorRingClass *val_klass)
 {
@@ -272,6 +231,31 @@ y_vector_ring_new (unsigned nmax, unsigned n)
 	return Y_DATA (res);
 }
 
+/**
+ * y_vector_ring_append :
+ * @d: #YVectorRing
+ * @val: new value
+ *
+ * Append a new value to the vector.
+ *
+ **/
+void y_vector_ring_append(YVectorRing *d, double val)
+{
+  g_assert(Y_IS_VECTOR_RING(d));
+  unsigned int l = MIN(d->nmax,y_vector_get_len(Y_VECTOR(d)));
+  double *frames = d->val;
+  if(l<d->nmax) {
+    frames[l]=val;
+    y_vector_ring_set_length(d, l+1);
+  }
+  else if (l==d->nmax) {
+    memmove(frames, &frames[1], (l-1)*sizeof(double));
+    frames[l-1]=val;
+  }
+  else return;
+  y_data_emit_changed(Y_DATA(d));
+}
+
 static void
 on_source_changed(YData *data, gpointer   user_data) {
         YVectorRing *d = Y_VECTOR_RING(user_data);
@@ -281,6 +265,8 @@ on_source_changed(YData *data, gpointer   user_data) {
 
 void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
 {
+        g_assert(Y_IS_VECTOR_RING(d));
+        g_assert(Y_IS_SCALAR(source));
         if(d->source) {
                 g_object_unref(d->source);
                 g_signal_handler_disconnect(d->source,d->handler);
@@ -293,5 +279,23 @@ void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
                 return;
         }
         d->handler = g_signal_connect_after(source,"changed",G_CALLBACK(on_source_changed),d);
+}
+
+/**
+ * y_vector_ring_set_length :
+ * @d: #YVectorRing
+ * @newlength: new length of array
+ *
+ * Set the current length of the #YVectorRing to a new value. If the new
+ * length is longer than the previous length, tailing elements are set to
+ * zero.
+ **/
+void y_vector_ring_set_length(YVectorRing *d, unsigned newlength)
+{
+  g_assert(Y_IS_VECTOR_RING(d));
+  if(newlength<=d->nmax) {
+    d->n = newlength;
+    y_data_emit_changed(Y_DATA(d));
+  }
 }
 
