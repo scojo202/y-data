@@ -148,3 +148,17 @@ y_operation_update_task_data
 YOperation
 </SECTION>
 
+<SECTION>
+<FILE>y-scalar-property</FILE>
+<TITLE>YScalarProperty</TITLE>
+Y_TYPE_SCALAR_PROPERTY
+y_scalar_property_new
+YScalarProperty
+</SECTION>
+
+<SECTION>
+<FILE>y-vector-ring</FILE>
+Y_TYPE_VECTOR_RING
+y_vector_ring_new
+YVectorRing
+</SECTION>

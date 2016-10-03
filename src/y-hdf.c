@@ -182,7 +182,11 @@ void y_data_attach_h5 (YData *d, hid_t group_id, const gchar *data_name)
 YData *y_vector_from_h5 (hid_t group_id, const gchar *data_name)
 {
   g_return_val_if_fail(group_id != 0,NULL);
+  /* TODO use H5Lexists here */
   hid_t dataset_h5 = H5Dopen(group_id,data_name,H5P_DEFAULT);
+  if(dataset_h5<0) {
+    return NULL;
+  }
   hid_t dspace_id = H5Dget_space(dataset_h5);
   int rank;
   hsize_t  *current_dims;
