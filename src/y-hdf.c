@@ -57,6 +57,11 @@ hid_t y_open_hdf5_file_for_reading(const gchar *filename, GError **err) {
   return hfile;
 }
 
+hid_t y_hdf5_create_group(hid_t id, const gchar *name) {
+  g_assert(id!=0);
+  return H5Gcreate(id, name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+}
+
 /**
  * y_vector_attach_h5: (skip)
  * @v: #YVector

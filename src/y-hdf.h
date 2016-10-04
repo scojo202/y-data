@@ -31,6 +31,9 @@ G_BEGIN_DECLS
 
 hid_t y_open_hdf5_file_for_writing(const gchar *filename, gboolean overwrite, GError **err);
 hid_t y_open_hdf5_file_for_reading(const gchar *filename, GError **err);
+hid_t y_hdf5_create_group(hid_t id, const gchar *name);
+#define y_hdf5_close_group(id) H5Gclose(id);
+#define y_hdf5_close_file(id) H5Fclose(id);
 
 void y_data_attach_h5(YData *d, hid_t group_id, const gchar *data_name);
 //YData *y_data_from_h5(hid_t group_id, const gchar *data_name);
