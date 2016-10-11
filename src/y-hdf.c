@@ -209,6 +209,40 @@ YData *y_vector_from_h5 (hid_t group_id, const gchar *data_name)
 }
 
 /**
+ * y_matrix_from_h5: (skip)
+ * @group_id: HDF5 group
+ * @data_name: name
+ *
+ * Read a matrix from an HDF5 group.
+ *
+ * Returns: (transfer full): The matrix.
+ **/
+YData *y_matrix_from_h5 (hid_t group_id, const gchar *data_name)
+{
+  g_return_val_if_fail(group_id != 0,NULL);
+  /* TODO use H5Lexists here */
+  hid_t dataset_h5 = H5Dopen(group_id,data_name,H5P_DEFAULT);
+  if(dataset_h5<0) {
+    return NULL;
+  }
+  hid_t dspace_id = H5Dget_space(dataset_h5);
+  int rank;
+  hsize_t  *current_dims;
+  hsize_t  *max_dims;
+  rank=H5Sget_simple_extent_ndims(dspace_id);
+  current_dims= (hsize_t *)g_malloc(rank*sizeof(hsize_t));
+  max_dims=(hsize_t *)g_malloc(rank*sizeof(hsize_t));
+  H5Sget_simple_extent_dims(dspace_id, current_dims, max_dims);
+  g_assert(rank==2);
+  g_assert(current_dims[0]>0);
+  g_assert(current_dims[1]>0);
+  double *d = g_new(double,current_dims[0]*current_dims[1]);
+  H5Dread(dataset_h5,H5T_NATIVE_DOUBLE, H5S_ALL, dspace_id, H5P_DEFAULT, d);
+  YData *y = y_matrix_val_new(d,current_dims[0],current_dims[1],g_free);
+  return y;
+}
+
+/**
  * y_vector_val_replace_h5: (skip)
  * @vec: YVectorVal
  * @group_id: HDF5 group

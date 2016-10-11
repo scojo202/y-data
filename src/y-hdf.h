@@ -42,6 +42,7 @@ void y_vector_attach_h5 (YVector *v, hid_t group_id, const gchar *data_name);
 void y_matrix_attach_h5 (YMatrix *m, hid_t group_id, const gchar *data_name);
 
 YData *y_vector_from_h5 (hid_t group_id, const gchar *data_name);
+YData *y_matrix_from_h5 (hid_t group_id, const gchar *data_name);
 void y_vector_val_replace_h5 (YVectorVal *v, hid_t group_id, const gchar *data_name);
 
 G_END_DECLS
