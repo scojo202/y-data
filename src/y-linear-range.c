@@ -80,16 +80,6 @@ data_vector_val_dup (YData const *src)
 	return Y_DATA (dst);
 }
 
-static gboolean
-data_vector_val_eq (YData const *a, YData const *b)
-{
-	YLinearRangeVector const *val_a = (YLinearRangeVector const *)a;
-	YLinearRangeVector const *val_b = (YLinearRangeVector const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return val_a->v0 == val_b->v0 && val_a->dv == val_b->dv && val_a->n == val_b->n;
-}
-
 static unsigned int
 data_vector_val_load_len (YVector *vec)
 {
@@ -149,7 +139,6 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
 	vector_parent_klass = g_type_class_peek_parent (gobject_klass);
 	gobject_klass->finalize = data_vector_val_finalize;
 	ydata_klass->dup	= data_vector_val_dup;
-	ydata_klass->eq	= data_vector_val_eq;
 	//ydata_klass->get_bounds =	_linear_range_vector_get_bounds;
 	//ydata_klass->serialize	= data_vector_val_serialize;
 	vector_klass->load_len    = data_vector_val_load_len;

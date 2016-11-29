@@ -76,16 +76,6 @@ y_scalar_val_dup (YData const *src)
 	return Y_DATA (dst);
 }
 
-static gboolean
-y_scalar_val_eq (YData const *a, YData const *b)
-{
-	YScalarVal const *sval_a = (YScalarVal const *)a;
-	YScalarVal const *sval_b = (YScalarVal const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return sval_a->val == sval_b->val;
-}
-
 static char *
 y_scalar_val_serialize (YData const *dat, gpointer user)
 {
@@ -137,7 +127,6 @@ y_scalar_val_class_init (YScalarValClass *scalarval_klass)
 
 	gobject_klass->finalize   = y_scalar_val_finalize;
 	ydata_klass->dup	  = y_scalar_val_dup;
-	ydata_klass->eq	  = y_scalar_val_eq;
 	ydata_klass->serialize	  = y_scalar_val_serialize;
 	ydata_klass->unserialize = y_scalar_val_unserialize;
 	scalar_klass->get_value	  = y_scalar_val_get_value;
@@ -213,16 +202,6 @@ y_vector_val_dup (YData const *src)
 		dst->val = src_val->val;
 	dst->n = src_val->n;
 	return Y_DATA (dst);
-}
-
-static gboolean
-y_vector_val_eq (YData const *a, YData const *b)
-{
-	YVectorVal const *val_a = (YVectorVal const *)a;
-	YVectorVal const *val_b = (YVectorVal const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return val_a->val == val_b->val && val_a->n == val_b->n;
 }
 
 static unsigned int
@@ -333,7 +312,6 @@ y_vector_val_class_init (YVectorValClass *val_klass)
 
 	gobject_klass->finalize = y_vector_val_finalize;
 	ydata_klass->dup	= y_vector_val_dup;
-	ydata_klass->eq	= y_vector_val_eq;
 	ydata_klass->serialize	= y_vector_val_serialize;
 	ydata_klass->unserialize	= y_vector_val_unserialize;
 	vector_klass->load_len    = y_vector_val_load_len;
@@ -466,18 +444,6 @@ y_matrix_val_dup (YData const *src)
 	return Y_DATA (dst);
 }
 
-static gboolean
-y_matrix_val_eq (YData const *a, YData const *b)
-{
-	YMatrixVal const *val_a = (YMatrixVal const *)a;
-	YMatrixVal const *val_b = (YMatrixVal const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return val_a->val == val_b->val &&
-			val_a->size.rows == val_b->size.rows &&
-			val_a->size.columns == val_b->size.columns;
-}
-
 static YMatrixSize
 y_matrix_val_load_size (YMatrix *mat)
 {
@@ -605,7 +571,6 @@ y_matrix_val_class_init (YMatrixValClass *val_klass)
 
 	gobject_klass->finalize = y_matrix_val_finalize;
 	ydata_klass->dup	= y_matrix_val_dup;
-	ydata_klass->eq	= y_matrix_val_eq;
 	ydata_klass->serialize	= y_matrix_val_serialize;
 	ydata_klass->unserialize = y_matrix_val_unserialize;
 	matrix_klass->load_size   = y_matrix_val_load_size;
@@ -733,19 +698,6 @@ y_three_d_array_val_dup (YData const *src)
 		dst->val = src_val->val;
 	dst->size = src_val->size;
 	return Y_DATA (dst);
-}
-
-static gboolean
-y_three_d_array_val_eq (YData const *a, YData const *b)
-{
-	YThreeDArrayVal const *val_a = (YThreeDArrayVal const *)a;
-	YThreeDArrayVal const *val_b = (YThreeDArrayVal const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return val_a->val == val_b->val &&
-			val_a->size.rows == val_b->size.rows &&
-			val_a->size.columns == val_b->size.columns &&
-			val_a->size.layers == val_b->size.layers;
 }
 
 static YThreeDArraySize
@@ -878,7 +830,6 @@ y_three_d_array_val_class_init (YThreeDArrayValClass *val_klass)
 
 	gobject_klass->finalize = y_three_d_array_val_finalize;
 	ydata_klass->dup	= y_three_d_array_val_dup;
-	ydata_klass->eq	= y_three_d_array_val_eq;
 	//ydata_klass->serialize	= y_three_d_array_val_serialize;
 	//ydata_klass->unserialize = y_three_d_array_val_unserialize;
 	matrix_klass->load_size   = y_three_d_array_val_load_size;

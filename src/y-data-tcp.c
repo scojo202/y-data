@@ -152,16 +152,6 @@ y_scalar_tcp_receiver_dup (YData const *src)
 	return Y_DATA (dst);
 }
 
-static gboolean
-y_scalar_tcp_receiver_eq (YData const *a, YData const *b)
-{
-	YScalarTcpReceiver const *sval_a = (YScalarTcpReceiver const *)a;
-	YScalarTcpReceiver const *sval_b = (YScalarTcpReceiver const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return sval_a->val == sval_b->val;
-}
-
 static double
 y_scalar_tcp_receiver_get_value (YScalar *dat)
 {
@@ -184,7 +174,6 @@ y_scalar_tcp_receiver_class_init (YScalarTcpReceiverClass *klass)
   YDataClass *ydata_klass = (YDataClass *) klass;
 	YScalarClass *scalar_klass = (YScalarClass *) klass;
   ydata_klass->dup	  = y_scalar_tcp_receiver_dup;
-	ydata_klass->eq	  = y_scalar_tcp_receiver_eq;
 	scalar_klass->get_value	  = y_scalar_tcp_receiver_get_value;
 	scalar_klass->get_str	  = y_scalar_tcp_receiver_get_str;
 }

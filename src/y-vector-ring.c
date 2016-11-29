@@ -74,16 +74,6 @@ y_vector_ring_dup (YData const *src)
 	return Y_DATA (dst);
 }
 
-static gboolean
-y_vector_ring_eq (YData const *a, YData const *b)
-{
-	YVectorRing const *val_a = (YVectorRing const *)a;
-	YVectorRing const *val_b = (YVectorRing const *)b;
-
-	/* YData::eq is used for identity, not arithmetic */
-	return val_a->val == val_b->val && val_a->n == val_b->n;
-}
-
 static unsigned int
 y_vector_ring_load_len (YVector *vec)
 {
@@ -199,7 +189,6 @@ y_vector_ring_class_init (YVectorRingClass *val_klass)
 
 	gobject_klass->finalize = y_vector_ring_finalize;
 	ydata_klass->dup	= y_vector_ring_dup;
-	ydata_klass->eq	= y_vector_ring_eq;
 	ydata_klass->serialize	= y_vector_ring_serialize;
 	ydata_klass->unserialize	= y_vector_ring_unserialize;
 	vector_klass->load_len    = y_vector_ring_load_len;

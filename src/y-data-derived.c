@@ -77,16 +77,6 @@ vector_derived_dup (YData const *src)
 }
 #endif
 
-static gboolean
-vector_derived_eq (YData const *a, YData const *b)
-{
-	YVectorDerived const *val_a = (YVectorDerived const *)a;
-	YVectorDerived const *val_b = (YVectorDerived const *)b;
-
-	/* GOData::eq is used for identity, not arithmetic */
-        return val_a->op == val_b->op && y_data_eq(Y_DATA(val_a->input),Y_DATA(val_b->input));
-}
-
 static unsigned int
 vector_derived_load_len (YVector *vec)
 {
@@ -174,7 +164,6 @@ y_vector_derived_class_init (YVectorDerivedClass *slice_klass)
 
 	gobject_klass->finalize = vector_derived_finalize;
 	//ydata_klass->dup	= data_vector_slice_dup;
-	ydata_klass->eq	= vector_derived_eq;
 	//ydata_klass->serialize	= data_vector_slice_serialize;
 	vector_klass->load_len    = vector_derived_load_len;
 	vector_klass->load_values = vector_derived_load_values;

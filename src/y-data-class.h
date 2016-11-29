@@ -48,7 +48,6 @@ struct _YDataClass {
   char		n_dimensions;
 
 	YData *	        (*dup)	    		(YData const *src);
-	gboolean 	(*eq)	    		(YData const *a, YData const *b);
 
 	char *		(*serialize)	    	(YData const *dat, gpointer user);
 	gboolean   	(*unserialize)	    	(YData *dat, char const *str, gpointer user);
@@ -111,7 +110,6 @@ struct _YThreeDArrayClass {
 
 YData *	y_data_dup			(YData const *src);
 YData * y_data_dup_to_simple (YData const *src);
-gboolean  	y_data_eq			(YData const *a, YData const *b);
 
 char *		y_data_serialize		(YData const *dat, gpointer user);
 gboolean  	y_data_unserialize		(YData *dat, char const *str, gpointer user);

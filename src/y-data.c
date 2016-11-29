@@ -50,7 +50,6 @@
  * @base: base class.
  * @n_dimensions: number of dimensions of the array (-1 if struct)
  * @dup: duplicates the #YData.
- * @eq: tests if the data are equal.
  * @serialize: serializes to text.
  * @unserialize: unserializes from text.
  * @get_sizes: gets the sizes.
@@ -168,34 +167,6 @@ y_data_dup (YData const *src)
 		return (*klass->dup) (src);
 	}
 	return NULL;
-}
-
-/**
- * y_data_eq :
- * @a: #YData
- * @b: #YData
- *
- * Determine whether two #YData objects are the same.
- *
- * Returns: %TRUE if @a and @b are the same
- **/
-gboolean
-y_data_eq (YData const *a, YData const *b)
-{
-	if (a == b)
-		return TRUE;
-	else {
-		YDataClass *a_klass = Y_DATA_GET_CLASS (a);
-		YDataClass *b_klass = Y_DATA_GET_CLASS (b);
-
-		g_return_val_if_fail (a_klass != NULL, FALSE);
-		g_return_val_if_fail (a_klass->eq != NULL, FALSE);
-
-		if (a_klass != b_klass)
-			return FALSE;
-
-		return (*a_klass->eq) (a, b);
-	}
 }
 
 /**
@@ -1281,7 +1252,6 @@ y_struct_class_init (YStructClass *val_klass)
   gobject_klass->finalize = y_struct_finalize;
   ydata_klass->n_dimensions = -1;
 	//ydata_klass->dup	= y_vector_val_dup;
-	//ydata_klass->eq	= y_vector_val_eq;
 }
 
 static void
