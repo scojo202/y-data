@@ -98,6 +98,29 @@ void y_vector_attach_h5 (YVector *v, hid_t group_id, const gchar *data_name)
 }
 
 /**
+ * y_vector_attach_attr_h5: (skip)
+ * @v: #YVector
+ * @obj_id: HDF5 dataset or group
+ * @data_name: name
+ *
+ * Add a vector to an HDF5 group as an attribute.
+ **/
+ 
+void y_vector_attach_attr_h5 (YVector *v, hid_t group_id, const gchar *obj_name, const gchar *attr_name)
+{
+  g_return_if_fail(Y_IS_VECTOR(v));
+  g_return_if_fail(group_id != 0);
+  int l = y_vector_get_len(v);
+  const double *d = y_vector_get_values(v);
+  if(l==0) {
+    g_warning("skipping HDF5 save to attribute due to zero length vector");
+    return;
+  }
+
+  H5LTset_attribute_double(group_id, obj_name, attr_name, d, l);
+}
+
+/**
  * y_matrix_attach_h5: (skip)
  * @m: #YMatrix
  * @group_id: HDF5 group
