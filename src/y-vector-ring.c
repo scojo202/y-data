@@ -302,7 +302,7 @@ void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
                 g_signal_handler_disconnect(d->source,d->handler);
         }
         if(Y_IS_SCALAR(source)) {
-                d->source = g_object_ref(source);
+                d->source = g_object_ref_sink(source);
         }
         else if(source==NULL) {
                 d->source = NULL;
