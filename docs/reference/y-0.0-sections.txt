@@ -5,7 +5,6 @@ Y_TYPE_DATA
 YDataClass
 y_data_dup
 y_data_dup_to_simple
-y_data_eq
 y_data_serialize
 y_data_unserialize
 y_data_emit_changed

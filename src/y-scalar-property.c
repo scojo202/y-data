@@ -47,7 +47,6 @@ y_scalar_property_class_init (YScalarPropertyClass *klass)
   //YDataClass *ydata_klass = (YDataClass *) klass;
   YScalarClass *scalar_klass = (YScalarClass *) klass;
   //ydata_klass->dup  = y_scalar_property_dup;
-  //ydata_klass->eq  = y_scalar_property_eq;
   scalar_klass->get_value  = y_scalar_property_get_value;
   //scalar_klass->get_str	  = y_scalar_property_get_str;
 }
