@@ -210,7 +210,10 @@ void y_data_attach_h5 (YData *d, hid_t group_id, const gchar *data_name)
 YData *y_vector_from_h5 (hid_t group_id, const gchar *data_name)
 {
   g_return_val_if_fail(group_id != 0,NULL);
-  /* TODO use H5Lexists here */
+  htri_t exists = H5Lexists(group_id, data_name,H5P_DEFAULT);
+  if(exists==0) {
+    return NULL;
+  }
   hid_t dataset_h5 = H5Dopen(group_id,data_name,H5P_DEFAULT);
   if(dataset_h5<0) {
     return NULL;
@@ -243,7 +246,10 @@ YData *y_vector_from_h5 (hid_t group_id, const gchar *data_name)
 YData *y_matrix_from_h5 (hid_t group_id, const gchar *data_name)
 {
   g_return_val_if_fail(group_id != 0,NULL);
-  /* TODO use H5Lexists here */
+  htri_t exists = H5Lexists(group_id, data_name, H5P_DEFAULT);
+  if(exists==0) {
+    return NULL;
+  }
   hid_t dataset_h5 = H5Dopen(group_id,data_name,H5P_DEFAULT);
   if(dataset_h5<0) {
     return NULL;
@@ -276,6 +282,11 @@ YData *y_matrix_from_h5 (hid_t group_id, const gchar *data_name)
 void y_vector_val_replace_h5 (YVectorVal *v, hid_t group_id, const gchar *data_name)
 {
   g_return_if_fail(group_id != 0);
+  htri_t exists = H5Lexists(group_id, data_name, H5P_DEFAULT);
+  if(exists==0) {
+    g_warning("H5 dataset doesn't exist");
+    return;
+  }
   hid_t dataset_h5 = H5Dopen(group_id,data_name,H5P_DEFAULT);
   hid_t dspace_id = H5Dget_space(dataset_h5);
   int rank;
