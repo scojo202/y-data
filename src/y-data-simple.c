@@ -49,7 +49,6 @@ render_val (double val)
 struct _YScalarVal {
 	YScalar      base;
 	double		 val;
-	char		*str;
 };
 
 G_DEFINE_TYPE (YScalarVal, y_scalar_val, Y_TYPE_SCALAR);
@@ -57,11 +56,6 @@ G_DEFINE_TYPE (YScalarVal, y_scalar_val, Y_TYPE_SCALAR);
 static void
 y_scalar_val_finalize (GObject *obj)
 {
-	YScalarVal *val = (YScalarVal *)obj;
-
-	g_free (val->str);
-	val->str = NULL;
-
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_scalar_val_parent_class);
 
 	(*obj_class->finalize) (obj);
@@ -95,8 +89,6 @@ y_scalar_val_unserialize (YData *dat, char const *str, gpointer user)
 	if (end == str || *end != '\0' || errno == ERANGE)
 		return FALSE;
 
-	g_free (sval->str);
-	sval->str = NULL;
 	sval->val = tmp;
 	return TRUE;
 }
@@ -113,9 +105,7 @@ y_scalar_val_get_str (YScalar *dat)
 {
 	YScalarVal *sval = (YScalarVal *)dat;
 
-	if (sval->str == NULL)
-		sval->str = render_val (sval->val);
-	return sval->str;
+	return render_val (sval->val);
 }
 
 static void
@@ -239,7 +229,7 @@ y_vector_val_get_str (YVector *vec, unsigned i)
 static char *
 y_vector_val_serialize (YData const *dat, gpointer user)
 {
-	YVectorVal *vec = Y_VECTOR_VAL (dat);
+	YVectorVal const *vec = (YVectorVal const *) dat;
 	GString *str;
 	char sep;
 	unsigned i;
@@ -433,7 +423,6 @@ y_matrix_val_dup (YData const *src)
 {
 	YMatrixVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YMatrixVal const *src_val = (YMatrixVal const *)src;
-	g_message("matrix_val_dup");
 	if (src_val->notify) {
 		dst->val = g_new (double, src_val->size.rows * src_val->size.columns);
 		memcpy (dst->val, src_val->val, src_val->size.rows * src_val->size.columns * sizeof (double));
@@ -476,7 +465,7 @@ y_matrix_val_get_str (YMatrix *mat, unsigned i, unsigned j)
 static char *
 y_matrix_val_serialize (YData const *dat, gpointer user)
 {
-	YMatrixVal *mat = Y_MATRIX_VAL (dat);
+	YMatrixVal const *mat = (YMatrixVal const *) dat;
 	GString *str;
 	size_t c, r;
 	char col_sep = '\t';

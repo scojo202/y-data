@@ -210,7 +210,7 @@ y_data_unserialize (YData *dat, char const *str, gpointer user)
  * y_data_emit_changed :
  * @dat: #YData
  *
- * Protected utility to emit a 'changed' signal
+ * Utility to emit a 'changed' signal
  **/
 void
 y_data_emit_changed (YData *dat)
