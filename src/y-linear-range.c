@@ -70,7 +70,7 @@ data_vector_val_finalize (GObject *obj)
 }
 
 static YData *
-data_vector_val_dup (YData const *src)
+data_vector_val_dup (YData *src)
 {
 	YLinearRangeVector *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YLinearRangeVector const *src_val = (YLinearRangeVector const *)src;

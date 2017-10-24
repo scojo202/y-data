@@ -62,7 +62,7 @@ y_scalar_val_finalize (GObject *obj)
 }
 
 static YData *
-y_scalar_val_dup (YData const *src)
+y_scalar_val_dup (YData *src)
 {
 	YScalarVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YScalarVal const *src_val = (YScalarVal const *)src;
@@ -71,7 +71,7 @@ y_scalar_val_dup (YData const *src)
 }
 
 static char *
-y_scalar_val_serialize (YData const *dat, gpointer user)
+y_scalar_val_serialize (YData *dat, gpointer user)
 {
 	YScalarVal *sval = (YScalarVal *)dat;
 	return render_val (sval->val);
@@ -180,7 +180,7 @@ y_vector_val_finalize (GObject *obj)
 }
 
 static YData *
-y_vector_val_dup (YData const *src)
+y_vector_val_dup (YData *src)
 {
 	YVectorVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YVectorVal const *src_val = (YVectorVal const *)src;
@@ -227,7 +227,7 @@ y_vector_val_get_str (YVector *vec, unsigned i)
 }
 
 static char *
-y_vector_val_serialize (YData const *dat, gpointer user)
+y_vector_val_serialize (YData *dat, gpointer user)
 {
 	YVectorVal const *vec = (YVectorVal const *) dat;
 	GString *str;
@@ -419,7 +419,7 @@ y_matrix_val_finalize (GObject *obj)
 }
 
 static YData *
-y_matrix_val_dup (YData const *src)
+y_matrix_val_dup (YData *src)
 {
 	YMatrixVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YMatrixVal const *src_val = (YMatrixVal const *)src;
@@ -463,7 +463,7 @@ y_matrix_val_get_str (YMatrix *mat, unsigned i, unsigned j)
 }
 
 static char *
-y_matrix_val_serialize (YData const *dat, gpointer user)
+y_matrix_val_serialize (YData *dat, gpointer user)
 {
 	YMatrixVal const *mat = (YMatrixVal const *) dat;
 	GString *str;
@@ -648,7 +648,7 @@ double *y_matrix_val_get_array (YMatrixVal *s)
  *
  * Returns: (transfer full): A deep copy of @src.
  **/
-YData *y_data_dup_to_simple(YData const *src)
+YData *y_data_dup_to_simple(YData *src)
 {
   return NULL;
 }
@@ -675,7 +675,7 @@ y_three_d_array_val_finalize (GObject *obj)
 }
 
 static YData *
-y_three_d_array_val_dup (YData const *src)
+y_three_d_array_val_dup (YData *src)
 {
 	YThreeDArrayVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YThreeDArrayVal const *src_val = (YThreeDArrayVal const *)src;

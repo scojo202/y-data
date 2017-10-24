@@ -64,7 +64,7 @@ y_vector_ring_finalize (GObject *obj)
 }
 
 static YData *
-y_vector_ring_dup (YData const *src)
+y_vector_ring_dup (YData *src)
 {
 	YVectorRing *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YVectorRing const *src_val = (YVectorRing const *)src;
@@ -115,7 +115,7 @@ y_vector_ring_get_str (YVector *vec, unsigned i)
 }
 
 static char *
-y_vector_ring_serialize (YData const *dat, gpointer user)
+y_vector_ring_serialize (YData *dat, gpointer user)
 {
 	YVectorRing *vec = Y_VECTOR_RING (dat);
 	GString *str;

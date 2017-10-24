@@ -47,9 +47,9 @@ struct _YDataClass {
 
   char		n_dimensions;
 
-	YData *	        (*dup)	    		(YData const *src);
+	YData *	        (*dup)	    		(YData *src);
 
-	char *		(*serialize)	    	(YData const *dat, gpointer user);
+	char *		(*serialize)	    	(YData *dat, gpointer user);
 	gboolean   	(*unserialize)	    	(YData *dat, char const *str, gpointer user);
 
 	void		(*get_sizes)		(YData *data, unsigned int *sizes);
@@ -108,15 +108,15 @@ struct _YThreeDArrayClass {
 	char	*(*get_str)	(YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
 };
 
-YData *	y_data_dup			(YData const *src);
-YData * y_data_dup_to_simple (YData const *src);
+YData *	y_data_dup			(YData *src);
+YData * y_data_dup_to_simple (YData *src);
 
-char *		y_data_serialize		(YData const *dat, gpointer user);
+char *		y_data_serialize		(YData *dat, gpointer user);
 gboolean  	y_data_unserialize		(YData *dat, char const *str, gpointer user);
 void	  	y_data_emit_changed  		(YData *dat);
 
 void		y_data_get_bounds		(YData *data, double *minimum, double *maximum);
-gboolean	y_data_has_value	    (YData const *data);
+gboolean	y_data_has_value	    (YData *data);
 
 char 	y_data_get_n_dimensions 	(YData *data);
 unsigned int	y_data_get_n_values		(YData *data);

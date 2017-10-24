@@ -109,7 +109,7 @@ static gulong y_data_signals [LAST_SIGNAL] = { 0, };
 
 /* trivial fall back */
 static YData *
-y_data_dup_real (YData const *src)
+y_data_dup_real (YData *src)
 {
 	gpointer user = NULL;  /* FIXME? */
 	char   *str = y_data_serialize (src, user);
@@ -159,10 +159,10 @@ y_data_class_init (YDataClass *klass)
  * Returns: (transfer full): A deep copy of @src.
  **/
 YData *
-y_data_dup (YData const *src)
+y_data_dup (YData *src)
 {
 	if (src != NULL) {
-		YDataClass const *klass = Y_DATA_GET_CLASS (src);
+		YDataClass *klass = Y_DATA_GET_CLASS (src);
 		g_return_val_if_fail (klass != NULL, NULL);
 		return (*klass->dup) (src);
 	}
@@ -181,9 +181,9 @@ y_data_dup (YData const *src)
  * 	responsible for freeing
  **/
 char *
-y_data_serialize (YData const *dat, gpointer user)
+y_data_serialize (YData *dat, gpointer user)
 {
-	YDataClass const *klass = Y_DATA_GET_CLASS (dat);
+	YDataClass *klass = Y_DATA_GET_CLASS (dat);
 	g_return_val_if_fail (klass != NULL, NULL);
 	return (*klass->serialize) (dat, user);
 }
@@ -201,7 +201,7 @@ y_data_serialize (YData const *dat, gpointer user)
 gboolean
 y_data_unserialize (YData *dat, char const *str, gpointer user)
 {
-	YDataClass const *klass = Y_DATA_GET_CLASS (dat);
+	YDataClass *klass = Y_DATA_GET_CLASS (dat);
 	g_return_val_if_fail (klass != NULL, FALSE);
 	return (*klass->unserialize) (dat, str, user);
 }
@@ -215,12 +215,9 @@ y_data_unserialize (YData *dat, char const *str, gpointer user)
 void
 y_data_emit_changed (YData *dat)
 {
-	YDataClass const *klass = Y_DATA_GET_CLASS (dat);
+	YDataClass *klass = Y_DATA_GET_CLASS (dat);
 
 	g_return_if_fail (klass != NULL);
-
-	if (klass->emit_changed)
-		(*klass->emit_changed) (dat);
 
 	g_signal_emit (G_OBJECT (dat), y_data_signals [CHANGED], 0);
 }
@@ -234,7 +231,7 @@ y_data_emit_changed (YData *dat)
  * Returns: %TRUE if @data has at least one finite value.
  **/
 gboolean
-y_data_has_value (YData const *data)
+y_data_has_value (YData *data)
 {
 	g_return_val_if_fail (Y_IS_DATA (data), FALSE);
 	YDataPrivate *priv = y_data_get_instance_private(data);
@@ -254,7 +251,7 @@ y_data_has_value (YData const *data)
 char
 y_data_get_n_dimensions (YData *data)
 {
-	YDataClass const *data_class;
+	YDataClass *data_class;
 
 	g_return_val_if_fail (Y_IS_DATA (data), 0);
 
