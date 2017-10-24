@@ -1,7 +1,7 @@
 /*
- * y-data-vector-slice.c :
+ * y-fft-operation.c :
  *
- * Copyright (C) 2016 Scott O. Johnson (scojo202@gmail.com)
+ * Copyright (C) 2017 Scott O. Johnson (scojo202@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
