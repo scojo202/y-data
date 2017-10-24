@@ -98,6 +98,7 @@ ydata_reqs="
 	glib-2.0		>= 2.44.0
 	gobject-2.0		>= 2.44.0
 	gio-2.0			>= 2.44.0
+	fftw3           >= 3.0
 "
 
 EXTRA_DEPS=
