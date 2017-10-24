@@ -142,7 +142,7 @@ y_data_class_init (YDataClass *klass)
 
 	y_data_signals [CHANGED] = g_signal_new ("changed",
 		G_TYPE_FROM_CLASS (klass),
-		G_SIGNAL_RUN_LAST,
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE,
 		G_STRUCT_OFFSET (YDataClass, emit_changed),
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
@@ -521,13 +521,15 @@ y_vector_get_values (YVector *vec)
 double
 y_vector_get_value (YVector *vec, unsigned i)
 {
+  g_assert(Y_IS_VECTOR(vec));
 	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
+  g_assert(priv);
 	unsigned int len = y_vector_get_len(vec);
 	g_return_val_if_fail (i < len, NAN);
 	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
 		YVectorClass const *klass = Y_VECTOR_GET_CLASS (vec);
-		g_return_val_if_fail (klass != NULL, NAN);
+    g_return_val_if_fail (klass != NULL, NAN);
 		return (*klass->get_value) (vec, i);
 	}
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);

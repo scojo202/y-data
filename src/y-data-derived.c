@@ -132,16 +132,15 @@ vector_derived_load_values (YVector *vec)
 
   return v;
 }
-#if 0
+
 static double
 vector_derived_get_value (YVector *vec, unsigned i)
 {
-	YVectorSlice const *val = (YVectorSlice const *)vec;
-	g_return_val_if_fail (val != NULL && val->matrix != NULL, NAN);
-	//return val->val[i];
-        return 0;
+  double *d = y_vector_get_values(vec); /* fills the cache */
+	return d[i];
 }
 
+#if 0
 /*static char *
 data_vector_slice_get_str (GODataVector *vec, unsigned i)
 {
@@ -167,7 +166,7 @@ y_vector_derived_class_init (YVectorDerivedClass *slice_klass)
 	//ydata_klass->serialize	= data_vector_slice_serialize;
 	vector_klass->load_len    = vector_derived_load_len;
 	vector_klass->load_values = vector_derived_load_values;
-	//vector_klass->get_value   = data_vector_slice_get_value;
+	vector_klass->get_value   = vector_derived_get_value;
 	//vector_klass->get_str     = data_vector_slice_get_str;
 }
 

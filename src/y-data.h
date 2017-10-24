@@ -32,5 +32,6 @@
 #include <y-linear-range.h>
 #include <y-scalar-property.h>
 #include <y-vector-ring.h>
+#include <y-fft-operation.h>
 
 #endif

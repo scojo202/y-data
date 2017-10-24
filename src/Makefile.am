@@ -15,7 +15,7 @@ INTROSPECTION_COMPILER_ARGS = \
 #####################################
 # graph directory files
 
-INCLUDES = -std=c99
+INCLUDES = -std=c99 -g -O0
 
 ydata_SOURCES =				\
 	y-data.c \
