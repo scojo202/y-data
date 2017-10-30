@@ -135,14 +135,6 @@ struct _YScalarTcpReceiver {
 
 G_DEFINE_TYPE (YScalarTcpReceiver, y_scalar_tcp_receiver, Y_TYPE_SCALAR);
 
-static char *
-render_val2 (double val)
-{
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
-}
-
 static YData *
 y_scalar_tcp_receiver_dup (YData const *src)
 {
@@ -159,14 +151,6 @@ y_scalar_tcp_receiver_get_value (YScalar *dat)
 	return sval->val;
 }
 
-static char const *
-y_scalar_tcp_receiver_get_str (YScalar *dat)
-{
-  YScalarTcpReceiver *sval = (YScalarTcpReceiver *)dat;
-
-  return render_val2 (sval->val);
-}
-
 static void
 y_scalar_tcp_receiver_class_init (YScalarTcpReceiverClass *klass)
 {
@@ -175,7 +159,6 @@ y_scalar_tcp_receiver_class_init (YScalarTcpReceiverClass *klass)
 	YScalarClass *scalar_klass = (YScalarClass *) klass;
   ydata_klass->dup	  = y_scalar_tcp_receiver_dup;
 	scalar_klass->get_value	  = y_scalar_tcp_receiver_get_value;
-	scalar_klass->get_str	  = y_scalar_tcp_receiver_get_str;
 }
 
 static void

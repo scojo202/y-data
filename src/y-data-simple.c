@@ -100,14 +100,6 @@ y_scalar_val_get_value (YScalar *dat)
 	return sval->val;
 }
 
-static char const *
-y_scalar_val_get_str (YScalar *dat)
-{
-	YScalarVal *sval = (YScalarVal *)dat;
-
-	return render_val (sval->val);
-}
-
 static void
 y_scalar_val_class_init (YScalarValClass *scalarval_klass)
 {
@@ -120,7 +112,6 @@ y_scalar_val_class_init (YScalarValClass *scalarval_klass)
 	ydata_klass->serialize	  = y_scalar_val_serialize;
 	ydata_klass->unserialize = y_scalar_val_unserialize;
 	scalar_klass->get_value	  = y_scalar_val_get_value;
-	scalar_klass->get_str	  = y_scalar_val_get_str;
 }
 
 static void
@@ -217,16 +208,6 @@ y_vector_val_get_value (YVector *vec, unsigned i)
 }
 
 static char *
-y_vector_val_get_str (YVector *vec, unsigned i)
-{
-	YVectorVal const *val = (YVectorVal const *)vec;
-
-	g_return_val_if_fail (val != NULL && val->val != NULL && i < val->n, NULL);
-
-	return render_val (val->val[i]);
-}
-
-static char *
 y_vector_val_serialize (YData *dat, gpointer user)
 {
 	YVectorVal const *vec = (YVectorVal const *) dat;
@@ -307,7 +288,6 @@ y_vector_val_class_init (YVectorValClass *val_klass)
 	vector_klass->load_len    = y_vector_val_load_len;
 	vector_klass->load_values = y_vector_val_load_values;
 	vector_klass->get_value   = y_vector_val_get_value;
-	vector_klass->get_str     = y_vector_val_get_str;
 }
 
 static void
@@ -455,14 +435,6 @@ y_matrix_val_get_value (YMatrix *mat, unsigned i, unsigned j)
 }
 
 static char *
-y_matrix_val_get_str (YMatrix *mat, unsigned i, unsigned j)
-{
-	YMatrixVal const *val = (YMatrixVal const *)mat;
-
-	return render_val (val->val[i * val->size.columns + j]);
-}
-
-static char *
 y_matrix_val_serialize (YData *dat, gpointer user)
 {
 	YMatrixVal const *mat = (YMatrixVal const *) dat;
@@ -565,7 +537,6 @@ y_matrix_val_class_init (YMatrixValClass *val_klass)
 	matrix_klass->load_size   = y_matrix_val_load_size;
 	matrix_klass->load_values = y_matrix_val_load_values;
 	matrix_klass->get_value   = y_matrix_val_get_value;
-	matrix_klass->get_str     = y_matrix_val_get_str;
 }
 
 static void
@@ -824,7 +795,6 @@ y_three_d_array_val_class_init (YThreeDArrayValClass *val_klass)
 	matrix_klass->load_size   = y_three_d_array_val_load_size;
 	matrix_klass->load_values = y_three_d_array_val_load_values;
 	matrix_klass->get_value   = y_three_d_array_val_get_value;
-	//matrix_klass->get_str     = y_three_d_array_val_get_str;
 }
 
 static void

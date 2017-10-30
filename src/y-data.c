@@ -61,7 +61,6 @@
  * YScalarClass:
  * @base:  base class.
  * @get_value: gets the value.
- * @get_str: gets the string.
  **/
 
 /**
@@ -70,7 +69,6 @@
  * @load_len: loads the vector length and returns it.
  * @load_values: loads the values and returns them.
  * @get_value: gets a value.
- * @get_str: gets a string.
  **/
 
 /**
@@ -79,7 +77,6 @@
  * @load_size: loads the matrix length.
  * @load_values: loads the values in the cache.
  * @get_value: gets a value.
- * @get_str: gets a string.
  **/
 
 /**
@@ -384,20 +381,13 @@ y_scalar_get_value (YScalar *scalar)
 	return priv->value;
 }
 
-/**
- * y_scalar_get_str :
- * @scalar: #YScalar
- *
- * Get a string version of the value of @scalar.
- *
- * Returns: the string
- **/
-char const *
+char *
 y_scalar_get_str (YScalar *scalar)
 {
-	YScalarClass const *klass = Y_SCALAR_GET_CLASS (scalar);
-	g_return_val_if_fail (klass != NULL, "");
-	return (*klass->get_str) (scalar);
+		char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	    double val = y_scalar_get_value (scalar);
+		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+		return g_strdup (buf);
 }
 
 /*************************************************************************/
@@ -539,17 +529,10 @@ y_vector_get_value (YVector *vec, unsigned i)
 char *
 y_vector_get_str (YVector *vec, unsigned i)
 {
-	YVectorClass const *klass = Y_VECTOR_GET_CLASS (vec);
-	char *res;
-
-	g_return_val_if_fail (klass != NULL, g_strdup (""));
-	unsigned int len = y_vector_get_len(vec);
-	g_return_val_if_fail (i < len, g_strdup (""));
-
-	res = (*klass->get_str) (vec, i);
-	if (res == NULL)
-		return g_strdup ("");
-	return res;
+		char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	    double val = y_vector_get_value(vec, i);
+		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+		return g_strdup (buf);
 }
 
 static int
@@ -873,23 +856,10 @@ y_matrix_get_value (YMatrix *mat, unsigned i, unsigned j)
 char *
 y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j)
 {
-	YMatrixClass const *klass = Y_MATRIX_GET_CLASS (mat);
-	char *res;
-
-	g_return_val_if_fail (klass != NULL, g_strdup (""));
-	YData *data = Y_DATA(mat);
-	YDataPrivate *priv = y_data_get_instance_private(data);
-	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		(*klass->load_size) (mat);
-		g_return_val_if_fail (priv->flags & Y_DATA_SIZE_CACHED, g_strdup (""));
-	}
-	g_return_val_if_fail ((i < mpriv->size.rows) && (j < mpriv->size.columns), g_strdup (""));
-
-	res = (*klass->get_str) (mat, i, j);
-	if (res == NULL)
-		return g_strdup ("");
-	return res;
+		char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	    double val = y_matrix_get_value(mat, i, j);
+		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+		return g_strdup (buf);
 }
 
 /**
@@ -1145,28 +1115,6 @@ y_three_d_array_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsigned k
 	}
 
 	return mpriv->values[i * mpriv->size.rows*mpriv->size.columns + j*mpriv->size.columns + k];
-}
-
-char *
-y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
-{
-	YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
-	char *res;
-
-	g_return_val_if_fail (klass != NULL, g_strdup (""));
-	YData *data = Y_DATA(mat);
-	YDataPrivate *priv = y_data_get_instance_private(data);
-	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		(*klass->load_size) (mat);
-		g_return_val_if_fail (priv->flags & Y_DATA_SIZE_CACHED, g_strdup (""));
-	}
-	g_return_val_if_fail ((i < mpriv->size.rows) && (j < mpriv->size.columns) && (k < mpriv->size.layers), g_strdup (""));
-
-	res = (*klass->get_str) (mat, i, j, k);
-	if (res == NULL)
-		return g_strdup ("");
-	return res;
 }
 
 /**

@@ -66,7 +66,6 @@ G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)
 struct _YScalarClass {
 	YDataClass base;
 	double       (*get_value)  (YScalar *scalar);
-	char const  *(*get_str)	   (YScalar *scalar);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YVector,y_vector,Y,VECTOR,YData)
@@ -79,7 +78,6 @@ struct _YVectorClass {
 	unsigned int	 (*load_len)    (YVector *vec);
 	double	 *(*load_values) (YVector *vec);
 	double	 (*get_value)   (YVector *vec, unsigned i);
-	char	*(*get_str)	(YVector *vec, unsigned i);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YMatrix,y_matrix,Y,MATRIX,YData)
@@ -92,7 +90,6 @@ struct _YMatrixClass {
 	YMatrixSize	 (*load_size)    (YMatrix *vec);
 	double	 *(*load_values) (YMatrix *vec);
 	double	 (*get_value)   (YMatrix *mat, unsigned i, unsigned j);
-	char	*(*get_str)	(YMatrix *mat, unsigned i, unsigned j);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YThreeDArray,y_three_d_array,Y,THREE_D_ARRAY,YData)
@@ -105,7 +102,6 @@ struct _YThreeDArrayClass {
 	YThreeDArraySize	 (*load_size)    (YThreeDArray *vec);
 	double	 *(*load_values) (YThreeDArray *vec);
 	double	 (*get_value)   (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
-	char	*(*get_str)	(YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
 };
 
 YData *	y_data_dup			(YData *src);
@@ -124,14 +120,14 @@ unsigned int	y_data_get_n_values		(YData *data);
 /*************************************************************************/
 
 double      y_scalar_get_value  (YScalar *scalar);
-char const *y_scalar_get_str    (YScalar *scalar);
+char *y_scalar_get_str (YScalar *scalar);
 
 /*************************************************************************/
 
 unsigned int	 y_vector_get_len    (YVector *vec);
 const double	*y_vector_get_values (YVector *vec);
 double	 y_vector_get_value  (YVector *vec, unsigned i);
-char	*y_vector_get_str    (YVector *vec, unsigned i);
+char *	 y_vector_get_str  (YVector *vec, unsigned i);
 gboolean	y_vector_is_varying_uniformly	(YVector *data);
 void	 y_vector_get_minmax (YVector *vec, double *min, double *max);
 gboolean y_vector_vary_uniformly (YVector *vec);
@@ -143,7 +139,6 @@ unsigned int 	 y_matrix_get_rows   (YMatrix *mat);
 unsigned int 	 y_matrix_get_columns (YMatrix *mat);
 const double	*y_matrix_get_values (YMatrix *mat);
 double	 y_matrix_get_value  (YMatrix *mat, unsigned i, unsigned j);
-char	*y_matrix_get_str    (YMatrix *mat, unsigned i, unsigned j);
 void	 y_matrix_get_minmax (YMatrix *mat, double *min, double *max);
 
 /*************************************************************************/
@@ -154,7 +149,6 @@ unsigned int 	 y_three_d_array_get_columns (YThreeDArray *mat);
 unsigned int 	 y_three_d_array_get_layers (YThreeDArray *mat);
 const double	*y_three_d_array_get_values (YThreeDArray *mat);
 double	 y_three_d_array_get_value  (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
-char	*y_three_d_array_get_str    (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
 void	 y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max);
 
 /*************************************************************************/

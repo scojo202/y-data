@@ -105,16 +105,6 @@ render_val (double val)
 }
 
 static char *
-y_vector_ring_get_str (YVector *vec, unsigned i)
-{
-	YVectorRing const *val = (YVectorRing const *)vec;
-
-	g_return_val_if_fail (val != NULL && val->val != NULL && i < val->n, NULL);
-
-	return render_val (val->val[i]);
-}
-
-static char *
 y_vector_ring_serialize (YData *dat, gpointer user)
 {
 	YVectorRing *vec = Y_VECTOR_RING (dat);
@@ -194,7 +184,6 @@ y_vector_ring_class_init (YVectorRingClass *val_klass)
 	vector_klass->load_len    = y_vector_ring_load_len;
 	vector_klass->load_values = y_vector_ring_load_values;
 	vector_klass->get_value   = y_vector_ring_get_value;
-	vector_klass->get_str     = y_vector_ring_get_str;
 }
 
 static void

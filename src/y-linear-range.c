@@ -39,14 +39,6 @@ G_DEFINE_TYPE (YLinearRangeVector, y_linear_range_vector, Y_TYPE_VECTOR);
 
 static GObjectClass *vector_parent_klass;
 
-static char *
-render_val (double val)
-{
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
-}
-
 static void
 _linear_range_vector_get_bounds (YData *data, double *minimum, double *maximum)
 {
@@ -116,16 +108,6 @@ data_vector_val_get_value (YVector *vec, unsigned i)
 	return get_val(val,i);
 }
 
-static char *
-data_vector_val_get_str (YVector *vec, unsigned i)
-{
-	YLinearRangeVector const *val = (YLinearRangeVector const *)vec;
-
-	g_return_val_if_fail (val != NULL && i < val->n, NULL);
-
-	return render_val (get_val(val,i));
-}
-
 static void
 y_linear_range_vector_init(YLinearRangeVector *v) {}
 
@@ -144,7 +126,6 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
 	vector_klass->load_len    = data_vector_val_load_len;
 	vector_klass->load_values = data_vector_val_load_values;
 	vector_klass->get_value   = data_vector_val_get_value;
-	vector_klass->get_str     = data_vector_val_get_str;
 }
 
 /**
