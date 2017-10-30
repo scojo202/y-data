@@ -139,7 +139,7 @@ y_data_class_init (YDataClass *klass)
 
 	y_data_signals [CHANGED] = g_signal_new ("changed",
 		G_TYPE_FROM_CLASS (klass),
-		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE,
+		G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE,
 		G_STRUCT_OFFSET (YDataClass, emit_changed),
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
