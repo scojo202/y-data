@@ -136,7 +136,7 @@ vector_derived_load_values (YVector *vec)
 static double
 vector_derived_get_value (YVector *vec, unsigned i)
 {
-  double *d = y_vector_get_values(vec); /* fills the cache */
+  const double *d = y_vector_get_values(vec); /* fills the cache */
 	return d[i];
 }
 

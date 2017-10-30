@@ -22,7 +22,7 @@
 #include <gio/gio.h>
 #include <y-data-tcp.h>
 
-static GSocketService *listener = NULL;
+static GSocketService * listener = NULL;
 static GList *socket_conns = NULL;
 
 static gboolean
@@ -56,7 +56,7 @@ G_DEFINE_TYPE (YDataTcpSender, y_data_tcp_sender, G_TYPE_OBJECT);
 static void
 y_data_tcp_sender_class_init (YDataTcpSenderClass *klass)
 {
-  GObjectClass *gobject_klass = (GObjectClass *) klass;
+  //GObjectClass *gobject_klass = (GObjectClass *) klass;
 }
 
 static void
@@ -136,7 +136,7 @@ struct _YScalarTcpReceiver {
 G_DEFINE_TYPE (YScalarTcpReceiver, y_scalar_tcp_receiver, Y_TYPE_SCALAR);
 
 static YData *
-y_scalar_tcp_receiver_dup (YData const *src)
+y_scalar_tcp_receiver_dup (YData *src)
 {
 	YScalarTcpReceiver *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YScalarTcpReceiver const *src_val = (YScalarTcpReceiver const *)src;
@@ -154,7 +154,7 @@ y_scalar_tcp_receiver_get_value (YScalar *dat)
 static void
 y_scalar_tcp_receiver_class_init (YScalarTcpReceiverClass *klass)
 {
-  GObjectClass *gobject_klass = (GObjectClass *) klass;
+  //GObjectClass *gobject_klass = (GObjectClass *) klass;
   YDataClass *ydata_klass = (YDataClass *) klass;
 	YScalarClass *scalar_klass = (YScalarClass *) klass;
   ydata_klass->dup	  = y_scalar_tcp_receiver_dup;
@@ -221,7 +221,7 @@ G_DEFINE_TYPE (YVectorTcpReceiver, y_vector_tcp_receiver, Y_TYPE_VECTOR);
 static void
 y_vector_tcp_receiver_class_init (YVectorTcpReceiverClass *klass)
 {
-  GObjectClass *gobject_klass = (GObjectClass *) klass;
+  //GObjectClass *gobject_klass = (GObjectClass *) klass;
 }
 
 static
@@ -240,7 +240,7 @@ gboolean vector_poll_func(GObject *pollable_stream,gpointer user_data)
     for(i=0;i<len;i++) {
       guint64 i2 = GUINT64_FROM_BE(buffer2[i]);
       gpointer id = &i2;
-      double d = *(double *)id;
+      //double d = *(double *)id;
     }
   }
   

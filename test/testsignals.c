@@ -5,25 +5,18 @@ int i = 0;
 YMatrix *a;
 YVectorDerived *b;
 YVectorDerived *c;
-YSliceOperation *s;
-YFFTOperation *f;
+YOperation *s;
+YOperation *f;
 GMutex mutex;
 
 #define THREAD 1
-
-static gboolean
-emit2(gpointer user_data)
-{
-  YData *data = (YData*) user_data;
-return FALSE;
-}
 
 static void
 on_changed(YData *data, gpointer user_data)
 {
 
   //double q = y_vector_get_value(Y_VECTOR(data),0);
-  double *p = y_vector_get_values(Y_VECTOR(data));
+  const double *p = y_vector_get_values(Y_VECTOR(data));
   //g_message("data: %f",q);
   g_message("data: %f",p[i]);
 
@@ -47,7 +40,7 @@ feeder_thread(gpointer data)
   int j;
   while(i<10000) {
     g_mutex_lock(&mutex);
-    double *data = y_matrix_val_get_array(a);
+    double *data = y_matrix_val_get_array(Y_MATRIX_VAL(a));
     for(j=0;j<y_matrix_get_rows(a)*y_matrix_get_columns(a);j++)
       {
         data[j]=g_random_double();
@@ -61,6 +54,8 @@ feeder_thread(gpointer data)
   return NULL;
 }
 
+#if THREAD
+#else
 static gboolean
 timeout(gpointer user_data)
 {
@@ -76,6 +71,7 @@ timeout(gpointer user_data)
   y_data_emit_changed(a);
   return TRUE;
 }
+#endif
 
 static gboolean
 start (gpointer user_data)
@@ -83,7 +79,7 @@ start (gpointer user_data)
   g_signal_connect_after(c,"changed",G_CALLBACK(on_changed),NULL);
 
 #if THREAD
-  GThread *thread = g_thread_new("feeder",feeder_thread, NULL);
+  g_thread_new("feeder",feeder_thread, NULL);
   //g_thread_join(thread);
 #else
   g_timeout_add(100,timeout,NULL);
@@ -96,11 +92,11 @@ main (int argc, char *argv[])
 {
   g_mutex_init(&mutex);
   /* make a chain of derived data */
-  a = y_matrix_val_new_alloc(700,500);
+  a = Y_MATRIX(y_matrix_val_new_alloc(700,500));
   s = y_slice_operation_new(SLICE_ROW, 100, 1);
-  f = y_fft_operation_new(FFT_MAG);
-  b = y_vector_derived_new(a,s);
-  c = y_vector_derived_new(b,f);
+  f = y_fft_operation_new (FFT_MAG);
+  b = Y_VECTOR_DERIVED(y_vector_derived_new(Y_DATA(a),s));
+  c = Y_VECTOR_DERIVED(y_vector_derived_new(Y_DATA(b),f));
 
   g_idle_add(start,NULL);
 

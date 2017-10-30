@@ -10,8 +10,6 @@ YData *d1, *d2, *d3;
 static void
 build_scalar_val (void)
 {
-  gint i;
-  double t;
   double x, y, z;
 
   x = 1.4;
@@ -93,17 +91,17 @@ main (int argc, char *argv[])
   g_object_unref(d3);
 
   /* test slice */
-  YSliceOperation *op1 = y_slice_operation_new(SLICE_ROWS,50,10);
-  YSliceOperation *op2 = y_slice_operation_new(SLICE_COLS,20,10);
-  YVectorDerived *der1 = y_vector_derived_new(d1,op1);
-  YVectorDerived *der2 = y_vector_derived_new(d2,op1);
-  YVectorDerived *der3 = y_vector_derived_new(d2,op2);
-  
+  YOperation *op1 = y_slice_operation_new(SLICE_ROWS,50,10);
+  YOperation *op2 = y_slice_operation_new(SLICE_COLS,20,10);
+  YData *der1 = y_vector_derived_new(d1,op1);
+  YData *der2 = y_vector_derived_new(d2,op1);
+  YData *der3 = y_vector_derived_new(d2,op2);
+
   y_struct_set_data(s,"slice1",der1);
   y_struct_set_data(s,"slice2",der2);
   y_struct_set_data(s,"slice3",der3);
-  
-  y_vector_derived_set_autorun(der3,TRUE);
+
+  y_vector_derived_set_autorun(Y_VECTOR_DERIVED(der3),TRUE);
   y_data_emit_changed(d2);
 
   g_usleep(2000000);
@@ -111,7 +109,7 @@ main (int argc, char *argv[])
   GError *err = NULL;
   hid_t hfile = y_open_hdf5_file_for_writing("test.h5", FALSE, &err);
   if(err==NULL) {
-    y_data_attach_h5(s,hfile,NULL);
+    y_data_attach_h5(Y_DATA(s),hfile,NULL);
     H5Fclose(hfile);
   }
   else {
