@@ -140,6 +140,26 @@ typedef struct {
 } SliceOpData;
 
 static
+double *create_input_array_from_matrix(YMatrix *input, gboolean is_new, YMatrixSize old_size, double *old_input)
+{
+  double *d = old_input;
+  unsigned int old_nrow = old_size.rows;
+  unsigned int old_ncol = old_size.columns;
+  YMatrixSize size = y_matrix_get_size(input);
+  if(!is_new) {
+    if(old_nrow != size.rows || old_ncol != size.columns) {
+      g_free(old_input);
+      d = g_new(double,size.rows*size.columns);
+    }
+  }
+  else {
+    d = g_new(double,size.rows*size.columns);
+  }
+  memcpy(d,y_matrix_get_values(input),size.rows*size.columns*sizeof(double));
+  return d;
+}
+
+static
 gpointer vector_slice_op_create_data(YOperation *op, gpointer data, YData *input)
 {
   if(input==NULL) return NULL;
@@ -154,19 +174,8 @@ gpointer vector_slice_op_create_data(YOperation *op, gpointer data, YData *input
   YSliceOperation *sop = Y_SLICE_OPERATION(op);
   d->sop = *sop;
   YMatrix *mat = Y_MATRIX(input);
-  unsigned int old_nrow = d->size.rows;
-  unsigned int old_ncol = d->size.columns;
+  d->input = create_input_array_from_matrix(mat,neu,d->size,d->input);
   d->size = y_matrix_get_size(mat);
-  if(!neu) {
-    if(old_nrow != d->size.rows || old_ncol != d->size.columns) {
-      g_free(d->input);
-      d->input = g_new(double,d->size.rows*d->size.columns);
-    }
-  }
-  else {
-    d->input = g_new(double,d->size.rows*d->size.columns);
-  }
-  memcpy(d->input,y_matrix_get_values(mat),d->size.rows*d->size.columns*sizeof(double));
   unsigned int dims[2];
   vector_slice_size(op,input,dims);
   if(d->output_len != dims[0]*dims[1]) {
@@ -180,7 +189,6 @@ static
 void vector_slice_op_data_free(gpointer d)
 {
   SliceOpData *s = (SliceOpData *) d;
-  g_message("free");
   g_free(s->input);
   g_free(s->output);
   g_free(d);
