@@ -117,14 +117,18 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
   YVector *vec = Y_VECTOR(input);
   unsigned int old_len = d->len;
   d->len = y_vector_get_len(vec);
+  if(d->len==0)
+    return NULL;
   if(!neu) {
     if(old_len != d->len) {
       fftw_free(d->input);
       d->input = fftw_malloc(sizeof(double)*d->len);
+      memset(d->input,0,sizeof(double)*d->len);
     }
   }
   else {
     d->input = fftw_malloc(sizeof(double)*d->len);
+    memset(d->input,0,sizeof(double)*d->len);
   }
   unsigned int dims[1];
   vector_fft_size(op,input,dims);
@@ -135,12 +139,14 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
       g_free(d->output);
     d->out_len = dims[0];
     d->inter = fftw_malloc(sizeof(fftw_complex)*d->out_len);
-    d->output = g_new(double,d->out_len);
+    memset(d->inter,0,sizeof(fftw_complex)*d->out_len);
+    d->output = g_new0(double,d->out_len);
   }
   g_assert(d->input);
   g_assert(d->inter);
   g_assert(d->len>0);
   d->plan = fftw_plan_dft_r2c_1d(d->len, d->input, d->inter, FFTW_ESTIMATE);
+  memset(d->inter,0,sizeof(fftw_complex)*d->out_len);
   memcpy(d->input,y_vector_get_values(vec),d->len*sizeof(double));
   return d;
 }
@@ -169,9 +175,17 @@ gpointer vector_fft_op(gpointer input)
   if(d->sop.type == FFT_MAG || d->sop.type == FFT_PHASE) {
     fftw_execute(d->plan);
     int i;
-    for(i=0;i<d->out_len;i++) {
+    if(d->sop.type == FFT_MAG) {
+     for(i=0;i<d->out_len;i++) {
       complex double ci = (complex double) d->inter[i];
-      d->output[i]= (d->sop.type == FFT_MAG) ? cabs(ci) : carg(ci);
+      d->output[i]= cabs(ci);
+     }
+    }
+    else {
+      for(i=0;i<d->out_len;i++) {
+      complex double ci = (complex double) d->inter[i];
+      d->output[i]= carg(ci);
+     }
     }
   }
   return d->output;

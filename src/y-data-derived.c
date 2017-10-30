@@ -111,13 +111,14 @@ vector_derived_load_values (YVector *vec)
   if(vecs->currlen != len) {
     if(vecs->cache)
       g_free(vecs->cache);
-    v = g_new(double,len);
+    v = g_new0(double,len);
     vecs->currlen=len;
     vecs->cache = v;
   }
   else {
     v = vecs->cache;
   }
+  if(v==NULL) return NULL;
 
   /* call op */
   YOperationClass *klass = Y_OPERATION_GET_CLASS(vecs->op);
@@ -128,6 +129,7 @@ vector_derived_load_values (YVector *vec)
     y_operation_update_task_data(vecs->op,vecs->task_data,vecs->input);
   }
   double *dout = klass->op_func(vecs->task_data);
+  if(dout==NULL) return NULL;
   memcpy(v,dout,len*sizeof(double));
 
   return v;

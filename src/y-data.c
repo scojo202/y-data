@@ -430,7 +430,11 @@ _data_vector_get_bounds (YData *data, double *minimum, double *maximum)
 
 static void
 y_vector_init (YVector *vec)
-{}
+{
+  YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
+  vpriv->len = 0;
+  vpriv->values = NULL;
+}
 
 static void
 y_vector_class_init (YVectorClass *vec_class)
@@ -627,6 +631,7 @@ y_vector_get_minmax (YVector *vec, double *min, double *max)
 
 	if(!(priv->flags & Y_DATA_MINMAX_CACHED)) {
 	  const double *v = y_vector_get_values (vec);
+    if(v==NULL) return;
 
 	  double minimum = DBL_MAX, maximum = -DBL_MAX;
 

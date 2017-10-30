@@ -176,7 +176,7 @@ y_vector_val_dup (YData *src)
 	YVectorVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YVectorVal const *src_val = (YVectorVal const *)src;
 	if (src_val->notify) {
-		dst->val = g_new (double, src_val->n);
+		dst->val = g_new0 (double, src_val->n);
 		memcpy (dst->val, src_val->val, src_val->n * sizeof (double));
 		dst->notify = g_free;
 	} else
@@ -322,7 +322,7 @@ YData *
 y_vector_val_new_alloc (unsigned n)
 {
         YVectorVal *res = g_object_new (Y_TYPE_VECTOR_VAL, NULL);
-	res->val = g_malloc(sizeof(double)*n);
+	res->val = g_malloc0(sizeof(double)*n);
 	res->n = n;
 	res->notify = g_free;
 	return Y_DATA (res);
@@ -588,7 +588,7 @@ YData *y_matrix_val_new_copy (double   *val,
 YData *y_matrix_val_new_alloc (unsigned rows, unsigned columns)
 {
   YMatrixVal *res = g_object_new (Y_TYPE_MATRIX_VAL, NULL);
-	res->val = g_new(double, rows*columns);
+	res->val = g_new0(double, rows*columns);
 	res->size.rows = rows;
 	res->size.columns = columns;
 	res->notify = g_free;
@@ -847,7 +847,7 @@ YData *y_three_d_array_val_new_copy (double   *val,
 YData *y_three_d_array_val_new_alloc (unsigned rows, unsigned columns, unsigned layers)
 {
   YThreeDArrayVal *res = g_object_new (Y_TYPE_THREE_D_ARRAY_VAL, NULL);
-	res->val = g_new(double, rows*columns);
+	res->val = g_new0(double, rows*columns);
 	res->size.rows = rows;
 	res->size.columns = columns;
 	res->size.layers = layers;

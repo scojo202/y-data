@@ -86,7 +86,7 @@ data_vector_val_load_values (YVector *vec)
 	YLinearRangeVector *val = (YLinearRangeVector *)vec;
 	int i = val->n;
 	
-  val->values = g_new(double, val->n);
+  val->values = g_new0(double, val->n);
 
 	if(y_vector_get_len(vec) != val->n) {
 	  data_vector_val_load_len(vec);
