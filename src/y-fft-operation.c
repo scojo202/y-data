@@ -106,6 +106,7 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
   if(input==NULL) return NULL;
   FFTOpData *d;
   gboolean neu = TRUE;
+  gboolean size_changed = FALSE;
   if(data==NULL) {
     d = g_new0(FFTOpData,1);
   } else {
@@ -121,6 +122,7 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
     return NULL;
   if(!neu) {
     if(old_len != d->len) {
+      size_changed = TRUE;
       fftw_free(d->input);
       d->input = fftw_malloc(sizeof(double)*d->len);
       memset(d->input,0,sizeof(double)*d->len);
@@ -133,6 +135,7 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
   unsigned int dims[1];
   vector_fft_size(op,input,dims);
   if(d->out_len != dims[0]) {
+    size_changed = TRUE;
     if(d->inter)
       fftw_free(d->inter);
     if(d->output)
@@ -145,7 +148,9 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
   g_assert(d->input);
   g_assert(d->inter);
   g_assert(d->len>0);
-  d->plan = fftw_plan_dft_r2c_1d(d->len, d->input, d->inter, FFTW_ESTIMATE);
+  if(neu || size_changed) {
+    d->plan = fftw_plan_dft_r2c_1d(d->len, d->input, d->inter, FFTW_ESTIMATE);
+  }
   memset(d->inter,0,sizeof(fftw_complex)*d->out_len);
   memcpy(d->input,y_vector_get_values(vec),d->len*sizeof(double));
   return d;
@@ -158,6 +163,7 @@ void vector_fft_op_data_free(gpointer d)
   g_message("free");
   fftw_free(s->input);
   fftw_free(s->inter);
+  fftw_destroy_plan(s->plan);
   g_free(s->output);
   g_free(d);
 }
