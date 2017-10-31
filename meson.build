@@ -1,5 +1,7 @@
 project('y-data','c', version: '0.0.0')
 
+gnome = import('gnome')
+
 libgio_dep = dependency('gio-2.0', version: '>= 2.44')
 libgobj_dep = dependency('gobject-2.0', version: '>= 2.44')
 fftw_dep = dependency('fftw3', version: '>=3.2')
@@ -11,7 +13,11 @@ libm = comp.find_library('m', required: false)
 conf = configuration_data()
 conf.set_quoted('PACKAGE_NAME', 'y-data')
 
-subdir('docs')
 subdir('src')
 subdir('test')
+
+if get_option('enable-gtk-doc')
+  subdir('docs/reference')
+endif
+
 

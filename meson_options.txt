@@ -1,0 +1,1 @@
+option('enable-gtk-doc', type: 'boolean', value: false, description: 'Enable generating the API reference (depends on GTK-Doc)')
