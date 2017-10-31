@@ -32,7 +32,10 @@
  * Abstract base class for data classes #YScalar,
  * #YVector, and #YMatrix, representing numbers and arrays of numbers.
  *
- * Data objects maintain a cache of the values for fast access. When the underlying data changes, the "changed" signal is emitted, and the default signal handler invalidates the cache. Subsequent calls to "get_values" will refill the cache.
+ * Data objects maintain a cache of the values for fast access. When the
+ * underlying data changes, the "changed" signal is emitted, and the default
+ * signal handler invalidates the cache. Subsequent calls to "get_values" will
+ * refill the cache.
  */
 
 
@@ -171,9 +174,6 @@ y_data_dup (YData *src)
  * @dat: #YData
  * @user: a gpointer describing the context.
  *
- * NOTE : This is the _source_ not the content.  (I.e., this refers to the
- * expression, not its current value.)
- *
  * Returns: a string representation of the data source that the caller is
  * 	responsible for freeing
  **/
@@ -241,7 +241,8 @@ y_data_has_value (YData *data)
  * y_data_get_n_dimensions :
  * @data: #YData
  *
- * Get the number of dimensions in @data, i.e. 0 for a scalar, 1 for a vector, and 2 for a matrix.
+ * Get the number of dimensions in @data, i.e. 0 for a scalar, 1 for a vector,
+ * and 2 for a matrix. Returns -1 for a struct.
  *
  * Returns: the number of dimensions
  **/
@@ -381,6 +382,15 @@ y_scalar_get_value (YScalar *scalar)
 	return priv->value;
 }
 
+/**
+ * y_scalar_get_str :
+ * @scalar: #YScalar
+ *
+ * Get a string representation of @scalar.
+ *
+ * Returns: the string. The caller is
+ * 	responsible for freeing it.
+ **/
 char *
 y_scalar_get_str (YScalar *scalar)
 {
@@ -530,6 +540,15 @@ y_vector_get_value (YVector *vec, unsigned i)
 	return vpriv->values [i];
 }
 
+/**
+ * y_vector_get_str :
+ * @vec: #YVector
+ *
+ * Get a string representation of an element in @vec.
+ *
+ * Returns: the string. The caller is
+ * 	responsible for freeing it.
+ **/
 char *
 y_vector_get_str (YVector *vec, unsigned i)
 {

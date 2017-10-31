@@ -16,7 +16,10 @@
 
   <chapter>
     <title>YData Documentation</title>
-    <xi:include href="xml/y-data-class.xml"/>
+    <xi:include href="xml/y-data.xml"/>
+    <xi:include href="xml/y-scalar.xml"/>
+    <xi:include href="xml/y-vector.xml"/>
+    <xi:include href="xml/y-matrix.xml"/>
     <xi:include href="xml/y-data-simple.xml"/>
     <xi:include href="xml/y-hdf.xml"/>
     <xi:include href="xml/y-operation.xml"/>

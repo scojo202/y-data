@@ -43,3 +43,4 @@ docs/reference/yttrium-0.0.prerequisites
 docs/reference/yttrium-0.0.signals
 docs/reference/yttrium-0.0.types
 test/test-tcp-server
+build
