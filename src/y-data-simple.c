@@ -299,6 +299,8 @@ y_vector_val_init(YVectorVal *val) {}
  * @n: length of array
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
+ * Create a new #YVectorVal from an existing array.
+ *
  * Returns: a #YData
  **/
 
@@ -316,6 +318,8 @@ y_vector_val_new (double *val, unsigned n, GDestroyNotify notify)
  * y_vector_val_new_alloc:
  * @n: length of array
  *
+ * Create a new #YVectorVal of length @n, initialized to zeros.
+ *
  * Returns: a #YData
  **/
 YData *
@@ -332,6 +336,8 @@ y_vector_val_new_alloc (unsigned n)
  * y_vector_val_new_copy:
  * @val: (array length=n): array of doubles
  * @n: length of array
+ *
+ * Create a new #YVectorVal, copying from an existing array.
  *
  * Returns: a #YData
  **/
@@ -549,6 +555,8 @@ y_matrix_val_init(YMatrixVal *val) {}
  * @columns: number of columns
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
+ * Create a new #YMatrixVal using an existing array.
+ *
  * Returns: a #YData
  **/
 YData *
@@ -567,6 +575,8 @@ y_matrix_val_new (double *val, unsigned rows, unsigned columns, GDestroyNotify  
  * @val: array of doubles with at least @rows*@columns elements
  * @rows: number of rows
  * @columns: number of columns
+ *
+ * Create a new #YMatrixVal, copying from an existing array.
  *
  * Returns: a #YData
  **/
@@ -607,6 +617,28 @@ YData *y_matrix_val_new_alloc (unsigned rows, unsigned columns)
 double *y_matrix_val_get_array (YMatrixVal *s)
 {
   return s->val;
+}
+
+/**
+ * y_matrix_val_replace_array :
+ * @s: #YMatrixVal
+ * @array: (array length=n): array of doubles
+ * @rows: number of rows
+ * @columns: number of columns
+ * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
+ *
+ * Get the array of values of @s.
+ *
+ **/
+void y_matrix_val_replace_array(YMatrixVal *s, double *array, unsigned rows, unsigned columns, GDestroyNotify notify)
+{
+  if(s->val && s->notify)
+    (*s->notify)(s->val);
+  s->val = array;
+  s->size.rows = rows;
+  s->size.columns = columns;
+  s->notify = notify;
+  y_data_emit_changed(Y_DATA(s));
 }
 
 /********************************************/
@@ -805,6 +837,7 @@ y_three_d_array_val_init(YThreeDArrayVal *val) {}
  * @val: array of doubles
  * @rows: number of rows
  * @columns: number of columns
+ * @layers: number of layers
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
  * Returns: a #YData
@@ -826,6 +859,7 @@ y_three_d_array_val_new (double *val, unsigned rows, unsigned columns, unsigned 
  * @val: array of doubles with at least @rows*@columns elements
  * @rows: number of rows
  * @columns: number of columns
+ * @layers: number of layers
  *
  * Returns: a #YData
  **/
@@ -839,6 +873,7 @@ YData *y_three_d_array_val_new_copy (double   *val,
  * y_three_d_array_val_new_alloc:
  * @rows: number of rows
  * @columns: number of columns
+ * @layers: number of layers
  *
  * Allocate a new array with @rows rows and @columns columns and use it in a new #YThreeDArrayVal.
  *
@@ -857,7 +892,7 @@ YData *y_three_d_array_val_new_alloc (unsigned rows, unsigned columns, unsigned 
 
 /**
  * y_three_d_array_val_get_array :
- * @s: #YVectorVal
+ * @s: #YThreeDArrayVal
  *
  * Get the array of values of @s. 
  *

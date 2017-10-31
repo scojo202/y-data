@@ -41,6 +41,9 @@
 
 /**
  * YDataFlags:
+ *
+ * Various flags used internally.
+ *
  * @Y_DATA_CACHE_IS_VALID: data in cache are valid.
  * @Y_DATA_IS_EDITABLE: data can be edited.
  * @Y_DATA_SIZE_CACHED: cached size is valid.
@@ -80,12 +83,6 @@
  * @load_size: loads the matrix length.
  * @load_values: loads the values in the cache.
  * @get_value: gets a value.
- **/
-
-/**
- * YMatrixSize:
- * @rows: rows number, includes missing values.
- * @columns: columns number, includes missing values.
  **/
 
 typedef enum {
@@ -543,6 +540,7 @@ y_vector_get_value (YVector *vec, unsigned i)
 /**
  * y_vector_get_str :
  * @vec: #YVector
+ * @i: index
  *
  * Get a string representation of an element in @vec.
  *
@@ -550,7 +548,7 @@ y_vector_get_value (YVector *vec, unsigned i)
  * 	responsible for freeing it.
  **/
 char *
-y_vector_get_str (YVector *vec, unsigned i)
+y_vector_get_str (YVector *vec, unsigned int i)
 {
 		char buf[G_ASCII_DTOSTR_BUF_SIZE];
 	    double val = y_vector_get_value(vec, i);
@@ -749,6 +747,8 @@ y_matrix_init (YMatrix *mat) {}
  * y_matrix_get_size: (skip)
  * @mat: #YMatrix
  *
+ * Get the size of a #YMatrix.
+ *
  * Returns: the matrix size
  **/
 YMatrixSize
@@ -776,6 +776,8 @@ y_matrix_get_size (YMatrix *mat)
  * y_matrix_get_rows:
  * @mat: #YMatrix
  *
+ * Get the number of rows in a #YMatrix.
+ *
  * Returns: the number of rows in @mat
  **/
 unsigned int
@@ -801,6 +803,8 @@ y_matrix_get_rows (YMatrix *mat)
 /**
  * y_matrix_get_columns :
  * @mat: #YMatrix
+ *
+ * Get the number of columns in a #YMatrix.
  *
  * Returns: the number of columns in @mat
  **/
@@ -877,6 +881,16 @@ y_matrix_get_value (YMatrix *mat, unsigned i, unsigned j)
 	return mpriv->values[i * mpriv->size.columns + j];
 }
 
+/**
+ * y_matrix_get_str :
+ * @mat: #YMatrix
+ * @i: row
+ * @j: column
+ *
+ * Get a string representation of a value in @mat.
+ *
+ * Returns: the string
+ **/
 char *
 y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j)
 {
@@ -1139,6 +1153,26 @@ y_three_d_array_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsigned k
 	}
 
 	return mpriv->values[i * mpriv->size.rows*mpriv->size.columns + j*mpriv->size.columns + k];
+}
+
+/**
+ * y_three_d_array_get_str :
+ * @mat: #YThreeDArray
+ * @i: row
+ * @j: column
+ * @k: layer
+ *
+ * Get a string representation of a value in @mat.
+ *
+ * Returns: the string
+ **/
+char *
+y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
+{
+		char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	    double val = y_three_d_array_get_value(mat, i, j, k);
+		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+		return g_strdup (buf);
 }
 
 /**

@@ -56,6 +56,7 @@ YData *y_matrix_val_new_copy (double   *val,
 YData *y_matrix_val_new_alloc (unsigned n, unsigned m);
                                      
 double *y_matrix_val_get_array (YMatrixVal *s);
+void y_matrix_val_replace_array(YMatrixVal *s, double *array, unsigned rows, unsigned columns, GDestroyNotify notify);
 
 G_DECLARE_FINAL_TYPE(YThreeDArrayVal,y_three_d_array_val,Y,THREE_D_ARRAY_VAL,YThreeDArray)
 

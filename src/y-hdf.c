@@ -28,6 +28,8 @@
  * SECTION: y-hdf
  * @short_description: Functions for saving and loading from HDF5 files
  *
+ * Utility functions for saving to and loading from HDF5 files.
+ *
  **/
 
 hid_t y_open_hdf5_file_for_writing(const gchar *filename, gboolean overwrite, GError **err) {

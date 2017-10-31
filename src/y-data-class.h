@@ -31,10 +31,27 @@ G_DECLARE_DERIVABLE_TYPE(YData,y_data,Y,DATA,GInitiallyUnowned)
 
 #define Y_TYPE_DATA	(y_data_get_type ())
 
+/**
+ * YMatrixSize:
+ * @rows: rows number, includes missing values.
+ * @columns: columns number, includes missing values.
+ *
+ * Holds the size of a matrix.
+ **/
+
 typedef struct {
 	unsigned int rows;
 	unsigned int columns;
 } YMatrixSize;
+
+/**
+ * YThreeDArraySize:
+ * @layers: number of layers, includes missing values.
+ * @rows: rows number, includes missing values.
+ * @columns: columns number, includes missing values.
+ *
+ * Holds the size of a matrix.
+ **/
 
 typedef struct {
 	unsigned int layers;
@@ -127,7 +144,7 @@ char *y_scalar_get_str (YScalar *scalar);
 unsigned int	 y_vector_get_len    (YVector *vec);
 const double	*y_vector_get_values (YVector *vec);
 double	 y_vector_get_value  (YVector *vec, unsigned i);
-char *	 y_vector_get_str  (YVector *vec, unsigned i);
+char *	 y_vector_get_str  (YVector *vec, unsigned int i);
 gboolean	y_vector_is_varying_uniformly	(YVector *data);
 void	 y_vector_get_minmax (YVector *vec, double *min, double *max);
 gboolean y_vector_vary_uniformly (YVector *vec);
@@ -139,6 +156,7 @@ unsigned int 	 y_matrix_get_rows   (YMatrix *mat);
 unsigned int 	 y_matrix_get_columns (YMatrix *mat);
 const double	*y_matrix_get_values (YMatrix *mat);
 double	 y_matrix_get_value  (YMatrix *mat, unsigned i, unsigned j);
+char *y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j);
 void	 y_matrix_get_minmax (YMatrix *mat, double *min, double *max);
 
 /*************************************************************************/
@@ -149,6 +167,7 @@ unsigned int 	 y_three_d_array_get_columns (YThreeDArray *mat);
 unsigned int 	 y_three_d_array_get_layers (YThreeDArray *mat);
 const double	*y_three_d_array_get_values (YThreeDArray *mat);
 double	 y_three_d_array_get_value  (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
+char *y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
 void	 y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max);
 
 /*************************************************************************/

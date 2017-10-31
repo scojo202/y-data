@@ -1,7 +1,6 @@
 <SECTION>
 <FILE>y-data</FILE>
 <TITLE>YData</TITLE>
-Y_TYPE_DATA
 YDataClass
 y_data_dup
 y_data_dup_to_simple
@@ -13,22 +12,26 @@ y_data_has_value
 y_data_get_n_dimensions
 y_data_get_n_values
 YData
+<SUBSECTION Standard>
+Y_TYPE_DATA
+<SUBSECTION Private>
+YDataFlags
 </SECTION>
 
 <SECTION>
 <FILE>y-scalar</FILE>
 <TITLE>YScalar</TITLE>
-Y_TYPE_SCALAR
 YScalarClass
 y_scalar_get_value
 y_scalar_get_str
 YScalar
+<SUBSECTION Standard>
+Y_TYPE_SCALAR
 </SECTION>
 
 <SECTION>
 <FILE>y-vector</FILE>
 <TITLE>YVector</TITLE>
-Y_TYPE_VECTOR
 YVectorClass
 y_vector_get_len
 y_vector_get_values
@@ -37,13 +40,14 @@ y_vector_get_str
 y_vector_get_minmax
 y_vector_vary_uniformly
 YVector
+<SUBSECTION Standard>
+Y_TYPE_VECTOR
 </SECTION>
 
 <SECTION>
 <FILE>y-matrix</FILE>
 <TITLE>YMatrix</TITLE>
 YMatrixSize
-Y_TYPE_MATRIX
 YMatrixClass
 y_matrix_get_size
 y_matrix_get_rows
@@ -53,13 +57,14 @@ y_matrix_get_value
 y_matrix_get_str
 y_matrix_get_minmax
 YMatrix
+<SUBSECTION Standard>
+Y_TYPE_MATRIX
 </SECTION>
 
 <SECTION>
 <FILE>y-three-d-array</FILE>
 <TITLE>YThreeDArray</TITLE>
 YThreeDArraySize
-Y_TYPE_THREE_D_ARRAY
 YThreeDArrayClass
 y_three_d_array_get_size
 y_three_d_array_get_rows
@@ -70,26 +75,30 @@ y_three_d_array_get_value
 y_three_d_array_get_str
 y_three_d_array_get_minmax
 YThreeDArray
+<SUBSECTION Standard>
+Y_TYPE_THREE_D_ARRAY
 </SECTION>
 
 <SECTION>
 <FILE>y-struct</FILE>
 <TITLE>YStruct</TITLE>
-Y_TYPE_STRUCT
 y_struct_get_data
 y_struct_set_data
 y_struct_foreach
 YStruct
+<SUBSECTION Standard>
+Y_TYPE_STRUCT
 </SECTION>
 
 <SECTION>
 <FILE>y-data-derived</FILE>
 <TITLE>Data derived from other data through operations</TITLE>
-Y_TYPE_VECTOR_DERIVED
 y_vector_derived_new
 y_vector_derived_set_input
 y_vector_derived_set_autorun
 YVectorDerived
+<SUBSECTION Standard>
+Y_TYPE_VECTOR_DERIVED
 </SECTION>
 
 <SECTION>
@@ -105,24 +114,24 @@ y_vector_val_replace_h5
 <SECTION>
 <FILE>y-data-simple</FILE>
 <TITLE>Simple array data objects</TITLE>
-Y_TYPE_SCALAR_VAL
 y_scalar_val_new
 y_scalar_val_get_val
-Y_TYPE_VECTOR_VAL
 y_vector_val_new
 y_vector_val_new_alloc
 y_vector_val_new_copy
 y_vector_val_get_array
 y_vector_val_replace_array
-y_vector_val_set_length
-y_vector_val_append_ring
-Y_TYPE_MATRIX_VAL
 y_matrix_val_new
 y_matrix_val_new_copy
 y_matrix_val_get_array
+y_matrix_val_replace_array
 YMatrixVal
 YScalarVal
 YVectorVal
+<SUBSECTION Standard>
+Y_TYPE_SCALAR_VAL
+Y_TYPE_VECTOR_VAL
+Y_TYPE_MATRIX_VAL
 </SECTION>
 
 <SECTION>
@@ -138,13 +147,14 @@ YSliceOperation
 <SECTION>
 <FILE>y-operation</FILE>
 <TITLE>YOperation</TITLE>
-Y_TYPE_OPERATION
 YOperationClass
 y_operation_get_task
 y_operation_create_task_data
 y_operation_run_task
 y_operation_update_task_data
 YOperation
+<SUBSECTION Standard>
+Y_TYPE_OPERATION
 </SECTION>
 
 <SECTION>
