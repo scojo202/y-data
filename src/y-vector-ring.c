@@ -271,6 +271,14 @@ on_source_changed(YData *data, gpointer   user_data) {
         y_vector_ring_append(d,y_scalar_get_value(source));
 }
 
+/**
+ * y_vector_ring_set_source :
+ * @d: #YVectorRing
+ * @source: a #YScalar
+ *
+ * Set a source for the #YVectorRing. When the source emits a "changed" signal,
+ * a new value will be appended to the vector.
+ **/
 void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
 {
         g_assert(Y_IS_VECTOR_RING(d));

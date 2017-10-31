@@ -275,7 +275,7 @@ YData *y_matrix_from_h5 (hid_t group_id, const gchar *data_name)
 
 /**
  * y_vector_val_replace_h5: (skip)
- * @vec: YVectorVal
+ * @v: YVectorVal
  * @group_id: HDF5 group
  * @data_name: name
  *

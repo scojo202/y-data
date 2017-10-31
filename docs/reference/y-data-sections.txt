@@ -92,7 +92,7 @@ Y_TYPE_STRUCT
 
 <SECTION>
 <FILE>y-data-derived</FILE>
-<TITLE>Data derived from other data through operations</TITLE>
+<TITLE>YVectorDerived</TITLE>
 y_vector_derived_new
 y_vector_derived_set_input
 y_vector_derived_set_autorun
@@ -137,11 +137,12 @@ Y_TYPE_MATRIX_VAL
 <SECTION>
 <FILE>y-operation-slice</FILE>
 <TITLE>Slice operations</TITLE>
-Y_TYPE_SLICE_OPERATION
 SLICE_ELEMENT
 y_slice_operation_new
 y_slice_operation_set_pars
 YSliceOperation
+<SUBSECTION Standard>
+Y_TYPE_SLICE_OPERATION
 </SECTION>
 
 <SECTION>
@@ -160,14 +161,21 @@ Y_TYPE_OPERATION
 <SECTION>
 <FILE>y-scalar-property</FILE>
 <TITLE>YScalarProperty</TITLE>
-Y_TYPE_SCALAR_PROPERTY
 y_scalar_property_new
 YScalarProperty
+<SUBSECTION Standard>
+Y_TYPE_SCALAR_PROPERTY
 </SECTION>
 
 <SECTION>
 <FILE>y-vector-ring</FILE>
-Y_TYPE_VECTOR_RING
+<TITLE>YVectorRing</TITLE>
 y_vector_ring_new
+y_vector_ring_set_length
+y_vector_ring_append
+y_vector_ring_append_array
+y_vector_ring_set_source
 YVectorRing
+<SUBSECTION Standard>
+Y_TYPE_VECTOR_RING
 </SECTION>

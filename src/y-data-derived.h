@@ -32,9 +32,9 @@ G_DECLARE_FINAL_TYPE(YVectorDerived,y_vector_derived,Y,VECTOR_DERIVED,YVector)
 #define Y_TYPE_VECTOR_DERIVED  (y_vector_derived_get_type ())
 
 YData	*y_vector_derived_new      (YData *input, YOperation *op);
-void y_vector_derived_set_input (YVectorDerived *dvs,
+void y_vector_derived_set_input (YVectorDerived *der,
                                    YData    *d);
-void y_vector_derived_set_autorun (YVectorDerived *dvs,
+void y_vector_derived_set_autorun (YVectorDerived *y,
                                    gboolean        autorun);
 
 G_END_DECLS

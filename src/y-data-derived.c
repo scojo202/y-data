@@ -27,7 +27,7 @@
  * SECTION: y-data-derived
  * @short_description: Data objects that reflect the outputs of operations.
  *
- * 
+ * These can change automatically when input data emit changed signals.
  *
  * 
  */
@@ -227,6 +227,13 @@ on_op_changed(GObject *gobject, GParamSpec *pspec, gpointer user_data)
   y_data_emit_changed(Y_DATA(d));
 }
 
+/**
+ * y_vector_derived_set_input:
+ * @der: a #YVectorDerived
+ * @d: a #YData
+ *
+ * Set the input data object.
+ **/
 void y_vector_derived_set_input (YVectorDerived *der,
                                    YData    *d)
 {
@@ -238,10 +245,19 @@ void y_vector_derived_set_input (YVectorDerived *der,
   y_data_emit_changed(Y_DATA(der));
 }
 
-YData	*y_vector_derived_new (YData *m, YOperation *op)
+/**
+ * y_vector_derived_new:
+ * @input: an input array
+ * @op: an operation
+ *
+ * Create a new #YVectorDerived based on an input #YData and a #YOperation.
+ *
+ * Returns: a #YData
+ **/
+YData	*y_vector_derived_new (YData *input, YOperation *op)
 {
-  if(m)
-    g_assert(Y_IS_DATA(m));
+  if(input)
+    g_assert(Y_IS_DATA(input));
   g_assert(Y_IS_OPERATION(op));
 
   YData *d = g_object_new(Y_TYPE_VECTOR_DERIVED,NULL);
@@ -253,15 +269,23 @@ YData	*y_vector_derived_new (YData *m, YOperation *op)
   /* listen to "notify" from op for property changes */
   g_signal_connect(op,"notify",G_CALLBACK(on_op_changed),vd);
 
-  if(Y_IS_DATA(d) && Y_IS_DATA(m)) {
-    y_vector_derived_set_input(vd,m);
+  if(Y_IS_DATA(d) && Y_IS_DATA(input)) {
+    y_vector_derived_set_input(vd,input);
   }
   return d;
 }
 
-void y_vector_derived_set_autorun (YVectorDerived *dvs,
+/**
+ * y_vector_derived_set_autorun:
+ * @y: a #YVectorDerived
+ * @autorun: a boolean
+ *
+ * Set whether operation should start immediately when input data changes. If
+ * not, it will be run the next time the values are requested.
+ **/
+void y_vector_derived_set_autorun (YVectorDerived *y,
                                    gboolean        autorun)
 {
-  g_assert(Y_IS_VECTOR_DERIVED(dvs));
-  dvs->autorun = autorun;
+  g_assert(Y_IS_VECTOR_DERIVED(y));
+  y->autorun = autorun;
 }

@@ -1000,6 +1000,8 @@ y_three_d_array_init (YThreeDArray *mat) {}
  * y_three_d_array_get_size: (skip)
  * @mat: #YThreeDArray
  *
+ * Get the size of a #YThreeDArray.
+ *
  * Returns: the matrix size
  **/
 YThreeDArraySize
@@ -1027,6 +1029,8 @@ y_three_d_array_get_size (YThreeDArray *mat)
  * y_three_d_array_get_rows:
  * @mat: #YThreeDArray
  *
+ * Get the number of rows in a #YThreeDArray.
+ *
  * Returns: the number of rows in @mat
  **/
 unsigned int
@@ -1053,6 +1057,8 @@ y_three_d_array_get_rows (YThreeDArray *mat)
  * y_three_d_array_get_columns :
  * @mat: #YThreeDArray
  *
+ * Get the number of columns in a #YThreeDArray.
+ *
  * Returns: the number of columns in @mat
  **/
 unsigned int
@@ -1078,6 +1084,8 @@ y_three_d_array_get_columns (YThreeDArray *mat)
 /**
  * y_three_d_array_get_layers :
  * @mat: #YThreeDArray
+ *
+ * Get the number of layers in a #YThreeDArray.
  *
  * Returns: the number of layers in @mat
  **/

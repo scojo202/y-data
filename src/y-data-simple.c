@@ -840,6 +840,8 @@ y_three_d_array_val_init(YThreeDArrayVal *val) {}
  * @layers: number of layers
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
+ * Create a new #YThreeDArray from an existing array.
+ *
  * Returns: a #YData
  **/
 YData *
@@ -860,6 +862,8 @@ y_three_d_array_val_new (double *val, unsigned rows, unsigned columns, unsigned 
  * @rows: number of rows
  * @columns: number of columns
  * @layers: number of layers
+ *
+ * Create a new #YThreeDArray, making a copy of an existing array.
  *
  * Returns: a #YData
  **/
