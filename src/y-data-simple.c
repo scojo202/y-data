@@ -46,6 +46,14 @@ render_val (double val)
 		return g_strdup (buf);
 }
 
+/**
+ * YScalarVal:
+ * @base: base.
+ * @val: the value.
+ *
+ * Object holding a single double precision number.
+ **/
+
 struct _YScalarVal {
 	YScalar      base;
 	double		 val;
@@ -148,6 +156,16 @@ double * y_scalar_val_get_val (YScalarVal *s)
 }
 
 /*****************************************************************************/
+
+/**
+ * YVectorVal:
+ * @base: base.
+ * @n: the length of the vector.
+ * @val: the array
+ * @notify: the function to call to free the array
+ *
+ * Object holding a one-dimensional array of double precision numbers.
+ **/
 
 struct _YVectorVal {
 	YVector	 base;
@@ -384,6 +402,16 @@ double *y_vector_val_get_array (YVectorVal *s)
 }
 
 /*****************************************************************************/
+
+/**
+ * YMatrixVal:
+ * @base: base.
+ * @size: the size of the matrix.
+ * @val: the array
+ * @notify: the function to call to free the array
+ *
+ * Object holding a two-dimensional array of double precision numbers.
+ **/
 
 struct _YMatrixVal {
 	YMatrix	 base;
@@ -657,6 +685,16 @@ YData *y_data_dup_to_simple(YData *src)
 }
 
 /*****************************************************************************/
+
+/**
+ * YThreeDArrayVal:
+ * @base: base.
+ * @size: the length of the vector.
+ * @val: the array
+ * @notify: the function to call to free the array
+ *
+ * Object holding a three-dimensional array of double precision numbers.
+ **/
 
 struct _YThreeDArrayVal {
 	YThreeDArray	 base;

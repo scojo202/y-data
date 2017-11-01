@@ -24,6 +24,7 @@
     <xi:include href="xml/y-matrix.xml"/>
     <xi:include href="xml/y-data-simple.xml"/>
     <xi:include href="xml/y-vector-ring.xml"/>
+    <xi:include href="xml/y-linear-range.xml"/>
 	        </chapter>
     <chapter id="operations">
 	    <title>Operations</title>

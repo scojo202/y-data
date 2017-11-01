@@ -36,6 +36,19 @@
  *
  */
 
+/**
+ * YVectorRing:
+ *
+ * @base: base
+ * @n: length of array
+ * @nmax: maximum length of array
+ * @val: the array
+ * @source: a #YScalar source of numbers
+ * @handler: a handler for @source
+ *
+ * A YVector that grows up to a maximum length @nmax.
+ **/
+
 struct _YVectorRing {
 	YVector	 base;
 	unsigned	 n;

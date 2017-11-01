@@ -179,3 +179,13 @@ YVectorRing
 <SUBSECTION Standard>
 Y_TYPE_VECTOR_RING
 </SECTION>
+
+<SECTION>
+<FILE>y-linear-range</FILE>
+<TITLE>YLinearRange</TITLE>
+y_linear_range_vector_new
+y_linear_range_vector_set_length
+y_linear_range_vector_set_pars
+<SUBSECTION Standard>
+Y_TYPE_LINEAR_RANGE_VECTOR
+</SECTION>

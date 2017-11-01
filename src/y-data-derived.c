@@ -32,6 +32,21 @@
  * 
  */
 
+/**
+ * YVectorDerived:
+ *
+ * @base: base
+ * @op: operation
+ * @currlen: the length of the array
+ * @input: the input data
+ * @cache: the current value of the array
+ * @autorun: whether to run the operation immediately when input data changes
+ * @running: whether an operation is running right now
+ * @task_data: task data
+ *
+ * Object representing data.
+ **/
+
 struct _YVectorDerived {
   YVector	   base;
   YOperation     *op;
