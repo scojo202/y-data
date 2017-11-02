@@ -101,7 +101,7 @@ main (int argc, char *argv[])
   y_struct_set_data(s,"slice2",der2);
   y_struct_set_data(s,"slice3",der3);
 
-  y_vector_derived_set_autorun(Y_VECTOR_DERIVED(der3),TRUE);
+  //y_vector_derived_set_autorun(Y_VECTOR_DERIVED(der3),TRUE);
   y_data_emit_changed(d2);
 
   g_usleep(2000000);

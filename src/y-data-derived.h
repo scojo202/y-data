@@ -27,15 +27,28 @@
 
 G_BEGIN_DECLS
 
+#define Y_TYPE_DERIVED (y_derived_get_type ())
+
+G_DECLARE_INTERFACE (YDerived, y_derived, Y, DERIVED, YData)
+
+struct _YDerivedInterface
+{
+	GTypeInterface parent;
+
+	void (*force_recalculate) (YDerived *self);
+};
+
+G_DECLARE_FINAL_TYPE(YDerivedScalar,y_derived_scalar,Y,DERIVED_SCALAR,YScalar)
+
+#define Y_TYPE_DERIVED_SCALAR  (y_derived_scalar_get_type ())
+
+YData	*y_derived_scalar_new      (YData *input, YOperation *op);
+
 G_DECLARE_FINAL_TYPE(YVectorDerived,y_vector_derived,Y,VECTOR_DERIVED,YVector)
 
 #define Y_TYPE_VECTOR_DERIVED  (y_vector_derived_get_type ())
 
 YData	*y_vector_derived_new      (YData *input, YOperation *op);
-void y_vector_derived_set_input (YVectorDerived *der,
-                                   YData    *d);
-void y_vector_derived_set_autorun (YVectorDerived *y,
-                                   gboolean        autorun);
 
 G_END_DECLS
 
