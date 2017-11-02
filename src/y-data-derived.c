@@ -37,7 +37,6 @@ enum
   PROP_0,
   PROP_AUTORUN,
   PROP_INPUT,
-  PROP_INPUT_TYPE,
   PROP_OPERATION,
   N_PROPERTIES
 };
@@ -55,7 +54,6 @@ y_derived_default_init(YDerivedInterface *i)
                          G_PARAM_READWRITE));
 
     g_object_interface_install_property(i,g_param_spec_object ("input","Input data","The input data",Y_TYPE_DATA, G_PARAM_READWRITE));
-    g_object_interface_install_property(i,g_param_spec_gtype ("input-type","Input type","The input data type",Y_TYPE_DATA, G_PARAM_READWRITE));
     g_object_interface_install_property(i,g_param_spec_object ("operation","Operation","The operation",Y_TYPE_OPERATION, G_PARAM_READWRITE));
 }
 
@@ -241,14 +239,11 @@ void y_derived_scalar_class_init(YDerivedScalarClass *klass)
                          G_PARAM_READWRITE);
   scalar_properties[PROP_INPUT] =
     g_param_spec_object ("input","Input data","The input data",Y_TYPE_DATA, G_PARAM_READWRITE);
-  scalar_properties[PROP_INPUT_TYPE] =
-    g_param_spec_gtype ("input-type","Input type","The input data type",Y_TYPE_DATA, G_PARAM_READWRITE);
   scalar_properties[PROP_OPERATION] =
     g_param_spec_object ("operation","Operation","The operation",Y_TYPE_OPERATION, G_PARAM_READWRITE);
 
   g_object_class_override_property (gobject_class, PROP_AUTORUN, "autorun");
   g_object_class_override_property (gobject_class, PROP_INPUT, "input");
-  g_object_class_override_property (gobject_class, PROP_INPUT_TYPE, "input-type");
   g_object_class_override_property (gobject_class, PROP_OPERATION, "operation");
 }
 
@@ -520,14 +515,11 @@ y_vector_derived_class_init (YVectorDerivedClass *slice_klass)
                          G_PARAM_READWRITE);
   vector_properties[PROP_INPUT] =
     g_param_spec_object ("input","Input data","The input data",Y_TYPE_DATA, G_PARAM_READWRITE);
-  vector_properties[PROP_INPUT_TYPE] =
-    g_param_spec_gtype ("input-type","Input type","The input data type",Y_TYPE_DATA, G_PARAM_READWRITE);
   vector_properties[PROP_OPERATION] =
     g_param_spec_object ("operation","Operation","The operation",Y_TYPE_OPERATION, G_PARAM_READWRITE);
 
   g_object_class_override_property (gobject_class, PROP_AUTORUN, "autorun");
   g_object_class_override_property (gobject_class, PROP_INPUT, "input");
-  g_object_class_override_property (gobject_class, PROP_INPUT_TYPE, "input-type");
   g_object_class_override_property (gobject_class, PROP_OPERATION, "operation");
 }
 

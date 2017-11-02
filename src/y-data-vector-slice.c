@@ -43,8 +43,8 @@ enum {
 struct _YSliceOperation {
   YOperation	 base;
   int 		 index;
-  guchar           type;
-  int              width;
+  guchar   type;
+  int      width;
   int      index2;
   int      width2;
   gboolean   mean;
@@ -105,12 +105,26 @@ y_slice_operation_get_property (GObject *gobject, guint param_id,
 }
 
 static
-int vector_slice_size (YOperation *op, YData *input, unsigned int *dims)
+int slice_size (YOperation *op, YData *input, unsigned int *dims)
 {
   int n_dims;
-  g_assert(Y_IS_MATRIX(input));
   g_assert(dims);
   YSliceOperation *sop = Y_SLICE_OPERATION(op);
+
+  g_assert(!Y_IS_SCALAR(input));
+  g_assert(!Y_IS_STRUCT(input));
+
+  if(Y_IS_VECTOR(input)) {
+    if(sop->type==SLICE_ELEMENT) {
+      dims[0]=1;
+      n_dims=0;
+    }
+    else{
+      g_warning("Only SLICE_ELEMENT supported for vector input.");
+    }
+    return n_dims;
+  }
+
   YMatrix *mat = Y_MATRIX(input);
 
   if((sop->type == SLICE_ROW) || (sop->type == SLICE_SUMROWS)) {
@@ -173,11 +187,18 @@ gpointer vector_slice_op_create_data(YOperation *op, gpointer data, YData *input
   }
   YSliceOperation *sop = Y_SLICE_OPERATION(op);
   d->sop = *sop;
+  if(Y_IS_VECTOR(input)) {
+    YVector *vec = Y_VECTOR(input);
+    d->input = y_create_input_array_from_vector(vec,neu,d->size.rows, d->input);
+    if(d->output_len!=1) {
+      d->output = g_new(double,1);
+    }
+  }
   YMatrix *mat = Y_MATRIX(input);
   d->input = create_input_array_from_matrix(mat,neu,d->size,d->input);
   d->size = y_matrix_get_size(mat);
   unsigned int dims[2];
-  vector_slice_size(op,input,dims);
+  slice_size(op,input,dims);
   if(d->output_len != dims[0]*dims[1]) {
     g_free(d->output);
     d->output = g_new(double,dims[0]*dims[1]);
@@ -268,7 +289,7 @@ y_slice_operation_class_init (YSliceOperationClass *slice_klass)
   gobject_klass->get_property = y_slice_operation_get_property;
   YOperationClass *op_klass = (YOperationClass *) slice_klass;
   op_klass->thread_safe = TRUE;
-  op_klass->op_size = vector_slice_size;
+  op_klass->op_size = slice_size;
   op_klass->op_func = vector_slice_op;
   op_klass->op_data = vector_slice_op_create_data;
   op_klass->op_data_free = vector_slice_op_data_free;

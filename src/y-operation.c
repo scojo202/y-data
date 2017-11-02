@@ -42,6 +42,24 @@ y_operation_class_init (YOperationClass *klass)
 {
 }
 
+double *y_create_input_array_from_vector(YVector *input, gboolean is_new, unsigned int old_size, double *old_input)
+{
+  double *d = old_input;
+  unsigned int size = y_vector_get_len(input);
+  if(!is_new) {
+    if(old_size != size) {
+      g_free(old_input);
+      d = g_new(double,size);
+    }
+  }
+  else {
+    d = g_new(double,size);
+  }
+  memcpy(d,y_vector_get_values(input),size*sizeof(double));
+  return d;
+}
+
+
 GTask * y_operation_get_task(YOperation *op,gpointer user_data, GAsyncReadyCallback cb, gpointer cb_data)
 {
   GTask *task = g_task_new(op,NULL,cb,cb_data);

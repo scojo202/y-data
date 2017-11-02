@@ -101,24 +101,6 @@ typedef struct {
 } FFTOpData;
 
 static
-double *create_input_array_from_vector(YVector *input, gboolean is_new, unsigned int old_size, double *old_input)
-{
-  double *d = old_input;
-  unsigned int size = y_vector_get_len(input);
-  if(!is_new) {
-    if(old_size != size) {
-      g_free(old_input);
-      d = g_new(double,size);
-    }
-  }
-  else {
-    d = g_new(double,size);
-  }
-  memcpy(d,y_vector_get_values(input),size*sizeof(double));
-  return d;
-}
-
-static
 gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
 {
   if(input==NULL) return NULL;
@@ -135,7 +117,7 @@ gpointer vector_fft_op_create_data(YOperation *op, gpointer data, YData *input)
   d->sop = *sop;
   YVector *vec = Y_VECTOR(input);
   unsigned int old_len = d->len;
-  d->input = create_input_array_from_vector(vec,neu,d->len,d->input);
+  d->input = y_create_input_array_from_vector(vec,neu,d->len,d->input);
   d->len = y_vector_get_len(vec);
   if(d->len==0)
     return NULL;

@@ -43,14 +43,15 @@ G_DECLARE_DERIVABLE_TYPE(YOperation,y_operation,Y,OPERATION,GObject)
  **/
 
 struct _YOperationClass {
-	GObjectClass base;
-	gboolean thread_safe; /* does this operation keep copies of all data so it can be done in a thread? */
-
-	int (*op_size) (YOperation *op, YData *input, unsigned int *dims);
+  GObjectClass base;
+  gboolean thread_safe; /* does this operation keep copies of all data so it can be done in a thread? */
+  int (*op_size) (YOperation *op, YData *input, unsigned int *dims);
   gpointer (*op_func) (gpointer data);
   gpointer (*op_data) (YOperation *op, gpointer data, YData *input);
   GDestroyNotify op_data_free;
 };
+
+double *y_create_input_array_from_vector(YVector *input, gboolean is_new, unsigned int old_size, double *old_input);
 
 GTask * y_operation_get_task(YOperation *op, gpointer user_data, GAsyncReadyCallback cb, gpointer cb_data);
 gpointer y_operation_create_task_data(YOperation *op, YData *input);
