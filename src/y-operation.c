@@ -23,9 +23,9 @@
 
 /**
  * SECTION: y-operation
- * @short_description: Object representing an operation that takes data and creates other data.
+ * @short_description: Object representing operations
  *
- * 
+ * YOperations are objects that take data and create other data automatically.
  *
  * 
  */
@@ -70,12 +70,29 @@ void y_operation_run_task(YOperation *op,gpointer user_data, GAsyncReadyCallback
   g_object_unref(task);
 }
 
+/**
+ * y_operation_create_task_data:
+ * @op: a #YOperation
+ * @input: a #YData to serve as the input
+ *
+ * Create a task data structure to be used to perform the operation for a given
+ * input object. It will make a copy of the data in the input object, so if that
+ * changes, the structure must be updated.
+ **/
 gpointer y_operation_create_task_data(YOperation *op, YData *input)
 {
   YOperationClass *klass = Y_OPERATION_GET_CLASS (op);
   return klass->op_data(op,NULL,input);
 }
 
+/**
+ * y_operation_update_task_data:
+ * @op: a #YOperation
+ * @task_data: a pointer to the task data
+ * @input: a #YData to serve as the input
+ *
+ * Update an existing task data structure, possibly for a new input object.
+ **/
 void y_operation_update_task_data(YOperation *op, gpointer task_data, YData *input)
 {
   YOperationClass *klass = Y_OPERATION_GET_CLASS (op);

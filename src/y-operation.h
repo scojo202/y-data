@@ -34,6 +34,14 @@ G_DECLARE_DERIVABLE_TYPE(YOperation,y_operation,Y,OPERATION,GObject)
 
 #define Y_TYPE_OPERATION	(y_operation_get_type ())
 
+/**
+ * YOperationClass:
+ * @base: base class.
+ * @thread_safe: whether the operation can be run in a thread.
+ *
+ * Class for YOperation.
+ **/
+
 struct _YOperationClass {
 	GObjectClass base;
 	gboolean thread_safe; /* does this operation keep copies of all data so it can be done in a thread? */
