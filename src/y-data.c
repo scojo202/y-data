@@ -51,40 +51,6 @@
  * @Y_DATA_MINMAX_CACHED: bounds cache is valid.
  **/
 
-/**
- * YDataClass:
- * @base: base class.
- * @n_dimensions: number of dimensions of the array (-1 if struct)
- * @dup: duplicates the #YData.
- * @serialize: serializes to text.
- * @unserialize: unserializes from text.
- * @get_sizes: gets the sizes.
- * @get_bounds: gets the bounds.
- * @emit_changed: changed signal default handler
- **/
-
-/**
- * YScalarClass:
- * @base:  base class.
- * @get_value: gets the value.
- **/
-
-/**
- * YVectorClass:
- * @base: base class.
- * @load_len: loads the vector length and returns it.
- * @load_values: loads the values and returns them.
- * @get_value: gets a value.
- **/
-
-/**
- * YMatrixClass:
- * @base: base class.
- * @load_size: loads the matrix length.
- * @load_values: loads the values in the cache.
- * @get_value: gets a value.
- **/
-
 typedef enum {
 	Y_DATA_CACHE_IS_VALID =	1 << 0,
 	Y_DATA_IS_EDITABLE =		1 << 1,
@@ -117,6 +83,12 @@ y_data_dup_real (YData *src)
 
 	return dst;
 }
+
+/**
+ * YData:
+ *
+ * Object representing data.
+ **/
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YData, y_data, G_TYPE_INITIALLY_UNOWNED);
 
@@ -328,6 +300,12 @@ typedef struct {
 	double value;
 } YScalarPrivate;
 
+/**
+ * YScalar:
+ *
+ * Object representing a single number.
+ **/
+
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YScalar, y_scalar, Y_TYPE_DATA);
 
 static void
@@ -411,6 +389,12 @@ typedef struct {
 	double *values;	/* NULL = inititialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YVectorPrivate;
+
+/**
+ * YVector:
+ *
+ * Object representing a one-dimensional array of numbers.
+ **/
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YVector, y_vector, Y_TYPE_DATA);
 
@@ -709,6 +693,12 @@ typedef struct {
 	double minimum, maximum;
 } YMatrixPrivate;
 
+/**
+ * YMatrix:
+ *
+ * Object representing a two-dimensional array of numbers.
+ **/
+
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YMatrix, y_matrix, Y_TYPE_DATA);
 
 static void
@@ -960,6 +950,12 @@ typedef struct {
 	double *values;	/* NULL = uninitialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YThreeDArrayPrivate;
+
+/**
+ * YThreeDArray:
+ *
+ * Object representing a three-dimensional array of numbers.
+ **/
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YThreeDArray, y_three_d_array, Y_TYPE_DATA);
 
@@ -1242,6 +1238,12 @@ struct _YStruct {
 	YData	 base;
 	GHashTable *hash;
 };
+
+/**
+ * YStruct:
+ *
+ * Object representing a dictionary full of YData objects.
+ **/
 
 G_DEFINE_TYPE (YStruct, y_struct, Y_TYPE_DATA);
 

@@ -59,6 +59,19 @@ typedef struct {
 	unsigned int columns;
 } YThreeDArraySize;
 
+/**
+ * YDataClass:
+ * @base: base class.
+ * @n_dimensions: number of dimensions of the array (-1 if struct)
+ * @dup: duplicates the #YData.
+ * @serialize: serializes to text.
+ * @unserialize: unserializes from text.
+ * @get_sizes: gets the sizes.
+ * @get_bounds: gets the bounds.
+ * @emit_changed: changed signal default handler
+ *
+ * Class for YData.
+ **/
 struct _YDataClass {
 	GObjectClass base;
 
@@ -80,6 +93,14 @@ G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)
 
 #define Y_TYPE_SCALAR	(y_scalar_get_type ())
 
+/**
+ * YScalarClass:
+ * @base:  base class.
+ * @get_value: gets the value.
+ *
+ * Class for YScalar.
+ **/
+
 struct _YScalarClass {
 	YDataClass base;
 	double       (*get_value)  (YScalar *scalar);
@@ -88,6 +109,16 @@ struct _YScalarClass {
 G_DECLARE_DERIVABLE_TYPE(YVector,y_vector,Y,VECTOR,YData)
 
 #define Y_TYPE_VECTOR	(y_vector_get_type ())
+
+/**
+ * YVectorClass:
+ * @base: base class.
+ * @load_len: loads the vector length and returns it.
+ * @load_values: loads the values and returns them.
+ * @get_value: gets a value.
+ *
+ * Class for YVector.
+ **/
 
 struct _YVectorClass {
 	YDataClass base;
@@ -101,6 +132,16 @@ G_DECLARE_DERIVABLE_TYPE(YMatrix,y_matrix,Y,MATRIX,YData)
 
 #define Y_TYPE_MATRIX (y_matrix_get_type())
 
+/**
+ * YMatrixClass:
+ * @base: base class.
+ * @load_size: loads the matrix length.
+ * @load_values: loads the values in the cache.
+ * @get_value: gets a value.
+ *
+ * Class for YMatrix.
+ **/
+
 struct _YMatrixClass {
 	YDataClass base;
 
@@ -112,6 +153,16 @@ struct _YMatrixClass {
 G_DECLARE_DERIVABLE_TYPE(YThreeDArray,y_three_d_array,Y,THREE_D_ARRAY,YData)
 
 #define Y_TYPE_THREE_D_ARRAY (y_three_d_array_get_type())
+
+/**
+ * YThreeDArrayClass:
+ * @base: base class.
+ * @load_size: loads the matrix length.
+ * @load_values: loads the values in the cache.
+ * @get_value: gets a value.
+ *
+ * Class for YThreeDArray.
+ **/
 
 struct _YThreeDArrayClass {
 	YDataClass base;

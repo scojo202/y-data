@@ -27,6 +27,13 @@
  *
  * */
 
+/**
+ * SECTION: y-linear-range
+ * @short_description: Vector for equally spaced data.
+ *
+ * Data for equally spaced data.
+ */
+
 struct _YLinearRangeVector {
   YVector	 base;
   double v0;
