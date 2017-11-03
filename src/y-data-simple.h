@@ -41,7 +41,7 @@ G_DECLARE_FINAL_TYPE(YVectorVal,y_vector_val,Y,VECTOR_VAL,YVector)
 
 YData	*y_vector_val_new      (double *val, unsigned n, GDestroyNotify   notify);
 YData	*y_vector_val_new_alloc (unsigned n);
-YData	*y_vector_val_new_copy (double *val, unsigned n);
+YData	*y_vector_val_new_copy (const double *val, unsigned n);
 
 double *y_vector_val_get_array (YVectorVal *s);
 void y_vector_val_replace_array(YVectorVal *s, double *array, unsigned n, GDestroyNotify notify);
@@ -51,7 +51,7 @@ G_DECLARE_FINAL_TYPE(YMatrixVal,y_matrix_val,Y,MATRIX_VAL,YMatrix)
 #define Y_TYPE_MATRIX_VAL  (y_matrix_val_get_type ())
 
 YData	*y_matrix_val_new      (double *val, unsigned rows, unsigned columns, GDestroyNotify   notify);
-YData *y_matrix_val_new_copy (double   *val,
+YData *y_matrix_val_new_copy (const double   *val,
                                      unsigned  rows, unsigned columns);
 YData *y_matrix_val_new_alloc (unsigned n, unsigned m);
                                      

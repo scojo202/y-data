@@ -38,14 +38,6 @@
  * array should not be freed.
  */
 
-static char *
-render_val (double val)
-{
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
-}
-
 /**
  * YScalarVal:
  * @base: base.
@@ -76,13 +68,6 @@ y_scalar_val_dup (YData *src)
 	YScalarVal const *src_val = (YScalarVal const *)src;
 	dst->val = src_val->val;
 	return Y_DATA (dst);
-}
-
-static char *
-y_scalar_val_serialize (YData *dat, gpointer user)
-{
-	YScalarVal *sval = (YScalarVal *)dat;
-	return render_val (sval->val);
 }
 
 static gboolean
@@ -117,7 +102,6 @@ y_scalar_val_class_init (YScalarValClass *scalarval_klass)
 
 	gobject_klass->finalize   = y_scalar_val_finalize;
 	ydata_klass->dup	  = y_scalar_val_dup;
-	ydata_klass->serialize	  = y_scalar_val_serialize;
 	ydata_klass->unserialize = y_scalar_val_unserialize;
 	scalar_klass->get_value	  = y_scalar_val_get_value;
 }
@@ -225,26 +209,6 @@ y_vector_val_get_value (YVector *vec, unsigned i)
 	return val->val[i];
 }
 
-static char *
-y_vector_val_serialize (YData *dat, gpointer user)
-{
-	YVectorVal const *vec = (YVectorVal const *) dat;
-	GString *str;
-	char sep;
-	unsigned i;
-
-	sep = '\t';
-	str = g_string_new (NULL);
-
-	for (i = 0; i < vec->n; i++) {
-		char *s = render_val (vec->val[i]);
-		if (i) g_string_append_c (str, sep);
-		g_string_append (str, s);
-		g_free (s);
-	}
-	return g_string_free (str, FALSE);
-}
-
 static gboolean
 y_vector_val_unserialize (YData *dat, char const *str, gpointer user)
 {
@@ -301,7 +265,6 @@ y_vector_val_class_init (YVectorValClass *val_klass)
 
 	gobject_klass->finalize = y_vector_val_finalize;
 	ydata_klass->dup	= y_vector_val_dup;
-	ydata_klass->serialize	= y_vector_val_serialize;
 	ydata_klass->unserialize	= y_vector_val_unserialize;
 	vector_klass->load_len    = y_vector_val_load_len;
 	vector_klass->load_values = y_vector_val_load_values;
@@ -361,7 +324,7 @@ y_vector_val_new_alloc (unsigned n)
  **/
 
 YData *
-y_vector_val_new_copy (double *val, unsigned n)
+y_vector_val_new_copy (const double *val, unsigned n)
 {
 	double *val2 = g_memdup (val, sizeof(double)*n);
 	return y_vector_val_new(val2,n,g_free);
@@ -468,30 +431,6 @@ y_matrix_val_get_value (YMatrix *mat, unsigned i, unsigned j)
 	return val->val[i * val->size.columns + j];
 }
 
-static char *
-y_matrix_val_serialize (YData *dat, gpointer user)
-{
-	YMatrixVal const *mat = (YMatrixVal const *) dat;
-	GString *str;
-	size_t c, r;
-	char col_sep = '\t';
-	char row_sep = '\n';
-
-	str = g_string_new (NULL);
-	for (r = 0; r < mat->size.rows; r++) {
-		if (r) g_string_append_c (str, row_sep);
-		for (c = 0; c < mat->size.columns; c++) {
-			double val = mat->val[r * mat->size.columns + c];
-			char *s = render_val (val);
-			if (c) g_string_append_c (str, col_sep);
-			g_string_append (str, s);
-			g_free (s);
-		}
-	}
-
-	return g_string_free (str, FALSE);
-}
-
 static gboolean
 y_matrix_val_unserialize (YData *dat, char const *str, gpointer user)
 {
@@ -566,7 +505,6 @@ y_matrix_val_class_init (YMatrixValClass *val_klass)
 
 	gobject_klass->finalize = y_matrix_val_finalize;
 	ydata_klass->dup	= y_matrix_val_dup;
-	ydata_klass->serialize	= y_matrix_val_serialize;
 	ydata_klass->unserialize = y_matrix_val_unserialize;
 	matrix_klass->load_size   = y_matrix_val_load_size;
 	matrix_klass->load_values = y_matrix_val_load_values;
@@ -608,7 +546,7 @@ y_matrix_val_new (double *val, unsigned rows, unsigned columns, GDestroyNotify  
  *
  * Returns: a #YData
  **/
-YData *y_matrix_val_new_copy (double   *val,
+YData *y_matrix_val_new_copy (const double   *val,
                                      unsigned  rows, unsigned columns)
 {
   return y_matrix_val_new(g_memdup(val,sizeof(double)*rows*columns),rows,columns,g_free);
@@ -681,7 +619,24 @@ void y_matrix_val_replace_array(YMatrixVal *s, double *array, unsigned rows, uns
  **/
 YData *y_data_dup_to_simple(YData *src)
 {
-  return NULL;
+  YData *d = NULL;
+  if(Y_IS_SCALAR(src)) {
+    double v = y_scalar_get_value(Y_SCALAR(src));
+    d = Y_DATA(y_scalar_val_new(v));
+  }
+  else if(Y_IS_VECTOR(src)) {
+    const double *v = y_vector_get_values(Y_VECTOR(src));
+    d = Y_DATA(y_vector_val_new_copy(v,y_vector_get_len(Y_VECTOR(src))));
+  }
+  else if(Y_IS_MATRIX(src)) {
+    const double *v = y_matrix_get_values(Y_MATRIX(src));
+    YMatrixSize s = y_matrix_get_size(Y_MATRIX(src));
+    d = Y_DATA(y_matrix_val_new_copy(v,s.rows,s.columns));
+  }
+  else if(Y_IS_THREE_D_ARRAY(src)) {
+    g_error("dup to simple not yet implemented for 3D arrays.");
+  }
+  return d;
 }
 
 /*****************************************************************************/
@@ -752,38 +707,6 @@ y_three_d_array_val_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsign
 }
 
 #if 0
-
-static char *
-y_three_d_array_val_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
-{
-	YThreeDArrayVal const *val = (YThreeDArrayVal const *)mat;
-
-	return render_val (val->val[i * val->size.columns + j]);
-}
-
-static char *
-y_three_d_array_val_serialize (YData const *dat, gpointer user)
-{
-	YThreeDArrayVal *mat = Y_MATRIX_VAL (dat);
-	GString *str;
-	size_t c, r;
-	char col_sep = '\t';
-	char row_sep = '\n';
-
-	str = g_string_new (NULL);
-	for (r = 0; r < mat->size.rows; r++) {
-		if (r) g_string_append_c (str, row_sep);
-		for (c = 0; c < mat->size.columns; c++) {
-			double val = mat->val[r * mat->size.columns + c];
-			char *s = render_val (val);
-			if (c) g_string_append_c (str, col_sep);
-			g_string_append (str, s);
-			g_free (s);
-		}
-	}
-
-	return g_string_free (str, FALSE);
-}
 
 static gboolean
 y_three_d_array_val_unserialize (YData *dat, char const *str, gpointer user)
@@ -860,7 +783,6 @@ y_three_d_array_val_class_init (YThreeDArrayValClass *val_klass)
 
 	gobject_klass->finalize = y_three_d_array_val_finalize;
 	ydata_klass->dup	= y_three_d_array_val_dup;
-	//ydata_klass->serialize	= y_three_d_array_val_serialize;
 	//ydata_klass->unserialize = y_three_d_array_val_unserialize;
 	matrix_klass->load_size   = y_three_d_array_val_load_size;
 	matrix_klass->load_values = y_three_d_array_val_load_values;

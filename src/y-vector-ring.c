@@ -109,34 +109,6 @@ y_vector_ring_get_value (YVector *vec, unsigned i)
 	return val->val[i];
 }
 
-static char *
-render_val (double val)
-{
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
-}
-
-static char *
-y_vector_ring_serialize (YData *dat, gpointer user)
-{
-	YVectorRing *vec = Y_VECTOR_RING (dat);
-	GString *str;
-	char sep;
-	unsigned i;
-
-	sep = '\t';
-	str = g_string_new (NULL);
-
-	for (i = 0; i < vec->n; i++) {
-		char *s = render_val (vec->val[i]);
-		if (i) g_string_append_c (str, sep);
-		g_string_append (str, s);
-		g_free (s);
-	}
-	return g_string_free (str, FALSE);
-}
-
 static gboolean
 y_vector_ring_unserialize (YData *dat, char const *str, gpointer user)
 {
@@ -192,7 +164,6 @@ y_vector_ring_class_init (YVectorRingClass *val_klass)
 
 	gobject_klass->finalize = y_vector_ring_finalize;
 	ydata_klass->dup	= y_vector_ring_dup;
-	ydata_klass->serialize	= y_vector_ring_serialize;
 	ydata_klass->unserialize	= y_vector_ring_unserialize;
 	vector_klass->load_len    = y_vector_ring_load_len;
 	vector_klass->load_values = y_vector_ring_load_values;

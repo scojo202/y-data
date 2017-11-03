@@ -482,7 +482,6 @@ y_vector_derived_class_init (YVectorDerivedClass *slice_klass)
   gobject_class->get_property = y_vector_derived_get_property;
 
 	//ydata_klass->dup	= data_vector_slice_dup;
-	//ydata_klass->serialize	= data_vector_slice_serialize;
 	vector_klass->load_len    = vector_derived_load_len;
 	vector_klass->load_values = vector_derived_load_values;
 	vector_klass->get_value   = vector_derived_get_value;

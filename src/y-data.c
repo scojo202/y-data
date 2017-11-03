@@ -70,6 +70,14 @@ enum {
 
 static gulong y_data_signals [LAST_SIGNAL] = { 0, };
 
+static char *
+render_val (double val)
+{
+		char buf[G_ASCII_DTOSTR_BUF_SIZE];
+		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+		return g_strdup (buf);
+}
+
 /* trivial fall back */
 static YData *
 y_data_dup_real (YData *src)
@@ -143,7 +151,7 @@ y_data_dup (YData *src)
  * @dat: #YData
  * @user: a gpointer describing the context.
  *
- * Returns: a string representation of the data source that the caller is
+ * Returns: a string representation of the data that the caller is
  * 	responsible for freeing
  **/
 char *
@@ -327,12 +335,21 @@ _data_scalar_get_bounds (YData *data, double *minimum, double *maximum)
 	}
 }
 
+static char *
+_scalar_serialize (YData *dat, gpointer user)
+{
+	YScalar *scalar = (YScalar *)dat;
+  YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
+	return render_val (priv->value);
+}
+
 static void
 y_scalar_class_init (YScalarClass *scalar_class)
 {
   YDataClass *data_class = Y_DATA_CLASS(scalar_class);
 	data_class->n_dimensions = 	0;
 	data_class->get_bounds =	_data_scalar_get_bounds;
+	data_class->serialize	  = _scalar_serialize;
 }
 
 static void
@@ -419,6 +436,27 @@ _data_vector_get_bounds (YData *data, double *minimum, double *maximum)
 	y_vector_get_minmax ((YVector *) data, minimum, maximum);
 }
 
+static char *
+_vector_serialize (YData *dat, gpointer user)
+{
+	YVector *vec = (YVector *) dat;
+  YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
+	GString *str;
+	char sep;
+	unsigned i;
+
+	sep = '\t';
+	str = g_string_new (NULL);
+
+	for (i = 0; i < vpriv->len; i++) {
+		char *s = render_val (vpriv->values[i]);
+		if (i) g_string_append_c (str, sep);
+		g_string_append (str, s);
+		g_free (s);
+	}
+	return g_string_free (str, FALSE);
+}
+
 static void
 y_vector_init (YVector *vec)
 {
@@ -435,6 +473,7 @@ y_vector_class_init (YVectorClass *vec_class)
 	data_class->n_dimensions = 	1;
 	data_class->get_sizes =		_data_vector_get_sizes;
 	data_class->get_bounds =	_data_vector_get_bounds;
+  data_class->serialize = _vector_serialize;
 }
 
 /**
@@ -719,6 +758,31 @@ _data_matrix_get_bounds (YData *data, double *minimum, double *maximum)
 	y_matrix_get_minmax ((YMatrix *) data, minimum, maximum);
 }
 
+static char *
+_matrix_serialize (YData *dat, gpointer user)
+{
+	YMatrix *mat = (YMatrix *) dat;
+  YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
+	GString *str;
+	size_t c, r;
+	char col_sep = '\t';
+	char row_sep = '\n';
+
+	str = g_string_new (NULL);
+	for (r = 0; r < mpriv->size.rows; r++) {
+		if (r) g_string_append_c (str, row_sep);
+		for (c = 0; c < mpriv->size.columns; c++) {
+			double val = mpriv->values[r * mpriv->size.columns + c];
+			char *s = render_val (val);
+			if (c) g_string_append_c (str, col_sep);
+			g_string_append (str, s);
+			g_free (s);
+		}
+	}
+
+	return g_string_free (str, FALSE);
+}
+
 static void
 y_matrix_class_init (YMatrixClass *mat_class)
 {
@@ -728,6 +792,7 @@ y_matrix_class_init (YMatrixClass *mat_class)
 	data_class->n_dimensions = 	2;
 	data_class->get_sizes =		_data_matrix_get_sizes;
 	data_class->get_bounds =	_data_matrix_get_bounds;
+  data_class->serialize = _matrix_serialize;
 }
 
 static void
@@ -977,6 +1042,32 @@ _data_tda_get_bounds (YData *data, double *minimum, double *maximum)
 {
 	y_three_d_array_get_minmax ((YThreeDArray *) data, minimum, maximum);
 }
+
+#if 0
+static char *
+_three_d_array_val_serialize (YData const *dat, gpointer user)
+{
+	YThreeDArrayVal *mat = Y_MATRIX_VAL (dat);
+	GString *str;
+	size_t c, r;
+	char col_sep = '\t';
+	char row_sep = '\n';
+
+	str = g_string_new (NULL);
+	for (r = 0; r < mat->size.rows; r++) {
+		if (r) g_string_append_c (str, row_sep);
+		for (c = 0; c < mat->size.columns; c++) {
+			double val = mat->val[r * mat->size.columns + c];
+			char *s = render_val (val);
+			if (c) g_string_append_c (str, col_sep);
+			g_string_append (str, s);
+			g_free (s);
+		}
+	}
+
+	return g_string_free (str, FALSE);
+}
+#endif
 
 static void
 y_three_d_array_class_init (YThreeDArrayClass *mat_class)

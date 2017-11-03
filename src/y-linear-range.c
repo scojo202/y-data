@@ -129,7 +129,6 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
 	gobject_klass->finalize = data_vector_val_finalize;
 	ydata_klass->dup	= data_vector_val_dup;
 	//ydata_klass->get_bounds =	_linear_range_vector_get_bounds;
-	//ydata_klass->serialize	= data_vector_val_serialize;
 	vector_klass->load_len    = data_vector_val_load_len;
 	vector_klass->load_values = data_vector_val_load_values;
 	vector_klass->get_value   = data_vector_val_get_value;
