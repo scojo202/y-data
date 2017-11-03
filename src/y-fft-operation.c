@@ -26,7 +26,7 @@
 
 /**
  * SECTION: y-fft-operation
- * @short_description: Operations that take Fourier transform of input.
+ * @short_description: Operations that take the Fourier transform of input.
  *
  *
  *
