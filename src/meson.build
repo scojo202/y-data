@@ -12,7 +12,7 @@ src_public_headers += [
   'y-vector-ring.h',
   'y-data-derived.h',
   'y-operation.h',
-  'y-data-vector-slice.h',
+  'y-slice-operation.h',
   'y-hdf.h',
   'y-data-tcp.h',
   'y-fft-operation.h'
@@ -26,7 +26,7 @@ src_public_sources += [
   'y-vector-ring.c',
   'y-data-derived.c',
   'y-operation.c',
-  'y-data-vector-slice.c',
+  'y-slice-operation.c',
   'y-hdf.c',
   'y-data-tcp.c',
   'y-fft-operation.c'

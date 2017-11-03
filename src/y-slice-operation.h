@@ -35,13 +35,11 @@ enum {
   SLICE_ROW = 0,
   SLICE_COL = 1,
   SLICE_SUMROWS = 2,
-  SLICE_SUMCOLS = 3,
-  SLICE_ROWS = 4,
-  SLICE_COLS = 5,
-  SLICE_REGION = 6
+  SLICE_SUMCOLS = 3
 };
 
 #define SLICE_ELEMENT SLICE_ROW
+#define SLICE_SUMELEMENTS SLICE_SUMROWS
 
 YOperation *y_slice_operation_new (int type, int index, int width);
 void y_slice_operation_set_pars(YSliceOperation *d, int type, int index,

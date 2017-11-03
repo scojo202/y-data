@@ -28,7 +28,7 @@
 #include <y-operation.h>
 #include <y-data-tcp.h>
 #include <y-hdf.h>
-#include <y-data-vector-slice.h>
+#include <y-slice-operation.h>
 #include <y-linear-range.h>
 #include <y-scalar-property.h>
 #include <y-vector-ring.h>

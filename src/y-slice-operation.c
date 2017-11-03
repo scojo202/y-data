@@ -21,11 +21,11 @@
 
 #include <memory.h>
 #include <math.h>
-#include "y-data-vector-slice.h"
+#include "y-slice-operation.h"
 
 /**
- * SECTION: y-operation-slice
- * @short_description: Operation that slices matrices, outputting vectors or matrices.
+ * SECTION: y-slice-operation
+ * @short_description: Operation that slices matrices or vectors, outputting vectors or scalars, respectively.
  *
  * 
  *
@@ -41,13 +41,13 @@ enum {
 };
 
 struct _YSliceOperation {
-  YOperation	 base;
-  int 		 index;
-  guchar   type;
-  int      width;
-  int      index2;
-  int      width2;
-  gboolean   mean;
+  YOperation base;
+  int index;
+  guchar type;
+  int width;
+  int index2;
+  int width2;
+  gboolean mean;
 };
 
 G_DEFINE_TYPE (YSliceOperation, y_slice_operation, Y_TYPE_OPERATION);
@@ -56,13 +56,13 @@ static void
 y_slice_operation_set_property (GObject *gobject, guint param_id,
                                  GValue const *value, GParamSpec *pspec)
 {
-	YSliceOperation *sop = Y_SLICE_OPERATION (gobject);
+  YSliceOperation *sop = Y_SLICE_OPERATION (gobject);
 
-	switch (param_id) {
-	case SLICE_PROP_INDEX:
+  switch (param_id) {
+  case SLICE_PROP_INDEX:
 		sop->index = g_value_get_int (value);
 		break;
-	case SLICE_PROP_TYPE:
+  case SLICE_PROP_TYPE:
 		sop->type = g_value_get_int (value);
 		break;
   case SLICE_PROP_WIDTH:
@@ -71,37 +71,35 @@ y_slice_operation_set_property (GObject *gobject, guint param_id,
   case SLICE_PROP_MEAN:
 		sop->mean = g_value_get_boolean (value);
 		break;
-
-	default:
+  default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, param_id, pspec);
 		return; /* NOTE : RETURN */
-	}
+  }
 }
 
 static void
 y_slice_operation_get_property (GObject *gobject, guint param_id,
                                  GValue *value, GParamSpec *pspec)
 {
-	YSliceOperation *sop = Y_SLICE_OPERATION (gobject);
+  YSliceOperation *sop = Y_SLICE_OPERATION (gobject);
 
-	switch (param_id) {
-	case SLICE_PROP_INDEX:
+  switch (param_id) {
+  case SLICE_PROP_INDEX:
 		g_value_set_int (value, sop->index);
 		break;
-	case SLICE_PROP_TYPE:
+  case SLICE_PROP_TYPE:
 		g_value_set_int (value, sop->type);
 		break;
-	case SLICE_PROP_WIDTH:
+  case SLICE_PROP_WIDTH:
 		g_value_set_int (value, sop->width);
 		break;
   case SLICE_PROP_MEAN:
 		g_value_set_boolean (value, sop->mean);
 		break;
-
-	default:
+  default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, param_id, pspec);
 		return; /* NOTE : RETURN */
-	}
+  }
 }
 
 static
@@ -115,7 +113,7 @@ int slice_size (YOperation *op, YData *input, unsigned int *dims)
   g_assert(!Y_IS_STRUCT(input));
 
   if(Y_IS_VECTOR(input)) {
-    if(sop->type==SLICE_ELEMENT) {
+    if(sop->type==SLICE_ELEMENT || sop->type==SLICE_SUMELEMENTS) {
       dims[0]=1;
       n_dims=0;
     }
@@ -223,14 +221,35 @@ gpointer vector_slice_op(gpointer input)
   if(d==NULL)
     return NULL;
 
-  //g_message("task data: index %d, width %d, type %u, input %p, nrow %u, ncol %u",d->index,d->width,d->type,d->input,d->nrow,d->ncol);
-
   unsigned int nrow = d->size.rows;
   unsigned int ncol = d->size.columns;
   double *m = d->input;
 
   double *v = d->output;
 
+  if(Y_IS_VECTOR(input)) {  /* output will be scalar */
+    if(d->sop.type == SLICE_ELEMENT) {
+      *v = m[d->sop.index];
+    }
+    else if (d->sop.type == SLICE_SUMELEMENTS) {
+      unsigned int j;
+      int w = d->sop.width;
+      int start=d->sop.index-w/2;
+      start=MAX(start,0);
+      int end = d->sop.index+w/2;
+      end=MIN(end,(int)(nrow-1));
+      *v = 0.;
+      int n=0;
+      for(j=start;j<=end;j++) {
+        *v+=m[j];
+        n++;
+      }
+      if(d->sop.mean) {
+        *v/=n;
+      }
+    }
+  }
+  else {  /* output will be vector */
   if(d->sop.type == SLICE_ROW) {
     memcpy(v,&m[d->sop.index*ncol],sizeof(double)*ncol);
   }
@@ -278,6 +297,7 @@ gpointer vector_slice_op(gpointer input)
         v[j]/=n;
     }
   }
+  }
   return v;
 }
 
@@ -312,7 +332,7 @@ y_slice_operation_class_init (YSliceOperationClass *slice_klass)
 			1, 2000000000, 1,
 			G_PARAM_READWRITE));
 
-	g_object_class_install_property (gobject_klass,
+  g_object_class_install_property (gobject_klass,
 		SLICE_PROP_MEAN,
 		g_param_spec_boolean ("mean", "average over elements",
 			"Average over elements if TRUE, sum over them if FALSE.",

@@ -46,15 +46,15 @@ G_DEFINE_INTERFACE(YDerived,y_derived,Y_TYPE_DATA)
 static void
 y_derived_default_init(YDerivedInterface *i)
 {
- g_object_interface_install_property(i,
+  g_object_interface_install_property(i,
     g_param_spec_boolean ("autorun",
                          "Auto-run",
                          "Whether to run the operation immediately upon input data changing",
                          FALSE /* default value */,
                          G_PARAM_READWRITE));
 
-    g_object_interface_install_property(i,g_param_spec_object ("input","Input data","The input data",Y_TYPE_DATA, G_PARAM_READWRITE));
-    g_object_interface_install_property(i,g_param_spec_object ("operation","Operation","The operation",Y_TYPE_OPERATION, G_PARAM_READWRITE));
+  g_object_interface_install_property(i,g_param_spec_object ("input","Input data","The input data",Y_TYPE_DATA, G_PARAM_READWRITE));
+  g_object_interface_install_property(i,g_param_spec_object ("operation","Operation","The operation",Y_TYPE_OPERATION, G_PARAM_READWRITE));
 }
 
 static GParamSpec *scalar_properties[N_PROPERTIES] = { NULL, };
@@ -63,14 +63,8 @@ static GParamSpec *scalar_properties[N_PROPERTIES] = { NULL, };
  * YDerivedScalar:
  *
  * @base: base
- * @op: operation
- * @input: the input data
  * @cache: the current value
- * @autorun: whether to run the operation immediately when input data changes
- * @running: whether an operation is running right now
- * @task_data: task data
  *
- * Object representing data.
  **/
 
 typedef
@@ -374,20 +368,6 @@ vector_derived_get_value (YVector *vec, unsigned i)
 	return d[i];
 }
 
-#if 0
-/*static char *
-data_vector_slice_get_str (GODataVector *vec, unsigned i)
-{
-	YVectorSlice const *val = (YVectorSlice const *)vec;
-	GOFormat const *fmt = NULL;
-
-	g_return_val_if_fail (val != NULL && val->val != NULL && i < val->n, NULL);
-
-	return render_val (val->val[i], fmt);
-}
-*/
-#endif
-
 static void
 op_cb (GObject *source_object,
                         GAsyncResult *res,
@@ -506,8 +486,7 @@ y_vector_derived_class_init (YVectorDerivedClass *slice_klass)
 	vector_klass->load_len    = vector_derived_load_len;
 	vector_klass->load_values = vector_derived_load_values;
 	vector_klass->get_value   = vector_derived_get_value;
-	//vector_klass->get_str     = data_vector_slice_get_str;
-  //
+
   vector_properties[PROP_AUTORUN] = g_param_spec_boolean ("autorun",
                          "Auto-run",
                          "Whether to run the operation immediately upon input data changing",

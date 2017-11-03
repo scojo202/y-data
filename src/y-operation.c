@@ -19,6 +19,7 @@
  * USA
  */
 
+#include <string.h>
 #include <y-operation.h>
 
 /**

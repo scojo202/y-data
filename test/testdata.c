@@ -91,8 +91,8 @@ main (int argc, char *argv[])
   g_object_unref(d3);
 
   /* test slice */
-  YOperation *op1 = y_slice_operation_new(SLICE_ROWS,50,10);
-  YOperation *op2 = y_slice_operation_new(SLICE_COLS,20,10);
+  YOperation *op1 = y_slice_operation_new(SLICE_ROW,50,10);
+  YOperation *op2 = y_slice_operation_new(SLICE_COL,20,10);
   YData *der1 = y_vector_derived_new(d1,op1);
   YData *der2 = y_vector_derived_new(d2,op1);
   YData *der3 = y_vector_derived_new(d2,op2);
@@ -115,7 +115,7 @@ main (int argc, char *argv[])
   else {
     fprintf (stderr, "Error, %s\n", err->message);
   }
-  g_object_unref(s);
+  //g_object_unref(s);
 
   return 0;
 }
