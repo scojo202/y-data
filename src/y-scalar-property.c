@@ -58,7 +58,6 @@ y_scalar_property_class_init (YScalarPropertyClass *klass)
   YScalarClass *scalar_klass = (YScalarClass *) klass;
   //ydata_klass->dup  = y_scalar_property_dup;
   scalar_klass->get_value  = y_scalar_property_get_value;
-  //scalar_klass->get_str	  = y_scalar_property_get_str;
 }
 
 static void
@@ -79,14 +78,21 @@ void on_notify (GObject    *gobject,
  * @obj: a GObject
  * @name: the property name
  *
- * Creates a new #YScalarProperty object. The property should be interpretable as a number.
+ * Creates a new #YScalarProperty object. The property must be numeric.
  *
  * Returns: (transfer full): The new object.
  **/
 YScalarProperty	*y_scalar_property_new (GObject *obj, const gchar *name)
 {
+  /* check that there is a property with this name */
+  GObjectClass *class = G_OBJECT_GET_CLASS(obj);
+  GParamSpec *spec = g_object_class_find_property(class,name);
+  g_return_val_if_fail(spec!=NULL,NULL);
+  /* ensure that the property is a numeric type */
+  GType type = G_PARAM_SPEC_VALUE_TYPE(spec);
+  g_return_val_if_fail(type==G_TYPE_DOUBLE || type==G_TYPE_FLOAT || type==G_TYPE_INT || type==G_TYPE_UINT,NULL);
+    
   YScalarProperty *p = g_object_new(Y_TYPE_SCALAR_PROPERTY,NULL);
-  /* should verify that there is a property with this name and that it can be interpreted as a scalar value */
   p->obj = g_object_ref(obj);
   p->name = g_strdup(name);
   /* connect to notify signal and emit changed */
