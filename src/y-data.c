@@ -24,6 +24,7 @@
 #include "y-operation.h"
 #include <math.h>
 #include <string.h>
+#include <errno.h>
 
 /**
  * SECTION: y-data
@@ -305,7 +306,7 @@ y_data_get_bounds (YData *data, double *minimum, double *maximum)
  */
 
 typedef struct {
-	double value;
+  double value;
 } YScalarPrivate;
 
 /**
@@ -319,37 +320,45 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YScalar, y_scalar, Y_TYPE_DATA);
 static void
 _data_scalar_get_bounds (YData *data, double *minimum, double *maximum)
 {
-	YScalar *scalar = (YScalar *) data;
+  YScalar *scalar = (YScalar *) data;
 
-	YDataPrivate *dpriv = y_data_get_instance_private(data);
+  YDataPrivate *dpriv = y_data_get_instance_private(data);
 
-	double v = y_scalar_get_value (scalar);
+  double v = y_scalar_get_value (scalar);
 
   if(minimum)
-	  *minimum = v;
-	if(maximum)
-	  *maximum = v;
+    *minimum = v;
+  if(maximum)
+    *maximum = v;
 
-	if(isfinite(v)) {
-	  dpriv->flags |= Y_DATA_HAS_VALUE;
-	}
+  if(isfinite(v)) {
+    dpriv->flags |= Y_DATA_HAS_VALUE;
+  }
 }
 
 static char *
 _scalar_serialize (YData *dat, gpointer user)
 {
-	YScalar *scalar = (YScalar *)dat;
+  YScalar *scalar = (YScalar *)dat;
   YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
-	return render_val (priv->value);
+  return render_val (priv->value);
+}
+
+static void
+_data_scalar_emit_changed (YData *data)
+{
+  YDataPrivate *priv = y_data_get_instance_private(data);
+  priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_HAS_VALUE);
 }
 
 static void
 y_scalar_class_init (YScalarClass *scalar_class)
 {
   YDataClass *data_class = Y_DATA_CLASS(scalar_class);
-	data_class->n_dimensions = 	0;
-	data_class->get_bounds =	_data_scalar_get_bounds;
-	data_class->serialize	  = _scalar_serialize;
+  data_class->n_dimensions = 0;
+  data_class->get_bounds = _data_scalar_get_bounds;
+  data_class->serialize	= _scalar_serialize;
+  data_class->emit_changed = _data_scalar_emit_changed;
 }
 
 static void
@@ -366,12 +375,14 @@ y_scalar_init (YScalar *scalar) {}
 double
 y_scalar_get_value (YScalar *scalar)
 {
-	YScalarClass const *klass = Y_SCALAR_GET_CLASS (scalar);
-	g_return_val_if_fail (klass != NULL, 0.); /* TODO : make this a nan */
-	YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
-	priv->value = (*klass->get_value) (scalar);
-
-	return priv->value;
+  YScalarClass const *klass = Y_SCALAR_GET_CLASS (scalar);
+  g_return_val_if_fail (klass != NULL, NAN);
+  YDataPrivate *dpriv = y_data_get_instance_private(Y_DATA(scalar));
+  YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
+  if (! (dpriv->flags & Y_DATA_CACHE_IS_VALID)) {
+    priv->value = (*klass->get_value) (scalar);
+  }
+  return priv->value;
 }
 
 /**
@@ -386,11 +397,106 @@ y_scalar_get_value (YScalar *scalar)
 char *
 y_scalar_get_str (YScalar *scalar)
 {
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-	    double val = y_scalar_get_value (scalar);
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
+  char buf[G_ASCII_DTOSTR_BUF_SIZE];
+  double val = y_scalar_get_value (scalar);
+  g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+  return g_strdup (buf);
 }
+
+/**********************************************************/
+
+/**
+ * YScalarVal:
+ * @base: base.
+ *
+ * Object holding a single double precision number.
+ **/
+
+struct _YScalarVal {
+  YScalar base;
+};
+
+G_DEFINE_TYPE (YScalarVal, y_scalar_val, Y_TYPE_SCALAR);
+
+static YData *
+y_scalar_val_dup (YData *src)
+{
+  YScalarVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
+  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(src));
+  YScalarPrivate *dpriv = y_scalar_get_instance_private(Y_SCALAR(dst));
+  dpriv->value = priv->value;
+  return Y_DATA (dst);
+}
+
+static gboolean
+y_scalar_val_unserialize (YData *dat, char const *str, gpointer user)
+{
+  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(dat));
+  double tmp;
+  char *end;
+  errno = 0; /* strto(ld) sets errno, but does not clear it.  */
+  tmp = g_ascii_strtod (str, &end);
+
+  if (end == str || *end != '\0' || errno == ERANGE)
+    return FALSE;
+
+  priv->value = tmp;
+  return TRUE;
+}
+
+static double
+y_scalar_val_get_value (YScalar *dat)
+{
+  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(dat));
+  return priv->value;
+}
+
+static void
+y_scalar_val_class_init (YScalarValClass *scalarval_klass)
+{
+  YDataClass *ydata_klass = (YDataClass *) scalarval_klass;
+  YScalarClass *scalar_klass = (YScalarClass *) scalarval_klass;
+
+  ydata_klass->dup = y_scalar_val_dup;
+  ydata_klass->unserialize = y_scalar_val_unserialize;
+  scalar_klass->get_value = y_scalar_val_get_value;
+}
+
+static void
+y_scalar_val_init(YScalarVal *val) {}
+
+/**
+ * y_scalar_val_new:
+ * @val: initial value
+ *
+ * Creates a new #YScalarVal object.
+ *
+ * Returns: (transfer full): The new object.
+ **/
+YData *
+y_scalar_val_new (double val)
+{
+  YScalarVal *res = g_object_new (Y_TYPE_SCALAR_VAL, NULL);
+  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(res));
+  priv->value = val;
+
+  return Y_DATA (res);
+}
+
+/**
+ * y_scalar_val_get_val:
+ * @s: a #YScalarVal
+ *
+ * Gets a pointer to the value of a #YScalarVal.
+ *
+ * Returns: (transfer none): A pointer to the scalar value.
+ **/
+double * y_scalar_val_get_val (YScalarVal *s)
+{
+  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(s));
+  return &priv->value;
+}
+
 
 /*************************************************************************/
 

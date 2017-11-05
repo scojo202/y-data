@@ -73,20 +73,20 @@ typedef struct {
  * Class for YData.
  **/
 struct _YDataClass {
-	GObjectClass base;
+  GObjectClass base;
 
-  char		n_dimensions;
+  char n_dimensions;
 
-	YData *	        (*dup)	    		(YData *src);
+  YData * (*dup)	    		(YData *src);
 
-	char *		(*serialize)	    	(YData *dat, gpointer user);
-	gboolean   	(*unserialize)	    	(YData *dat, char const *str, gpointer user);
+  char * (*serialize)	    	(YData *dat, gpointer user);
+  gboolean (*unserialize)	    	(YData *dat, char const *str, gpointer user);
 
-	void		(*get_sizes)		(YData *data, unsigned int *sizes);
-	void		(*get_bounds)		(YData *data, double *minimum, double *maximum);
+  void (*get_sizes)		(YData *data, unsigned int *sizes);
+  void (*get_bounds)		(YData *data, double *minimum, double *maximum);
 
-	/* signals */
-	void (*emit_changed)	(YData *dat);
+  /* signals */
+  void (*emit_changed)	(YData *dat);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)
@@ -102,9 +102,16 @@ G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)
  **/
 
 struct _YScalarClass {
-	YDataClass base;
-	double       (*get_value)  (YScalar *scalar);
+  YDataClass base;
+  double       (*get_value)  (YScalar *scalar);
 };
+
+G_DECLARE_FINAL_TYPE(YScalarVal,y_scalar_val,Y,SCALAR_VAL,YScalar)
+
+#define Y_TYPE_SCALAR_VAL	(y_scalar_val_get_type ())
+
+YData *y_scalar_val_new      (double val);
+double *y_scalar_val_get_val (YScalarVal *s);
 
 G_DECLARE_DERIVABLE_TYPE(YVector,y_vector,Y,VECTOR,YData)
 

@@ -28,13 +28,6 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(YScalarVal,y_scalar_val,Y,SCALAR_VAL,YScalar)
-
-#define Y_TYPE_SCALAR_VAL	(y_scalar_val_get_type ())
-
-YData	*y_scalar_val_new      (double val);
-double *y_scalar_val_get_val (YScalarVal *s);
-
 G_DECLARE_FINAL_TYPE(YVectorVal,y_vector_val,Y,VECTOR_VAL,YVector)
 
 #define Y_TYPE_VECTOR_VAL  (y_vector_val_get_type ())
