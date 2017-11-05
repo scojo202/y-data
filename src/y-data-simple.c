@@ -108,53 +108,6 @@ y_vector_val_get_value (YVector *vec, unsigned i)
 	return val->val[i];
 }
 
-static gboolean
-y_vector_val_unserialize (YData *dat, char const *str, gpointer user)
-{
-	YVectorVal *vec = Y_VECTOR_VAL (dat);
-	char sep, *end = (char*) str;
-	double val;
-	GArray *values;
-
-	g_return_val_if_fail (str != NULL, TRUE);
-
-	if (vec->notify && vec->val)
-		(*vec->notify) (vec->val);
-
-	values = g_array_sized_new (FALSE, FALSE, sizeof(double), 16);
-	sep = 0;
-	vec->val = NULL;
-	vec->n = 0;
-	vec->notify = (GDestroyNotify) g_free;
-	while (1) {
-		val = g_ascii_strtod (end, &end);
-		g_array_append_val (values, val);
-		if (*end) {
-			if (!sep) {
-				/* allow the use of all possible seps */
-				if ((sep = ',') != *end)
-					if ((sep = '\t') != *end)
-						sep = '\n';
-			}
-			if (*end != sep) {
-				g_array_free (values, TRUE);
-				return FALSE;
-			}
-			end++;
-		} else
-			break;
-	}
-	if (values->len == 0) {
-		g_array_free (values, TRUE);
-		return TRUE;
-	}
-	vec->n = values->len;
-	vec->val = (double*) values->data;
-	g_array_free (values, FALSE);
-	y_data_emit_changed (Y_DATA (vec));
-	return TRUE;
-}
-
 static void
 y_vector_val_class_init (YVectorValClass *val_klass)
 {
@@ -164,7 +117,6 @@ y_vector_val_class_init (YVectorValClass *val_klass)
 
 	gobject_klass->finalize = y_vector_val_finalize;
 	ydata_klass->dup	= y_vector_val_dup;
-	ydata_klass->unserialize	= y_vector_val_unserialize;
 	vector_klass->load_len    = y_vector_val_load_len;
 	vector_klass->load_values = y_vector_val_load_values;
 	vector_klass->get_value   = y_vector_val_get_value;
@@ -330,71 +282,6 @@ y_matrix_val_get_value (YMatrix *mat, unsigned i, unsigned j)
 	return val->val[i * val->size.columns + j];
 }
 
-static gboolean
-y_matrix_val_unserialize (YData *dat, char const *str, gpointer user)
-{
-	YMatrixVal *mat = Y_MATRIX_VAL (dat);
-	char row_sep, col_sep, *end = (char*) str;
-	int i, j, columns;
-	double val;
-	GArray *values;
-
-	g_return_val_if_fail (str != NULL, TRUE);
-
-	values = g_array_sized_new (FALSE, FALSE, sizeof(double), 16);
-	col_sep = '\t';
-	row_sep = '\n';
-	i = j = columns = 0;
-	if (mat->notify && mat->val)
-		(*mat->notify) (mat->val);
-	mat->val = NULL;
-	mat->size.rows = 0;
-	mat->size.columns = 0;
-	mat->notify = g_free;
-	while (1) {
-		val = g_ascii_strtod (end, &end);
-		g_array_append_val (values, val);
-		if (*end) {
-			if (*end == col_sep)
-				j++;
-			else if (*end == row_sep) {
-				if (columns > 0) {
-					if (j == columns - 1) {
-						i++;
-						j = 0;
-					} else {
-						g_array_free (values, TRUE);
-						return FALSE;
-					}
-				} else {
-					columns = j + 1;
-					i++;
-					j = 0;
-				}
-			} else {
-				g_array_free (values, TRUE);
-				return FALSE;
-			}
-			end++;
-		} else
-			break;
-	}
-	if (j != columns - 1) {
-		g_array_free (values, TRUE);
-		return FALSE;
-	}
-	if (columns == 0) {
-		g_array_free (values, TRUE);
-		return TRUE;
-	}
-	mat->size.columns = columns;
-	mat->size.rows = i + 1;
-	mat->val = (double*) values->data;
-	g_array_free (values, FALSE);
-	y_data_emit_changed (Y_DATA (mat));
-	return TRUE;
-}
-
 static void
 y_matrix_val_class_init (YMatrixValClass *val_klass)
 {
@@ -404,7 +291,6 @@ y_matrix_val_class_init (YMatrixValClass *val_klass)
 
 	gobject_klass->finalize = y_matrix_val_finalize;
 	ydata_klass->dup	= y_matrix_val_dup;
-	ydata_klass->unserialize = y_matrix_val_unserialize;
 	matrix_klass->load_size   = y_matrix_val_load_size;
 	matrix_klass->load_values = y_matrix_val_load_values;
 	matrix_klass->get_value   = y_matrix_val_get_value;
@@ -605,73 +491,6 @@ y_three_d_array_val_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsign
 	return val->val[i * val->size.columns * val->size.rows + j * val->size.columns + k];
 }
 
-#if 0
-
-static gboolean
-y_three_d_array_val_unserialize (YData *dat, char const *str, gpointer user)
-{
-	YThreeDArrayVal *mat = Y_MATRIX_VAL (dat);
-	char row_sep, col_sep, *end = (char*) str;
-	int i, j, columns;
-	double val;
-	GArray *values;
-
-	g_return_val_if_fail (str != NULL, TRUE);
-
-	values = g_array_sized_new (FALSE, FALSE, sizeof(double), 16);
-	col_sep = '\t';
-	row_sep = '\n';
-	i = j = columns = 0;
-	if (mat->notify && mat->val)
-		(*mat->notify) (mat->val);
-	mat->val = NULL;
-	mat->size.rows = 0;
-	mat->size.columns = 0;
-	mat->notify = g_free;
-	while (1) {
-		val = g_ascii_strtod (end, &end);
-		g_array_append_val (values, val);
-		if (*end) {
-			if (*end == col_sep)
-				j++;
-			else if (*end == row_sep) {
-				if (columns > 0) {
-					if (j == columns - 1) {
-						i++;
-						j = 0;
-					} else {
-						g_array_free (values, TRUE);
-						return FALSE;
-					}
-				} else {
-					columns = j + 1;
-					i++;
-					j = 0;
-				}
-			} else {
-				g_array_free (values, TRUE);
-				return FALSE;
-			}
-			end++;
-		} else
-			break;
-	}
-	if (j != columns - 1) {
-		g_array_free (values, TRUE);
-		return FALSE;
-	}
-	if (columns == 0) {
-		g_array_free (values, TRUE);
-		return TRUE;
-	}
-	mat->size.columns = columns;
-	mat->size.rows = i + 1;
-	mat->val = (double*) values->data;
-	g_array_free (values, FALSE);
-	y_data_emit_changed (Y_DATA (mat));
-	return TRUE;
-}
-#endif
 
 static void
 y_three_d_array_val_class_init (YThreeDArrayValClass *val_klass)
@@ -682,7 +501,6 @@ y_three_d_array_val_class_init (YThreeDArrayValClass *val_klass)
 
 	gobject_klass->finalize = y_three_d_array_val_finalize;
 	ydata_klass->dup	= y_three_d_array_val_dup;
-	//ydata_klass->unserialize = y_three_d_array_val_unserialize;
 	matrix_klass->load_size   = y_three_d_array_val_load_size;
 	matrix_klass->load_values = y_three_d_array_val_load_values;
 	matrix_klass->get_value   = y_three_d_array_val_get_value;

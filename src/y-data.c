@@ -79,20 +79,6 @@ render_val (double val)
 		return g_strdup (buf);
 }
 
-/* trivial fall back */
-static YData *
-y_data_dup_real (YData *src)
-{
-	gpointer user = NULL;  /* FIXME? */
-	char   *str = y_data_serialize (src, user);
-	YData *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
-	if (dst != NULL)
-		y_data_unserialize (dst, str, user);
-	g_free (str);
-
-	return dst;
-}
-
 /**
  * YData:
  *
@@ -125,7 +111,6 @@ y_data_class_init (YDataClass *klass)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
-	klass->dup = y_data_dup_real;
 }
 
 /**
@@ -161,24 +146,6 @@ y_data_serialize (YData *dat, gpointer user)
 	YDataClass *klass = Y_DATA_GET_CLASS (dat);
 	g_return_val_if_fail (klass != NULL, NULL);
 	return (*klass->serialize) (dat, user);
-}
-
-/**
- * y_data_unserialize :
- * @dat: #YData
- * @str: string to parse
- * @user: a gpointer describing the context.
- *
- * De-serializes the source information returned from y_data_serialize.
- *
- * Returns: %FALSE on error.
- **/
-gboolean
-y_data_unserialize (YData *dat, char const *str, gpointer user)
-{
-	YDataClass *klass = Y_DATA_GET_CLASS (dat);
-	g_return_val_if_fail (klass != NULL, FALSE);
-	return (*klass->unserialize) (dat, str, user);
 }
 
 /**
@@ -428,22 +395,6 @@ y_scalar_val_dup (YData *src)
   return Y_DATA (dst);
 }
 
-static gboolean
-y_scalar_val_unserialize (YData *dat, char const *str, gpointer user)
-{
-  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(dat));
-  double tmp;
-  char *end;
-  errno = 0; /* strto(ld) sets errno, but does not clear it.  */
-  tmp = g_ascii_strtod (str, &end);
-
-  if (end == str || *end != '\0' || errno == ERANGE)
-    return FALSE;
-
-  priv->value = tmp;
-  return TRUE;
-}
-
 static double
 y_scalar_val_get_value (YScalar *dat)
 {
@@ -458,7 +409,6 @@ y_scalar_val_class_init (YScalarValClass *scalarval_klass)
   YScalarClass *scalar_klass = (YScalarClass *) scalarval_klass;
 
   ydata_klass->dup = y_scalar_val_dup;
-  ydata_klass->unserialize = y_scalar_val_unserialize;
   scalar_klass->get_value = y_scalar_val_get_value;
 }
 

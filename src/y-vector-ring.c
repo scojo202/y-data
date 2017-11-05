@@ -109,52 +109,6 @@ y_vector_ring_get_value (YVector *vec, unsigned i)
 	return val->val[i];
 }
 
-static gboolean
-y_vector_ring_unserialize (YData *dat, char const *str, gpointer user)
-{
-	YVectorRing *vec = Y_VECTOR_RING (dat);
-	char sep, *end = (char*) str;
-	double val;
-	GArray *values;
-
-	g_return_val_if_fail (str != NULL, TRUE);
-
-	if (vec->val)
-		g_free(vec->val);
-
-	values = g_array_sized_new (FALSE, FALSE, sizeof(double), 16);
-	sep = 0;
-	vec->val = NULL;
-	vec->n = 0;
-	while (1) {
-		val = g_ascii_strtod (end, &end);
-		g_array_append_val (values, val);
-		if (*end) {
-			if (!sep) {
-				/* allow the use of all possible seps */
-				if ((sep = ',') != *end)
-					if ((sep = '\t') != *end)
-						sep = '\n';
-			}
-			if (*end != sep) {
-				g_array_free (values, TRUE);
-				return FALSE;
-			}
-			end++;
-		} else
-			break;
-	}
-	if (values->len == 0) {
-		g_array_free (values, TRUE);
-		return TRUE;
-	}
-	vec->n = values->len;
-	vec->val = (double*) values->data;
-	g_array_free (values, FALSE);
-	y_data_emit_changed (Y_DATA (vec));
-	return TRUE;
-}
-
 static void
 y_vector_ring_class_init (YVectorRingClass *val_klass)
 {
@@ -164,7 +118,6 @@ y_vector_ring_class_init (YVectorRingClass *val_klass)
 
 	gobject_klass->finalize = y_vector_ring_finalize;
 	ydata_klass->dup	= y_vector_ring_dup;
-	ydata_klass->unserialize	= y_vector_ring_unserialize;
 	vector_klass->load_len    = y_vector_ring_load_len;
 	vector_klass->load_values = y_vector_ring_load_values;
 	vector_klass->get_value   = y_vector_ring_get_value;

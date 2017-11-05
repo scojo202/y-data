@@ -65,7 +65,6 @@ typedef struct {
  * @n_dimensions: number of dimensions of the array (-1 if struct)
  * @dup: duplicates the #YData.
  * @serialize: serializes to text.
- * @unserialize: unserializes from text.
  * @get_sizes: gets the sizes.
  * @get_bounds: gets the bounds.
  * @emit_changed: changed signal default handler
@@ -80,7 +79,6 @@ struct _YDataClass {
   YData * (*dup)	    		(YData *src);
 
   char * (*serialize)	    	(YData *dat, gpointer user);
-  gboolean (*unserialize)	    	(YData *dat, char const *str, gpointer user);
 
   void (*get_sizes)		(YData *data, unsigned int *sizes);
   void (*get_bounds)		(YData *data, double *minimum, double *maximum);
@@ -183,7 +181,6 @@ YData *	y_data_dup			(YData *src);
 YData * y_data_dup_to_simple (YData *src);
 
 char *		y_data_serialize		(YData *dat, gpointer user);
-gboolean  	y_data_unserialize		(YData *dat, char const *str, gpointer user);
 void	  	y_data_emit_changed  		(YData *dat);
 
 void		y_data_get_bounds		(YData *data, double *minimum, double *maximum);
