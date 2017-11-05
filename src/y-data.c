@@ -355,6 +355,7 @@ y_scalar_get_value (YScalar *scalar)
 /**
  * y_scalar_get_str :
  * @scalar: #YScalar
+ * @format: a format string to use
  *
  * Get a string representation of @scalar.
  *
@@ -362,11 +363,11 @@ y_scalar_get_value (YScalar *scalar)
  * 	responsible for freeing it.
  **/
 char *
-y_scalar_get_str (YScalar *scalar)
+y_scalar_get_str (YScalar *scalar, const gchar *format)
 {
   char buf[G_ASCII_DTOSTR_BUF_SIZE];
   double val = y_scalar_get_value (scalar);
-  g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
   return g_strdup (buf);
 }
 
@@ -620,6 +621,7 @@ y_vector_get_value (YVector *vec, unsigned i)
  * y_vector_get_str :
  * @vec: #YVector
  * @i: index
+ * @format: a format string
  *
  * Get a string representation of an element in @vec.
  *
@@ -627,12 +629,12 @@ y_vector_get_value (YVector *vec, unsigned i)
  * 	responsible for freeing it.
  **/
 char *
-y_vector_get_str (YVector *vec, unsigned int i)
+y_vector_get_str (YVector *vec, unsigned int i, const gchar *format)
 {
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-	    double val = y_vector_get_value(vec, i);
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
+  char buf[G_ASCII_DTOSTR_BUF_SIZE];
+  double val = y_vector_get_value(vec, i);
+  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+  return g_strdup (buf);
 }
 
 static int
@@ -997,18 +999,19 @@ y_matrix_get_value (YMatrix *mat, unsigned i, unsigned j)
  * @mat: #YMatrix
  * @i: row
  * @j: column
+ * @format: a format string
  *
  * Get a string representation of a value in @mat.
  *
  * Returns: the string
  **/
 char *
-y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j)
+y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j, const gchar *format)
 {
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-	    double val = y_matrix_get_value(mat, i, j);
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
+  char buf[G_ASCII_DTOSTR_BUF_SIZE];
+  double val = y_matrix_get_value(mat, i, j);
+  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+  return g_strdup (buf);
 }
 
 /**
@@ -1312,18 +1315,19 @@ y_three_d_array_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsigned k
  * @i: row
  * @j: column
  * @k: layer
+ * @format: a format string
  *
  * Get a string representation of a value in @mat.
  *
  * Returns: the string
  **/
 char *
-y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
+y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k, const gchar *format)
 {
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-	    double val = y_three_d_array_get_value(mat, i, j, k);
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
+  char buf[G_ASCII_DTOSTR_BUF_SIZE];
+  double val = y_three_d_array_get_value(mat, i, j, k);
+  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+  return g_strdup (buf);
 }
 
 /**
