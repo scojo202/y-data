@@ -18,7 +18,7 @@ build_scalar_val (void)
   
   d1 = y_scalar_val_new (x);
   d2 = y_scalar_val_new (y);
-  d3 = y_scalar_val_new (z);
+  d3 = y_scalar_val_new(z);
 }
 
 static void

@@ -238,8 +238,8 @@ gboolean vector_poll_func(GObject *pollable_stream,gpointer user_data)
     g_pollable_input_stream_read_nonblocking(G_POLLABLE_INPUT_STREAM(pollable_stream),buffer2,len*sizeof(guint64),NULL,NULL);
     int i;
     for(i=0;i<len;i++) {
-      guint64 i2 = GUINT64_FROM_BE(buffer2[i]);
-      gpointer id = &i2;
+      //guint64 i2 = GUINT64_FROM_BE(buffer2[i]);
+      //gpointer id = &i2;
       //double d = *(double *)id;
     }
   }

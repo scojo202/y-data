@@ -50,6 +50,12 @@ G_DECLARE_FINAL_TYPE(YVectorDerived,y_vector_derived,Y,VECTOR_DERIVED,YVector)
 
 YData	*y_vector_derived_new      (YData *input, YOperation *op);
 
+G_DECLARE_FINAL_TYPE(YDerivedMatrix,y_derived_matrix,Y,DERIVED_MATRIX,YMatrix)
+
+#define Y_TYPE_DERIVED_MATRIX  (y_derived_matrix_get_type ())
+
+YData	*y_derived_matrix_new      (YData *input, YOperation *op);
+
 G_END_DECLS
 
 #endif

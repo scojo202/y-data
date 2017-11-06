@@ -46,6 +46,7 @@ G_DEFINE_TYPE (YLinearRangeVector, y_linear_range_vector, Y_TYPE_VECTOR);
 
 static GObjectClass *vector_parent_klass;
 
+#if 0
 static void
 _linear_range_vector_get_bounds (YData *data, double *minimum, double *maximum)
 {
@@ -57,6 +58,7 @@ _linear_range_vector_get_bounds (YData *data, double *minimum, double *maximum)
     *maximum=(v->dv>0) ? v->v0+v->dv*(v->n-1) : v->v0;
   }
 }
+#endif
 
 static void
 data_vector_val_finalize (GObject *obj)

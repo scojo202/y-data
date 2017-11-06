@@ -16,7 +16,8 @@ src_public_headers += [
   'y-hdf.h',
   'y-data-tcp.h',
   'y-fft-operation.h',
-  'y-simple-operation.h'
+  'y-simple-operation.h',
+  'y-subset-operation.h'
 ]
 
 src_public_sources += [
@@ -31,7 +32,8 @@ src_public_sources += [
   'y-hdf.c',
   'y-data-tcp.c',
   'y-fft-operation.c',
-  'y-simple-operation.c'
+  'y-simple-operation.c',
+  'y-subset-operation.c'
 ]
 
 install_headers(src_public_headers,subdir: 'libydata-0.0')
