@@ -110,17 +110,20 @@ int subset_size (YOperation *op, YData *input, unsigned int *dims)
   g_assert(!Y_IS_STRUCT(input));
 
   if(Y_IS_VECTOR(input)) {
-    dims[0]=sop->length1;
+    unsigned int l = y_vector_get_len(Y_VECTOR(input));
+    dims[0]=(sop->start1+sop->length1 > l) ? l - sop->start1 : sop->length1;
     n_dims=1;
     return n_dims;
   }
 
-  //YMatrix *mat = Y_MATRIX(input);
+  YMatrix *mat = Y_MATRIX(input);
   
-  /* TODO: check lengths vs. matrix size */
+  YMatrixSize size = y_matrix_get_size(Y_MATRIX(mat));
+  int real_length1 = (sop->start1+sop->length1 > size.columns) ? size.columns - sop->start1 : sop->length1;
+  int real_length2 = (sop->start2+sop->length2 > size.rows) ? size.rows - sop->start2 : sop->length2;
 
-  dims[0] = sop->length1;
-  dims[1] = sop->length2;
+  dims[0] = real_length1;
+  dims[1] = real_length2;
   n_dims=2;
   
   return n_dims;
@@ -154,6 +157,7 @@ gpointer subset_op_create_data(YOperation *op, gpointer data, YData *input)
     if(d->output_size.columns!=sop->length1) {
       d->output = g_new(double,sop->length1);
     }
+    return d;
   }
   YMatrix *mat = Y_MATRIX(input);
   d->input = y_create_input_array_from_matrix(mat,neu,d->size,d->input);

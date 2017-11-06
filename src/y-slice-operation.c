@@ -167,19 +167,26 @@ gpointer vector_slice_op_create_data(YOperation *op, gpointer data, YData *input
   d->sop = *sop;
   if(Y_IS_VECTOR(input)) {
     YVector *vec = Y_VECTOR(input);
-    d->input = y_create_input_array_from_vector(vec,neu,d->size.rows, d->input);
+    d->input = y_create_input_array_from_vector(vec,neu,d->size.columns, d->input);
+    d->size.columns = y_vector_get_len(vec);
     if(d->output_len!=1) {
+      if(d->output)
+        g_free(d->output);
       d->output = g_new(double,1);
+      d->output_len = 1;
     }
+    return d;
   }
   YMatrix *mat = Y_MATRIX(input);
   d->input = y_create_input_array_from_matrix(mat,neu,d->size,d->input);
   d->size = y_matrix_get_size(mat);
   unsigned int dims[2];
   slice_size(op,input,dims);
-  if(d->output_len != dims[0]*dims[1]) {
-    g_free(d->output);
-    d->output = g_new(double,dims[0]*dims[1]);
+  if(d->output_len != dims[0]) {
+    if(d->output)
+      g_free(d->output);
+    d->output = g_new(double,dims[0]);
+    d->output_len = dims[0];
   }
   return d;
 }

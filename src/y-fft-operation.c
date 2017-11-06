@@ -154,7 +154,7 @@ static
 void vector_fft_op_data_free(gpointer d)
 {
   FFTOpData *s = (FFTOpData *) d;
-  g_message("free");
+  g_message("fft_op free");
   fftw_free(s->input);
   fftw_free(s->inter);
   fftw_destroy_plan(s->plan);
