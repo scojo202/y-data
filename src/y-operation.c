@@ -60,7 +60,16 @@ double *y_create_input_array_from_vector(YVector *input, gboolean is_new, unsign
   return d;
 }
 
-
+/**
+ * y_operation_get_task :
+ * @op: a #YOperation
+ * @user_data: task data
+ * @cb: callback that will be called when task is complete
+ * @cb_data: data for callback
+ *
+ * Get the #GTask for an operation.
+ *
+ **/
 GTask * y_operation_get_task(YOperation *op,gpointer user_data, GAsyncReadyCallback cb, gpointer cb_data)
 {
   GTask *task = g_task_new(op,NULL,cb,cb_data);
@@ -82,6 +91,16 @@ task_thread_func(GTask        *task,
   g_task_return_pointer(task,output,NULL);
 }
 
+/**
+ * y_operation_run_task :
+ * @op: a #YOperation
+ * @user_data: task data
+ * @cb: callback that will be called when task is complete
+ * @cb_data: data for callback
+ *
+ * Get the #GTask for an operation and run it in a thread.
+ *
+ **/
 void y_operation_run_task(YOperation *op,gpointer user_data, GAsyncReadyCallback cb, gpointer cb_data)
 {
   GTask *task = y_operation_get_task(op,user_data,cb,cb_data);

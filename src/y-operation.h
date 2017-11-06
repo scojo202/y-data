@@ -38,6 +38,10 @@ G_DECLARE_DERIVABLE_TYPE(YOperation,y_operation,Y,OPERATION,GObject)
  * YOperationClass:
  * @base: base class.
  * @thread_safe: whether the operation can be run in a thread.
+ * @op_size: outputs how large the output will be, for a particular instance of input data.
+ * @op_func: the function to call for the operation
+ * @op_data: allocate data for the operation
+ * @op_data_free: a #GDestroyNotify for the operation data
  *
  * Class for YOperation.
  **/

@@ -177,11 +177,11 @@ struct _YThreeDArrayClass {
 	double	 (*get_value)   (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
 };
 
-YData *	y_data_dup			(YData *src);
+YData *	y_data_dup (YData *src);
 YData * y_data_dup_to_simple (YData *src);
 
-char *		y_data_serialize		(YData *dat, gpointer user);
-void	  	y_data_emit_changed  		(YData *dat);
+char * y_data_serialize (YData *dat, gpointer user);
+void y_data_emit_changed (YData *dat);
 
 void		y_data_get_bounds		(YData *data, double *minimum, double *maximum);
 gboolean	y_data_has_value	    (YData *data);

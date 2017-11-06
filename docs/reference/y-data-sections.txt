@@ -5,7 +5,6 @@ YDataClass
 y_data_dup
 y_data_dup_to_simple
 y_data_serialize
-y_data_unserialize
 y_data_emit_changed
 y_data_get_bounds
 y_data_has_value
@@ -92,12 +91,13 @@ Y_TYPE_STRUCT
 
 <SECTION>
 <FILE>y-data-derived</FILE>
-<TITLE>YVectorDerived</TITLE>
+<TITLE>Derived Data</TITLE>
+y_derived_scalar_new
 y_vector_derived_new
-y_vector_derived_set_input
-y_vector_derived_set_autorun
+YDerivedScalar
 YVectorDerived
 <SUBSECTION Standard>
+Y_TYPE_DERIVED_SCALAR
 Y_TYPE_VECTOR_DERIVED
 </SECTION>
 
