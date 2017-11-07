@@ -39,7 +39,6 @@
  * refill the cache.
  */
 
-
 /**
  * YDataFlags:
  *
@@ -53,15 +52,15 @@
  **/
 
 typedef enum {
-	Y_DATA_CACHE_IS_VALID =	1 << 0,
-	Y_DATA_IS_EDITABLE =		1 << 1,
-	Y_DATA_SIZE_CACHED =		1 << 2,
-	Y_DATA_HAS_VALUE =      1 << 3,
-	Y_DATA_MINMAX_CACHED =  1 << 4
+	Y_DATA_CACHE_IS_VALID = 1 << 0,
+	Y_DATA_IS_EDITABLE = 1 << 1,
+	Y_DATA_SIZE_CACHED = 1 << 2,
+	Y_DATA_HAS_VALUE = 1 << 3,
+	Y_DATA_MINMAX_CACHED = 1 << 4
 } YDataFlags;
 
 typedef struct {
-  gint32		flags;
+	gint32 flags;
 } YDataPrivate;
 
 enum {
@@ -69,14 +68,13 @@ enum {
 	LAST_SIGNAL
 };
 
-static gulong y_data_signals [LAST_SIGNAL] = { 0, };
+static gulong y_data_signals[LAST_SIGNAL] = { 0, };
 
-static char *
-render_val (double val)
+static char *render_val(double val)
 {
-		char buf[G_ASCII_DTOSTR_BUF_SIZE];
-		g_ascii_dtostr (buf, G_ASCII_DTOSTR_BUF_SIZE, val);
-		return g_strdup (buf);
+	char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, val);
+	return g_strdup(buf);
 }
 
 /**
@@ -85,17 +83,15 @@ render_val (double val)
  * Object representing data.
  **/
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YData, y_data, G_TYPE_INITIALLY_UNOWNED);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YData, y_data, G_TYPE_INITIALLY_UNOWNED);
 
-static void
-y_data_init (YData *data)
+static void y_data_init(YData * data)
 {
-  YDataPrivate *priv = y_data_get_instance_private(data);
-  priv->flags = 0;
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	priv->flags = 0;
 }
 
-static void
-y_data_class_init (YDataClass *klass)
+static void y_data_class_init(YDataClass * klass)
 {
 /**
  * YData::changed:
@@ -104,13 +100,15 @@ y_data_class_init (YDataClass *klass)
  * The ::changed signal is emitted when the data changes.
  */
 
-	y_data_signals [CHANGED] = g_signal_new ("changed",
-		G_TYPE_FROM_CLASS (klass),
-		G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE,
-		G_STRUCT_OFFSET (YDataClass, emit_changed),
-		NULL, NULL,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE, 0);
+	y_data_signals[CHANGED] = g_signal_new("changed",
+					       G_TYPE_FROM_CLASS(klass),
+					       G_SIGNAL_RUN_FIRST |
+					       G_SIGNAL_NO_RECURSE,
+					       G_STRUCT_OFFSET(YDataClass,
+							       emit_changed),
+					       NULL, NULL,
+					       g_cclosure_marshal_VOID__VOID,
+					       G_TYPE_NONE, 0);
 }
 
 /**
@@ -121,12 +119,11 @@ y_data_class_init (YDataClass *klass)
  *
  * Returns: (transfer full): A deep copy of @src.
  **/
-YData *
-y_data_dup (YData *src)
+YData *y_data_dup(YData * src)
 {
 	if (src != NULL) {
-		YDataClass *klass = Y_DATA_GET_CLASS (src);
-		g_return_val_if_fail (klass != NULL, NULL);
+		YDataClass *klass = Y_DATA_GET_CLASS(src);
+		g_return_val_if_fail(klass != NULL, NULL);
 		return (*klass->dup) (src);
 	}
 	return NULL;
@@ -140,11 +137,10 @@ y_data_dup (YData *src)
  * Returns: a string representation of the data that the caller is
  * 	responsible for freeing
  **/
-char *
-y_data_serialize (YData *dat, gpointer user)
+char *y_data_serialize(YData * dat, gpointer user)
 {
-	YDataClass *klass = Y_DATA_GET_CLASS (dat);
-	g_return_val_if_fail (klass != NULL, NULL);
+	YDataClass *klass = Y_DATA_GET_CLASS(dat);
+	g_return_val_if_fail(klass != NULL, NULL);
 	return (*klass->serialize) (dat, user);
 }
 
@@ -154,14 +150,13 @@ y_data_serialize (YData *dat, gpointer user)
  *
  * Utility to emit a 'changed' signal
  **/
-void
-y_data_emit_changed (YData *dat)
+void y_data_emit_changed(YData * dat)
 {
-	YDataClass *klass = Y_DATA_GET_CLASS (dat);
+	YDataClass *klass = Y_DATA_GET_CLASS(dat);
 
-	g_return_if_fail (klass != NULL);
+	g_return_if_fail(klass != NULL);
 
-	g_signal_emit (G_OBJECT (dat), y_data_signals [CHANGED], 0);
+	g_signal_emit(G_OBJECT(dat), y_data_signals[CHANGED], 0);
 }
 
 /**
@@ -172,13 +167,12 @@ y_data_emit_changed (YData *dat)
  *
  * Returns: %TRUE if @data has at least one finite value.
  **/
-gboolean
-y_data_has_value (YData *data)
+gboolean y_data_has_value(YData * data)
 {
-	g_return_val_if_fail (Y_IS_DATA (data), FALSE);
+	g_return_val_if_fail(Y_IS_DATA(data), FALSE);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	if (!(priv->flags & Y_DATA_MINMAX_CACHED))
-		y_data_get_bounds (Y_DATA (data),NULL,NULL);
+		y_data_get_bounds(Y_DATA(data), NULL, NULL);
 	return priv->flags & Y_DATA_HAS_VALUE;
 }
 
@@ -191,14 +185,13 @@ y_data_has_value (YData *data)
  *
  * Returns: the number of dimensions
  **/
-char
-y_data_get_n_dimensions (YData *data)
+char y_data_get_n_dimensions(YData * data)
 {
 	YDataClass *data_class;
 
-	g_return_val_if_fail (Y_IS_DATA (data), 0);
+	g_return_val_if_fail(Y_IS_DATA(data), 0);
 
-	data_class = Y_DATA_GET_CLASS (data);
+	data_class = Y_DATA_GET_CLASS(data);
 
 	return data_class->n_dimensions;
 }
@@ -211,8 +204,7 @@ y_data_get_n_dimensions (YData *data)
  *
  * Returns: the number of elements
  **/
-unsigned int
-y_data_get_n_values (YData *data)
+unsigned int y_data_get_n_values(YData * data)
 {
 	YDataClass const *data_class;
 	unsigned int n_values;
@@ -220,19 +212,19 @@ y_data_get_n_values (YData *data)
 	unsigned int *sizes;
 	unsigned int i;
 
-	g_return_val_if_fail (Y_IS_DATA (data), 0);
+	g_return_val_if_fail(Y_IS_DATA(data), 0);
 
-	data_class = Y_DATA_GET_CLASS (data);
+	data_class = Y_DATA_GET_CLASS(data);
 
 	n_dimensions = data_class->n_dimensions;
 	if (n_dimensions < 1)
 		return 1;
 
-	sizes = g_newa (unsigned int, n_dimensions);
+	sizes = g_newa(unsigned int, n_dimensions);
 
-	g_return_val_if_fail (data_class->get_sizes != NULL, 0);
+	g_return_val_if_fail(data_class->get_sizes != NULL, 0);
 
-	data_class->get_sizes (data, sizes);
+	data_class->get_sizes(data, sizes);
 
 	n_values = 1;
 	for (i = 0; i < n_dimensions; i++)
@@ -249,18 +241,17 @@ y_data_get_n_values (YData *data)
  *
  * Get the minimum and maximum values in @data.
  **/
-void
-y_data_get_bounds (YData *data, double *minimum, double *maximum)
+void y_data_get_bounds(YData * data, double *minimum, double *maximum)
 {
 	YDataClass const *data_class;
 
-	g_return_if_fail (Y_IS_DATA (data));
+	g_return_if_fail(Y_IS_DATA(data));
 
-	data_class = Y_DATA_GET_CLASS (data);
+	data_class = Y_DATA_GET_CLASS(data);
 
-	g_return_if_fail (data_class->get_bounds != NULL);
+	g_return_if_fail(data_class->get_bounds != NULL);
 
-	data_class->get_bounds (data, minimum, maximum);
+	data_class->get_bounds(data, minimum, maximum);
 }
 
 /*************************************************************************/
@@ -273,7 +264,7 @@ y_data_get_bounds (YData *data, double *minimum, double *maximum)
  */
 
 typedef struct {
-  double value;
+	double value;
 } YScalarPrivate;
 
 /**
@@ -282,54 +273,52 @@ typedef struct {
  * Object representing a single number.
  **/
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YScalar, y_scalar, Y_TYPE_DATA);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YScalar, y_scalar, Y_TYPE_DATA);
 
 static void
-_data_scalar_get_bounds (YData *data, double *minimum, double *maximum)
+_data_scalar_get_bounds(YData * data, double *minimum, double *maximum)
 {
-  YScalar *scalar = (YScalar *) data;
+	YScalar *scalar = (YScalar *) data;
 
-  YDataPrivate *dpriv = y_data_get_instance_private(data);
+	YDataPrivate *dpriv = y_data_get_instance_private(data);
 
-  double v = y_scalar_get_value (scalar);
+	double v = y_scalar_get_value(scalar);
 
-  if(minimum)
-    *minimum = v;
-  if(maximum)
-    *maximum = v;
+	if (minimum)
+		*minimum = v;
+	if (maximum)
+		*maximum = v;
 
-  if(isfinite(v)) {
-    dpriv->flags |= Y_DATA_HAS_VALUE;
-  }
+	if (isfinite(v)) {
+		dpriv->flags |= Y_DATA_HAS_VALUE;
+	}
 }
 
-static char *
-_scalar_serialize (YData *dat, gpointer user)
+static char *_scalar_serialize(YData * dat, gpointer user)
 {
-  YScalar *scalar = (YScalar *)dat;
-  YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
-  return render_val (priv->value);
+	YScalar *scalar = (YScalar *) dat;
+	YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
+	return render_val(priv->value);
 }
 
-static void
-_data_scalar_emit_changed (YData *data)
+static void _data_scalar_emit_changed(YData * data)
 {
-  YDataPrivate *priv = y_data_get_instance_private(data);
-  priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_HAS_VALUE);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_HAS_VALUE);
 }
 
-static void
-y_scalar_class_init (YScalarClass *scalar_class)
+static void y_scalar_class_init(YScalarClass * scalar_class)
 {
-  YDataClass *data_class = Y_DATA_CLASS(scalar_class);
-  data_class->n_dimensions = 0;
-  data_class->get_bounds = _data_scalar_get_bounds;
-  data_class->serialize	= _scalar_serialize;
-  data_class->emit_changed = _data_scalar_emit_changed;
+	YDataClass *data_class = Y_DATA_CLASS(scalar_class);
+	data_class->n_dimensions = 0;
+	data_class->get_bounds = _data_scalar_get_bounds;
+	data_class->serialize = _scalar_serialize;
+	data_class->emit_changed = _data_scalar_emit_changed;
 }
 
-static void
-y_scalar_init (YScalar *scalar) {}
+static void y_scalar_init(YScalar * scalar)
+{
+}
 
 /**
  * y_scalar_get_value :
@@ -339,17 +328,16 @@ y_scalar_init (YScalar *scalar) {}
  *
  * Returns: the value
  **/
-double
-y_scalar_get_value (YScalar *scalar)
+double y_scalar_get_value(YScalar * scalar)
 {
-  YScalarClass const *klass = Y_SCALAR_GET_CLASS (scalar);
-  g_return_val_if_fail (klass != NULL, NAN);
-  YDataPrivate *dpriv = y_data_get_instance_private(Y_DATA(scalar));
-  YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
-  if (! (dpriv->flags & Y_DATA_CACHE_IS_VALID)) {
-    priv->value = (*klass->get_value) (scalar);
-  }
-  return priv->value;
+	YScalarClass const *klass = Y_SCALAR_GET_CLASS(scalar);
+	g_return_val_if_fail(klass != NULL, NAN);
+	YDataPrivate *dpriv = y_data_get_instance_private(Y_DATA(scalar));
+	YScalarPrivate *priv = y_scalar_get_instance_private(scalar);
+	if (!(dpriv->flags & Y_DATA_CACHE_IS_VALID)) {
+		priv->value = (*klass->get_value) (scalar);
+	}
+	return priv->value;
 }
 
 /**
@@ -362,13 +350,12 @@ y_scalar_get_value (YScalar *scalar)
  * Returns: the string. The caller is
  * 	responsible for freeing it.
  **/
-char *
-y_scalar_get_str (YScalar *scalar, const gchar *format)
+char *y_scalar_get_str(YScalar * scalar, const gchar * format)
 {
-  char buf[G_ASCII_DTOSTR_BUF_SIZE];
-  double val = y_scalar_get_value (scalar);
-  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-  return g_strdup (buf);
+	char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	double val = y_scalar_get_value(scalar);
+	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+	return g_strdup(buf);
 }
 
 /**********************************************************/
@@ -381,40 +368,38 @@ y_scalar_get_str (YScalar *scalar, const gchar *format)
  **/
 
 struct _YScalarVal {
-  YScalar base;
+	YScalar base;
 };
 
-G_DEFINE_TYPE (YScalarVal, y_scalar_val, Y_TYPE_SCALAR);
+G_DEFINE_TYPE(YScalarVal, y_scalar_val, Y_TYPE_SCALAR);
 
-static YData *
-y_scalar_val_dup (YData *src)
+static YData *y_scalar_val_dup(YData * src)
 {
-  YScalarVal *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
-  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(src));
-  YScalarPrivate *dpriv = y_scalar_get_instance_private(Y_SCALAR(dst));
-  dpriv->value = priv->value;
-  return Y_DATA (dst);
+	YScalarVal *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
+	YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(src));
+	YScalarPrivate *dpriv = y_scalar_get_instance_private(Y_SCALAR(dst));
+	dpriv->value = priv->value;
+	return Y_DATA(dst);
 }
 
-static double
-y_scalar_val_get_value (YScalar *dat)
+static double y_scalar_val_get_value(YScalar * dat)
 {
-  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(dat));
-  return priv->value;
+	YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(dat));
+	return priv->value;
 }
 
-static void
-y_scalar_val_class_init (YScalarValClass *scalarval_klass)
+static void y_scalar_val_class_init(YScalarValClass * scalarval_klass)
 {
-  YDataClass *ydata_klass = (YDataClass *) scalarval_klass;
-  YScalarClass *scalar_klass = (YScalarClass *) scalarval_klass;
+	YDataClass *ydata_klass = (YDataClass *) scalarval_klass;
+	YScalarClass *scalar_klass = (YScalarClass *) scalarval_klass;
 
-  ydata_klass->dup = y_scalar_val_dup;
-  scalar_klass->get_value = y_scalar_val_get_value;
+	ydata_klass->dup = y_scalar_val_dup;
+	scalar_klass->get_value = y_scalar_val_get_value;
 }
 
-static void
-y_scalar_val_init(YScalarVal *val) {}
+static void y_scalar_val_init(YScalarVal * val)
+{
+}
 
 /**
  * y_scalar_val_new:
@@ -424,14 +409,13 @@ y_scalar_val_init(YScalarVal *val) {}
  *
  * Returns: (transfer full): The new object.
  **/
-YData *
-y_scalar_val_new (double val)
+YData *y_scalar_val_new(double val)
 {
-  YScalarVal *res = g_object_new (Y_TYPE_SCALAR_VAL, NULL);
-  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(res));
-  priv->value = val;
+	YScalarVal *res = g_object_new(Y_TYPE_SCALAR_VAL, NULL);
+	YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(res));
+	priv->value = val;
 
-  return Y_DATA (res);
+	return Y_DATA(res);
 }
 
 /**
@@ -442,12 +426,11 @@ y_scalar_val_new (double val)
  *
  * Returns: (transfer none): A pointer to the scalar value.
  **/
-double * y_scalar_val_get_val (YScalarVal *s)
+double *y_scalar_val_get_val(YScalarVal * s)
 {
-  YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(s));
-  return &priv->value;
+	YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(s));
+	return &priv->value;
 }
-
 
 /*************************************************************************/
 
@@ -459,8 +442,8 @@ double * y_scalar_val_get_val (YScalarVal *s)
  */
 
 typedef struct {
-	int len;	/* negative if dirty, includes missing values */
-	double *values;	/* NULL = inititialized/unsupported, nan = missing */
+	int len;		/* negative if dirty, includes missing values */
+	double *values;		/* NULL = inititialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YVectorPrivate;
 
@@ -470,67 +453,65 @@ typedef struct {
  * Object representing a one-dimensional array of numbers.
  **/
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YVector, y_vector, Y_TYPE_DATA);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YVector, y_vector, Y_TYPE_DATA);
 
-static void
-_data_array_emit_changed (YData *data)
+static void _data_array_emit_changed(YData * data)
 {
 	YDataPrivate *priv = y_data_get_instance_private(data);
-	priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE | Y_DATA_MINMAX_CACHED);
+	priv->flags &=
+	    ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE |
+	      Y_DATA_MINMAX_CACHED);
 }
 
-static void
-_data_vector_get_sizes (YData *data, unsigned int *sizes)
+static void _data_vector_get_sizes(YData * data, unsigned int *sizes)
 {
 	YVector *vector = (YVector *) data;
 
-	sizes[0] = y_vector_get_len (vector);
+	sizes[0] = y_vector_get_len(vector);
 }
 
 static void
-_data_vector_get_bounds (YData *data, double *minimum, double *maximum)
+_data_vector_get_bounds(YData * data, double *minimum, double *maximum)
 {
-	y_vector_get_minmax ((YVector *) data, minimum, maximum);
+	y_vector_get_minmax((YVector *) data, minimum, maximum);
 }
 
-static char *
-_vector_serialize (YData *dat, gpointer user)
+static char *_vector_serialize(YData * dat, gpointer user)
 {
 	YVector *vec = (YVector *) dat;
-  YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
+	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
 	GString *str;
 	char sep;
 	unsigned i;
 
 	sep = '\t';
-	str = g_string_new (NULL);
+	str = g_string_new(NULL);
 
 	for (i = 0; i < vpriv->len; i++) {
-		char *s = render_val (vpriv->values[i]);
-		if (i) g_string_append_c (str, sep);
-		g_string_append (str, s);
-		g_free (s);
+		char *s = render_val(vpriv->values[i]);
+		if (i)
+			g_string_append_c(str, sep);
+		g_string_append(str, s);
+		g_free(s);
 	}
-	return g_string_free (str, FALSE);
+	return g_string_free(str, FALSE);
 }
 
-static void
-y_vector_init (YVector *vec)
+static void y_vector_init(YVector * vec)
 {
-  YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
-  vpriv->len = 0;
-  vpriv->values = NULL;
+	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
+	vpriv->len = 0;
+	vpriv->values = NULL;
 }
 
-static void
-y_vector_class_init (YVectorClass *vec_class)
+static void y_vector_class_init(YVectorClass * vec_class)
 {
-  YDataClass *data_class = (YDataClass *) vec_class;
-	data_class->emit_changed = 	_data_array_emit_changed;
-	data_class->n_dimensions = 	1;
-	data_class->get_sizes =		_data_vector_get_sizes;
-	data_class->get_bounds =	_data_vector_get_bounds;
-  data_class->serialize = _vector_serialize;
+	YDataClass *data_class = (YDataClass *) vec_class;
+	data_class->emit_changed = _data_array_emit_changed;
+	data_class->n_dimensions = 1;
+	data_class->get_sizes = _data_vector_get_sizes;
+	data_class->get_bounds = _data_vector_get_bounds;
+	data_class->serialize = _vector_serialize;
 }
 
 /**
@@ -541,17 +522,16 @@ y_vector_class_init (YVectorClass *vec_class)
  *
  * Returns: the length
  **/
-unsigned int
-y_vector_get_len (YVector *vec)
+unsigned int y_vector_get_len(YVector * vec)
 {
-	g_return_val_if_fail (Y_IS_VECTOR(vec),0);
+	g_return_val_if_fail(Y_IS_VECTOR(vec), 0);
 	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YVectorClass const *klass = Y_VECTOR_GET_CLASS (vec);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YVectorClass const *klass = Y_VECTOR_GET_CLASS(vec);
 
-		g_return_val_if_fail (klass != NULL, 0);
+		g_return_val_if_fail(klass != NULL, 0);
 
 		vpriv->len = (*klass->load_len) (vec);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -568,23 +548,22 @@ y_vector_get_len (YVector *vec)
  *
  * Returns: an array.
  **/
-const double *
-y_vector_get_values (YVector *vec)
+const double *y_vector_get_values(YVector * vec)
 {
-  g_return_val_if_fail (Y_IS_VECTOR(vec),NULL);
-  YData *data = Y_DATA(vec);
+	g_return_val_if_fail(Y_IS_VECTOR(vec), NULL);
+	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
-	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
-		YVectorClass const *klass = Y_VECTOR_GET_CLASS (vec);
+	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YVectorClass const *klass = Y_VECTOR_GET_CLASS(vec);
 
-		g_return_val_if_fail (klass != NULL, NULL);
+		g_return_val_if_fail(klass != NULL, NULL);
 
 		double *v = (*klass->load_values) (vec);
 
-	  vpriv->values = v;
+		vpriv->values = v;
 
-	  priv->flags |= Y_DATA_CACHE_IS_VALID;
+		priv->flags |= Y_DATA_CACHE_IS_VALID;
 	}
 
 	return vpriv->values;
@@ -599,22 +578,21 @@ y_vector_get_values (YVector *vec)
  *
  * Returns: the value
  **/
-double
-y_vector_get_value (YVector *vec, unsigned i)
+double y_vector_get_value(YVector * vec, unsigned i)
 {
-  g_assert(Y_IS_VECTOR(vec));
+	g_assert(Y_IS_VECTOR(vec));
 	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
-  g_assert(priv);
+	g_assert(priv);
 	unsigned int len = y_vector_get_len(vec);
-	g_return_val_if_fail (i < len, NAN);
-	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
-		YVectorClass const *klass = Y_VECTOR_GET_CLASS (vec);
-    g_return_val_if_fail (klass != NULL, NAN);
+	g_return_val_if_fail(i < len, NAN);
+	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YVectorClass const *klass = Y_VECTOR_GET_CLASS(vec);
+		g_return_val_if_fail(klass != NULL, NAN);
 		return (*klass->get_value) (vec, i);
 	}
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
-	return vpriv->values [i];
+	return vpriv->values[i];
 }
 
 /**
@@ -628,29 +606,27 @@ y_vector_get_value (YVector *vec, unsigned i)
  * Returns: the string. The caller is
  * 	responsible for freeing it.
  **/
-char *
-y_vector_get_str (YVector *vec, unsigned int i, const gchar *format)
+char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format)
 {
-  char buf[G_ASCII_DTOSTR_BUF_SIZE];
-  double val = y_vector_get_value(vec, i);
-  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-  return g_strdup (buf);
+	char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	double val = y_vector_get_value(vec, i);
+	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+	return g_strdup(buf);
 }
 
-static int
-range_increasing (double const *xs, int n)
+static int range_increasing(double const *xs, int n)
 {
 	int i = 0;
 	double last;
-	g_return_val_if_fail (n == 0 || xs != NULL, 0);
-	while ( i < n && isnan (xs[i]))
+	g_return_val_if_fail(n == 0 || xs != NULL, 0);
+	while (i < n && isnan(xs[i]))
 		i++;
 	if (i == n)
 		return 0;
 	last = xs[i];
 	for (i = i + 1; i < n; i++) {
-		if (isnan (xs[i]))
-		    continue;
+		if (isnan(xs[i]))
+			continue;
 		if (last >= xs[i])
 			return 0;
 		last = xs[i];
@@ -658,20 +634,19 @@ range_increasing (double const *xs, int n)
 	return 1;
 }
 
-static int
-range_decreasing (double const *xs, int n)
+static int range_decreasing(double const *xs, int n)
 {
 	int i = 0;
 	double last;
-	g_return_val_if_fail (n == 0 || xs != NULL, 0);
-	while ( i < n &&  isnan (xs[i]))
+	g_return_val_if_fail(n == 0 || xs != NULL, 0);
+	while (i < n && isnan(xs[i]))
 		i++;
 	if (i == n)
 		return 0;
 	last = xs[i];
 	for (i = i + 1; i < n; i++) {
-		if (isnan (xs[i]))
-		    continue;
+		if (isnan(xs[i]))
+			continue;
 		if (last <= xs[i])
 			return 0;
 		last = xs[i];
@@ -679,10 +654,9 @@ range_decreasing (double const *xs, int n)
 	return 1;
 }
 
-static int
-range_vary_uniformly (double const *xs, int n)
+static int range_vary_uniformly(double const *xs, int n)
 {
-	return range_increasing (xs, n) || range_decreasing (xs, n);
+	return range_increasing(xs, n) || range_decreasing(xs, n);
 }
 
 /**
@@ -693,23 +667,22 @@ range_vary_uniformly (double const *xs, int n)
  *
  * Returns: %TRUE if elements of @data strictly increase or decrease.
  **/
-gboolean
-y_vector_is_varying_uniformly (YVector *data)
+gboolean y_vector_is_varying_uniformly(YVector * data)
 {
 	double const *values;
 	unsigned int n_values;
 
-	g_return_val_if_fail (Y_IS_DATA (data), FALSE);
+	g_return_val_if_fail(Y_IS_DATA(data), FALSE);
 
-	values = y_vector_get_values (data);
+	values = y_vector_get_values(data);
 	if (values == NULL)
 		return FALSE;
 
-	n_values = y_vector_get_len (data);
+	n_values = y_vector_get_len(data);
 	if (n_values < 1)
 		return FALSE;
 
-	return range_vary_uniformly (values, n_values);
+	return range_vary_uniformly(values, n_values);
 }
 
 /**
@@ -720,34 +693,35 @@ y_vector_is_varying_uniformly (YVector *data)
  *
  * Get the minimum and maximum values in @vec and cache them.
  **/
-void
-y_vector_get_minmax (YVector *vec, double *min, double *max)
+void y_vector_get_minmax(YVector * vec, double *min, double *max)
 {
-  YData *data = Y_DATA(vec);
+	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
 
-	if(!(priv->flags & Y_DATA_MINMAX_CACHED)) {
-	  const double *v = y_vector_get_values (vec);
-    if(v==NULL) return;
+	if (!(priv->flags & Y_DATA_MINMAX_CACHED)) {
+		const double *v = y_vector_get_values(vec);
+		if (v == NULL)
+			return;
 
-	  double minimum = DBL_MAX, maximum = -DBL_MAX;
+		double minimum = DBL_MAX, maximum = -DBL_MAX;
 
-	  unsigned int i = y_vector_get_len(vec);
+		unsigned int i = y_vector_get_len(vec);
 
-	  while (i-- > 0) {
-		  if (!isfinite (v[i]))
-			  continue;
-		  if (minimum > v[i])
-			  minimum = v[i];
-		  if (maximum < v[i])
-			  maximum = v[i];
-	  }
-	  vpriv->minimum = minimum;
-	  vpriv->maximum = maximum;
-	  priv->flags |= Y_DATA_MINMAX_CACHED;
-	  {
-			if (isfinite (minimum) && isfinite (maximum) && minimum <= maximum)
+		while (i-- > 0) {
+			if (!isfinite(v[i]))
+				continue;
+			if (minimum > v[i])
+				minimum = v[i];
+			if (maximum < v[i])
+				maximum = v[i];
+		}
+		vpriv->minimum = minimum;
+		vpriv->maximum = maximum;
+		priv->flags |= Y_DATA_MINMAX_CACHED;
+		{
+			if (isfinite(minimum) && isfinite(maximum)
+			    && minimum <= maximum)
 				priv->flags |= Y_DATA_HAS_VALUE;
 		}
 
@@ -767,12 +741,11 @@ y_vector_get_minmax (YVector *vec, double *min, double *max)
  *
  * Returns: %TRUE if elements of @vec only increase or decrease.
  **/
-gboolean
-y_vector_vary_uniformly (YVector *vec)
+gboolean y_vector_vary_uniformly(YVector * vec)
 {
-	const double *data = y_vector_get_values (vec);
-	int length = y_vector_get_len (vec);
-	return range_vary_uniformly (data, length);
+	const double *data = y_vector_get_values(vec);
+	int length = y_vector_get_len(vec);
+	return range_vary_uniformly(data, length);
 }
 
 /*************************************************************************/
@@ -786,7 +759,7 @@ y_vector_vary_uniformly (YVector *vec)
 
 typedef struct {
 	YMatrixSize size;	/* negative if dirty, includes missing values */
-	double *values;	/* NULL = uninitialized/unsupported, nan = missing */
+	double *values;		/* NULL = uninitialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YMatrixPrivate;
 
@@ -796,65 +769,65 @@ typedef struct {
  * Object representing a two-dimensional array of numbers.
  **/
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YMatrix, y_matrix, Y_TYPE_DATA);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YMatrix, y_matrix, Y_TYPE_DATA);
 
-static void
-_data_matrix_get_sizes (YData *data, unsigned int *sizes)
+static void _data_matrix_get_sizes(YData * data, unsigned int *sizes)
 {
 	YMatrix *matrix = (YMatrix *) data;
 	YMatrixSize size;
 
-	size = y_matrix_get_size (matrix);
+	size = y_matrix_get_size(matrix);
 
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
 }
 
 static void
-_data_matrix_get_bounds (YData *data, double *minimum, double *maximum)
+_data_matrix_get_bounds(YData * data, double *minimum, double *maximum)
 {
-	y_matrix_get_minmax ((YMatrix *) data, minimum, maximum);
+	y_matrix_get_minmax((YMatrix *) data, minimum, maximum);
 }
 
-static char *
-_matrix_serialize (YData *dat, gpointer user)
+static char *_matrix_serialize(YData * dat, gpointer user)
 {
 	YMatrix *mat = (YMatrix *) dat;
-  YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
+	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
 	GString *str;
 	size_t c, r;
 	char col_sep = '\t';
 	char row_sep = '\n';
 
-	str = g_string_new (NULL);
+	str = g_string_new(NULL);
 	for (r = 0; r < mpriv->size.rows; r++) {
-		if (r) g_string_append_c (str, row_sep);
+		if (r)
+			g_string_append_c(str, row_sep);
 		for (c = 0; c < mpriv->size.columns; c++) {
 			double val = mpriv->values[r * mpriv->size.columns + c];
-			char *s = render_val (val);
-			if (c) g_string_append_c (str, col_sep);
-			g_string_append (str, s);
-			g_free (s);
+			char *s = render_val(val);
+			if (c)
+				g_string_append_c(str, col_sep);
+			g_string_append(str, s);
+			g_free(s);
 		}
 	}
 
-	return g_string_free (str, FALSE);
+	return g_string_free(str, FALSE);
 }
 
-static void
-y_matrix_class_init (YMatrixClass *mat_class)
+static void y_matrix_class_init(YMatrixClass * mat_class)
 {
-  YDataClass *data_class = Y_DATA_CLASS(mat_class);
+	YDataClass *data_class = Y_DATA_CLASS(mat_class);
 
-	data_class->emit_changed = 	_data_array_emit_changed;
-	data_class->n_dimensions = 	2;
-	data_class->get_sizes =		_data_matrix_get_sizes;
-	data_class->get_bounds =	_data_matrix_get_bounds;
-  data_class->serialize = _matrix_serialize;
+	data_class->emit_changed = _data_array_emit_changed;
+	data_class->n_dimensions = 2;
+	data_class->get_sizes = _data_matrix_get_sizes;
+	data_class->get_bounds = _data_matrix_get_bounds;
+	data_class->serialize = _matrix_serialize;
 }
 
-static void
-y_matrix_init (YMatrix *mat) {}
+static void y_matrix_init(YMatrix * mat)
+{
+}
 
 /**
  * y_matrix_get_size: (skip)
@@ -864,19 +837,18 @@ y_matrix_init (YMatrix *mat) {}
  *
  * Returns: the matrix size
  **/
-YMatrixSize
-y_matrix_get_size (YMatrix *mat)
+YMatrixSize y_matrix_get_size(YMatrix * mat)
 {
-	static YMatrixSize null_size = {0, 0};
+	static YMatrixSize null_size = { 0, 0 };
 	if (!mat)
 		return null_size;
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YMatrixClass const *klass = Y_MATRIX_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YMatrixClass const *klass = Y_MATRIX_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, null_size);
+		g_return_val_if_fail(klass != NULL, null_size);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -893,18 +865,17 @@ y_matrix_get_size (YMatrix *mat)
  *
  * Returns: the number of rows in @mat
  **/
-unsigned int
-y_matrix_get_rows (YMatrix *mat)
+unsigned int y_matrix_get_rows(YMatrix * mat)
 {
 	if (!mat)
 		return 0;
-  YData *data = Y_DATA(mat);
+	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YMatrixClass const *klass = Y_MATRIX_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YMatrixClass const *klass = Y_MATRIX_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, 0);
+		g_return_val_if_fail(klass != NULL, 0);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -921,18 +892,17 @@ y_matrix_get_rows (YMatrix *mat)
  *
  * Returns: the number of columns in @mat
  **/
-unsigned int
-y_matrix_get_columns (YMatrix *mat)
+unsigned int y_matrix_get_columns(YMatrix * mat)
 {
 	if (!mat)
 		return 0;
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YMatrixClass const *klass = Y_MATRIX_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YMatrixClass const *klass = Y_MATRIX_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, 0);
+		g_return_val_if_fail(klass != NULL, 0);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -949,20 +919,19 @@ y_matrix_get_columns (YMatrix *mat)
  *
  * Returns: an array.
  **/
-const double *
-y_matrix_get_values (YMatrix *mat)
+const double *y_matrix_get_values(YMatrix * mat)
 {
-  YData *data = Y_DATA(mat);
+	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
-		YMatrixClass const *klass = Y_MATRIX_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YMatrixClass const *klass = Y_MATRIX_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, NULL);
+		g_return_val_if_fail(klass != NULL, NULL);
 
 		mpriv->values = (*klass->load_values) (mat);
 
-    priv->flags |= Y_DATA_CACHE_IS_VALID;
+		priv->flags |= Y_DATA_CACHE_IS_VALID;
 	}
 
 	return mpriv->values;
@@ -978,16 +947,16 @@ y_matrix_get_values (YMatrix *mat)
  *
  * Returns: the value
  **/
-double
-y_matrix_get_value (YMatrix *mat, unsigned i, unsigned j)
+double y_matrix_get_value(YMatrix * mat, unsigned i, unsigned j)
 {
-  YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	g_return_val_if_fail ((i < mpriv->size.rows) && (j < mpriv->size.columns), NAN);
+	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
+	g_return_val_if_fail((i < mpriv->size.rows)
+			     && (j < mpriv->size.columns), NAN);
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
-	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
-		YMatrixClass const *klass = Y_MATRIX_GET_CLASS (mat);
-		g_return_val_if_fail (klass != NULL, NAN);
+	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YMatrixClass const *klass = Y_MATRIX_GET_CLASS(mat);
+		g_return_val_if_fail(klass != NULL, NAN);
 		return (*klass->get_value) (mat, i, j);
 	}
 
@@ -1005,13 +974,13 @@ y_matrix_get_value (YMatrix *mat, unsigned i, unsigned j)
  *
  * Returns: the string
  **/
-char *
-y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j, const gchar *format)
+char *y_matrix_get_str(YMatrix * mat, unsigned i, unsigned j,
+		       const gchar * format)
 {
-  char buf[G_ASCII_DTOSTR_BUF_SIZE];
-  double val = y_matrix_get_value(mat, i, j);
-  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-  return g_strdup (buf);
+	char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	double val = y_matrix_get_value(mat, i, j);
+	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+	return g_strdup(buf);
 }
 
 /**
@@ -1022,33 +991,33 @@ y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j, const gchar *format)
  *
  * Get the minimum and maximum values in @mat.
  **/
-void
-y_matrix_get_minmax (YMatrix *mat, double *min, double *max)
+void y_matrix_get_minmax(YMatrix * mat, double *min, double *max)
 {
-  YData *data = Y_DATA(mat);
+	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
-	if(!(priv->flags & Y_DATA_MINMAX_CACHED)) {
-	  const double *v = y_matrix_get_values (mat);
+	if (!(priv->flags & Y_DATA_MINMAX_CACHED)) {
+		const double *v = y_matrix_get_values(mat);
 
-	  double minimum = DBL_MAX, maximum = -DBL_MAX;
+		double minimum = DBL_MAX, maximum = -DBL_MAX;
 
-	  YMatrixSize s = y_matrix_get_size(mat);
-	  int i = s.rows*s.columns;
+		YMatrixSize s = y_matrix_get_size(mat);
+		int i = s.rows * s.columns;
 
-	  while (i-- > 0) {
-		  if (!isfinite (v[i]))
-			  continue;
-		  if (minimum > v[i])
-			  minimum = v[i];
-		  if (maximum < v[i])
-			  maximum = v[i];
-	  }
-	  mpriv->minimum = minimum;
-	  mpriv->maximum = maximum;
-	  priv->flags |= Y_DATA_MINMAX_CACHED;
-	  {
-			if (isfinite (minimum) && isfinite (maximum) && minimum <= maximum)
+		while (i-- > 0) {
+			if (!isfinite(v[i]))
+				continue;
+			if (minimum > v[i])
+				minimum = v[i];
+			if (maximum < v[i])
+				maximum = v[i];
+		}
+		mpriv->minimum = minimum;
+		mpriv->maximum = maximum;
+		priv->flags |= Y_DATA_MINMAX_CACHED;
+		{
+			if (isfinite(minimum) && isfinite(maximum)
+			    && minimum <= maximum)
 				priv->flags |= Y_DATA_HAS_VALUE;
 		}
 
@@ -1071,7 +1040,7 @@ y_matrix_get_minmax (YMatrix *mat, double *min, double *max)
 
 typedef struct {
 	YThreeDArraySize size;	/* negative if dirty, includes missing values */
-	double *values;	/* NULL = uninitialized/unsupported, nan = missing */
+	double *values;		/* NULL = uninitialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YThreeDArrayPrivate;
 
@@ -1081,66 +1050,65 @@ typedef struct {
  * Object representing a three-dimensional array of numbers.
  **/
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (YThreeDArray, y_three_d_array, Y_TYPE_DATA);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YThreeDArray, y_three_d_array, Y_TYPE_DATA);
 
-static void
-_data_tda_get_sizes (YData *data, unsigned int *sizes)
+static void _data_tda_get_sizes(YData * data, unsigned int *sizes)
 {
 	YThreeDArray *matrix = (YThreeDArray *) data;
 	YThreeDArraySize size;
 
-	size = y_three_d_array_get_size (matrix);
+	size = y_three_d_array_get_size(matrix);
 
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
 	sizes[2] = size.layers;
 }
 
-static void
-_data_tda_get_bounds (YData *data, double *minimum, double *maximum)
+static void _data_tda_get_bounds(YData * data, double *minimum, double *maximum)
 {
-	y_three_d_array_get_minmax ((YThreeDArray *) data, minimum, maximum);
+	y_three_d_array_get_minmax((YThreeDArray *) data, minimum, maximum);
 }
 
 #if 0
-static char *
-_three_d_array_val_serialize (YData const *dat, gpointer user)
+static char *_three_d_array_val_serialize(YData const *dat, gpointer user)
 {
-	YThreeDArrayVal *mat = Y_MATRIX_VAL (dat);
+	YThreeDArrayVal *mat = Y_MATRIX_VAL(dat);
 	GString *str;
 	size_t c, r;
 	char col_sep = '\t';
 	char row_sep = '\n';
 
-	str = g_string_new (NULL);
+	str = g_string_new(NULL);
 	for (r = 0; r < mat->size.rows; r++) {
-		if (r) g_string_append_c (str, row_sep);
+		if (r)
+			g_string_append_c(str, row_sep);
 		for (c = 0; c < mat->size.columns; c++) {
 			double val = mat->val[r * mat->size.columns + c];
-			char *s = render_val (val);
-			if (c) g_string_append_c (str, col_sep);
-			g_string_append (str, s);
-			g_free (s);
+			char *s = render_val(val);
+			if (c)
+				g_string_append_c(str, col_sep);
+			g_string_append(str, s);
+			g_free(s);
 		}
 	}
 
-	return g_string_free (str, FALSE);
+	return g_string_free(str, FALSE);
 }
 #endif
 
-static void
-y_three_d_array_class_init (YThreeDArrayClass *mat_class)
+static void y_three_d_array_class_init(YThreeDArrayClass * mat_class)
 {
-  YDataClass *data_class = Y_DATA_CLASS(mat_class);
+	YDataClass *data_class = Y_DATA_CLASS(mat_class);
 
-	data_class->emit_changed = 	_data_array_emit_changed;
-	data_class->n_dimensions = 	3;
-	data_class->get_sizes =		_data_tda_get_sizes;
-	data_class->get_bounds =	_data_tda_get_bounds;
+	data_class->emit_changed = _data_array_emit_changed;
+	data_class->n_dimensions = 3;
+	data_class->get_sizes = _data_tda_get_sizes;
+	data_class->get_bounds = _data_tda_get_bounds;
 }
 
-static void
-y_three_d_array_init (YThreeDArray *mat) {}
+static void y_three_d_array_init(YThreeDArray * mat)
+{
+}
 
 /**
  * y_three_d_array_get_size: (skip)
@@ -1150,19 +1118,18 @@ y_three_d_array_init (YThreeDArray *mat) {}
  *
  * Returns: the matrix size
  **/
-YThreeDArraySize
-y_three_d_array_get_size (YThreeDArray *mat)
+YThreeDArraySize y_three_d_array_get_size(YThreeDArray * mat)
 {
-	static YThreeDArraySize null_size = {0, 0, 0};
+	static YThreeDArraySize null_size = { 0, 0, 0 };
 	if (!mat)
 		return null_size;
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, null_size);
+		g_return_val_if_fail(klass != NULL, null_size);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -1179,18 +1146,17 @@ y_three_d_array_get_size (YThreeDArray *mat)
  *
  * Returns: the number of rows in @mat
  **/
-unsigned int
-y_three_d_array_get_rows (YThreeDArray *mat)
+unsigned int y_three_d_array_get_rows(YThreeDArray * mat)
 {
 	if (!mat)
 		return 0;
-  YData *data = Y_DATA(mat);
+	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, 0);
+		g_return_val_if_fail(klass != NULL, 0);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -1207,18 +1173,17 @@ y_three_d_array_get_rows (YThreeDArray *mat)
  *
  * Returns: the number of columns in @mat
  **/
-unsigned int
-y_three_d_array_get_columns (YThreeDArray *mat)
+unsigned int y_three_d_array_get_columns(YThreeDArray * mat)
 {
 	if (!mat)
 		return 0;
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, 0);
+		g_return_val_if_fail(klass != NULL, 0);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -1235,18 +1200,17 @@ y_three_d_array_get_columns (YThreeDArray *mat)
  *
  * Returns: the number of layers in @mat
  **/
-unsigned int
-y_three_d_array_get_layers (YThreeDArray *mat)
+unsigned int y_three_d_array_get_layers(YThreeDArray * mat)
 {
 	if (!mat)
 		return 0;
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_SIZE_CACHED)) {
-		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_SIZE_CACHED)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, 0);
+		g_return_val_if_fail(klass != NULL, 0);
 
 		mpriv->size = (*klass->load_size) (mat);
 		priv->flags |= Y_DATA_SIZE_CACHED;
@@ -1263,20 +1227,19 @@ y_three_d_array_get_layers (YThreeDArray *mat)
  *
  * Returns: an array.
  **/
-const double *
-y_three_d_array_get_values (YThreeDArray *mat)
+const double *y_three_d_array_get_values(YThreeDArray * mat)
 {
-  YData *data = Y_DATA(mat);
+	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
-		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
+	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS(mat);
 
-		g_return_val_if_fail (klass != NULL, NULL);
+		g_return_val_if_fail(klass != NULL, NULL);
 
 		mpriv->values = (*klass->load_values) (mat);
 
-    priv->flags |= Y_DATA_CACHE_IS_VALID;
+		priv->flags |= Y_DATA_CACHE_IS_VALID;
 	}
 
 	return mpriv->values;
@@ -1294,19 +1257,22 @@ y_three_d_array_get_values (YThreeDArray *mat)
  * Returns: the value
  **/
 double
-y_three_d_array_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsigned k)
+y_three_d_array_get_value(YThreeDArray * mat, unsigned i, unsigned j,
+			  unsigned k)
 {
-  YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	g_return_val_if_fail ((i < mpriv->size.rows) && (j < mpriv->size.columns) && (k < mpriv->size.layers), NAN);
+	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
+	g_return_val_if_fail((i < mpriv->size.rows) && (j < mpriv->size.columns)
+			     && (k < mpriv->size.layers), NAN);
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
-	if (! (priv->flags & Y_DATA_CACHE_IS_VALID)) {
-		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS (mat);
-		g_return_val_if_fail (klass != NULL, NAN);
+	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
+		YThreeDArrayClass const *klass = Y_THREE_D_ARRAY_GET_CLASS(mat);
+		g_return_val_if_fail(klass != NULL, NAN);
 		return (*klass->get_value) (mat, i, j, k);
 	}
 
-	return mpriv->values[i * mpriv->size.rows*mpriv->size.columns + j*mpriv->size.columns + k];
+	return mpriv->values[i * mpriv->size.rows * mpriv->size.columns +
+			     j * mpriv->size.columns + k];
 }
 
 /**
@@ -1321,13 +1287,13 @@ y_three_d_array_get_value (YThreeDArray *mat, unsigned i, unsigned j, unsigned k
  *
  * Returns: the string
  **/
-char *
-y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k, const gchar *format)
+char *y_three_d_array_get_str(YThreeDArray * mat, unsigned i, unsigned j,
+			      unsigned k, const gchar * format)
 {
-  char buf[G_ASCII_DTOSTR_BUF_SIZE];
-  double val = y_three_d_array_get_value(mat, i, j, k);
-  g_ascii_formatd (buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-  return g_strdup (buf);
+	char buf[G_ASCII_DTOSTR_BUF_SIZE];
+	double val = y_three_d_array_get_value(mat, i, j, k);
+	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+	return g_strdup(buf);
 }
 
 /**
@@ -1338,33 +1304,33 @@ y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k, 
  *
  * Get the minimum and maximum values in @mat.
  **/
-void
-y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max)
+void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max)
 {
-  YData *data = Y_DATA(mat);
+	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YThreeDArrayPrivate *mpriv = y_three_d_array_get_instance_private(mat);
-	if(!(priv->flags & Y_DATA_MINMAX_CACHED)) {
-	  const double *v = y_three_d_array_get_values (mat);
+	if (!(priv->flags & Y_DATA_MINMAX_CACHED)) {
+		const double *v = y_three_d_array_get_values(mat);
 
-	  double minimum = DBL_MAX, maximum = -DBL_MAX;
+		double minimum = DBL_MAX, maximum = -DBL_MAX;
 
-	  YThreeDArraySize s = y_three_d_array_get_size(mat);
-	  int i = s.rows*s.columns*s.layers;
+		YThreeDArraySize s = y_three_d_array_get_size(mat);
+		int i = s.rows * s.columns * s.layers;
 
-	  while (i-- > 0) {
-		  if (!isfinite (v[i]))
-			  continue;
-		  if (minimum > v[i])
-			  minimum = v[i];
-		  if (maximum < v[i])
-			  maximum = v[i];
-	  }
-	  mpriv->minimum = minimum;
-	  mpriv->maximum = maximum;
-	  priv->flags |= Y_DATA_MINMAX_CACHED;
-	  {
-			if (isfinite (minimum) && isfinite (maximum) && minimum <= maximum)
+		while (i-- > 0) {
+			if (!isfinite(v[i]))
+				continue;
+			if (minimum > v[i])
+				minimum = v[i];
+			if (maximum < v[i])
+				maximum = v[i];
+		}
+		mpriv->minimum = minimum;
+		mpriv->maximum = maximum;
+		priv->flags |= Y_DATA_MINMAX_CACHED;
+		{
+			if (isfinite(minimum) && isfinite(maximum)
+			    && minimum <= maximum)
 				priv->flags |= Y_DATA_HAS_VALUE;
 		}
 
@@ -1386,7 +1352,7 @@ y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max)
  */
 
 struct _YStruct {
-	YData	 base;
+	YData base;
 	GHashTable *hash;
 };
 
@@ -1396,33 +1362,33 @@ struct _YStruct {
  * Object representing a dictionary full of YData objects.
  **/
 
-G_DEFINE_TYPE (YStruct, y_struct, Y_TYPE_DATA);
+G_DEFINE_TYPE(YStruct, y_struct, Y_TYPE_DATA);
 
-static void
-y_struct_finalize (GObject *obj)
+static void y_struct_finalize(GObject * obj)
 {
-	YStruct *s = (YStruct *)obj;
-  	g_hash_table_unref(s->hash);
+	YStruct *s = (YStruct *) obj;
+	g_hash_table_unref(s->hash);
 
-  	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
+	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
 
 	(*obj_class->finalize) (obj);
 }
 
-static void
-y_struct_class_init (YStructClass *val_klass)
+static void y_struct_class_init(YStructClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
-  gobject_klass->finalize = y_struct_finalize;
-  ydata_klass->n_dimensions = -1;
-	//ydata_klass->dup	= y_vector_val_dup;
+	gobject_klass->finalize = y_struct_finalize;
+	ydata_klass->n_dimensions = -1;
+	//ydata_klass->dup      = y_vector_val_dup;
 }
 
-static void
-y_struct_init(YStruct *s) {
-  s->hash = g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_object_unref);
+static void y_struct_init(YStruct * s)
+{
+	s->hash =
+	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
+				  g_object_unref);
 }
 
 /**
@@ -1434,10 +1400,9 @@ y_struct_init(YStruct *s) {
  *
  * Returns: (transfer none): the data.
  **/
-YData *y_struct_get_data(YStruct     *s,
-                         const gchar *name)
+YData *y_struct_get_data(YStruct * s, const gchar * name)
 {
-  return g_hash_table_lookup(s->hash,name);
+	return g_hash_table_lookup(s->hash, name);
 }
 
 /**
@@ -1448,10 +1413,9 @@ YData *y_struct_get_data(YStruct     *s,
  *
  * Set a data object.
  **/
-void y_struct_set_data(YStruct     *s,
-                         const gchar *name, YData *d)
+void y_struct_set_data(YStruct * s, const gchar * name, YData * d)
 {
-  g_hash_table_insert(s->hash,g_strdup(name),g_object_ref_sink(d));
+	g_hash_table_insert(s->hash, g_strdup(name), g_object_ref_sink(d));
 }
 
 /**
@@ -1462,9 +1426,7 @@ void y_struct_set_data(YStruct     *s,
  *
  * Set a data object.
  **/
-void y_struct_foreach(YStruct   *s,
-                      GHFunc  f,
-                      gpointer   user_data)
+void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data)
 {
-  g_hash_table_foreach(s->hash,f,user_data);
+	g_hash_table_foreach(s->hash, f, user_data);
 }

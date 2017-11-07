@@ -27,7 +27,7 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_DERIVABLE_TYPE(YData,y_data,Y,DATA,GInitiallyUnowned)
+G_DECLARE_DERIVABLE_TYPE(YData, y_data, Y, DATA, GInitiallyUnowned)
 
 #define Y_TYPE_DATA	(y_data_get_type ())
 
@@ -71,23 +71,24 @@ typedef struct {
  *
  * Class for YData.
  **/
+
 struct _YDataClass {
-  GObjectClass base;
+	GObjectClass base;
 
-  char n_dimensions;
+	char n_dimensions;
 
-  YData * (*dup)	    		(YData *src);
+	YData *(*dup) (YData * src);
 
-  char * (*serialize)	    	(YData *dat, gpointer user);
+	char *(*serialize) (YData * dat, gpointer user);
 
-  void (*get_sizes)		(YData *data, unsigned int *sizes);
-  void (*get_bounds)		(YData *data, double *minimum, double *maximum);
+	void (*get_sizes) (YData * data, unsigned int *sizes);
+	void (*get_bounds) (YData * data, double *minimum, double *maximum);
 
-  /* signals */
-  void (*emit_changed)	(YData *dat);
+	/* signals */
+	void (*emit_changed) (YData * dat);
 };
 
-G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)
+G_DECLARE_DERIVABLE_TYPE(YScalar, y_scalar, Y, SCALAR, YData)
 
 #define Y_TYPE_SCALAR	(y_scalar_get_type ())
 
@@ -100,18 +101,18 @@ G_DECLARE_DERIVABLE_TYPE(YScalar,y_scalar,Y,SCALAR,YData)
  **/
 
 struct _YScalarClass {
-  YDataClass base;
-  double       (*get_value)  (YScalar *scalar);
+	YDataClass base;
+	double (*get_value) (YScalar * scalar);
 };
 
-G_DECLARE_FINAL_TYPE(YScalarVal,y_scalar_val,Y,SCALAR_VAL,YScalar)
+G_DECLARE_FINAL_TYPE(YScalarVal, y_scalar_val, Y, SCALAR_VAL, YScalar)
 
 #define Y_TYPE_SCALAR_VAL	(y_scalar_val_get_type ())
 
-YData *y_scalar_val_new      (double val);
-double *y_scalar_val_get_val (YScalarVal *s);
+YData *y_scalar_val_new(double val);
+double *y_scalar_val_get_val(YScalarVal * s);
 
-G_DECLARE_DERIVABLE_TYPE(YVector,y_vector,Y,VECTOR,YData)
+G_DECLARE_DERIVABLE_TYPE(YVector, y_vector, Y, VECTOR, YData)
 
 #define Y_TYPE_VECTOR	(y_vector_get_type ())
 
@@ -128,12 +129,12 @@ G_DECLARE_DERIVABLE_TYPE(YVector,y_vector,Y,VECTOR,YData)
 struct _YVectorClass {
 	YDataClass base;
 
-	unsigned int	 (*load_len)    (YVector *vec);
-	double	 *(*load_values) (YVector *vec);
-	double	 (*get_value)   (YVector *vec, unsigned i);
+	unsigned int (*load_len) (YVector * vec);
+	double *(*load_values) (YVector * vec);
+	double (*get_value) (YVector * vec, unsigned i);
 };
 
-G_DECLARE_DERIVABLE_TYPE(YMatrix,y_matrix,Y,MATRIX,YData)
+G_DECLARE_DERIVABLE_TYPE(YMatrix, y_matrix, Y, MATRIX, YData)
 
 #define Y_TYPE_MATRIX (y_matrix_get_type())
 
@@ -150,12 +151,12 @@ G_DECLARE_DERIVABLE_TYPE(YMatrix,y_matrix,Y,MATRIX,YData)
 struct _YMatrixClass {
 	YDataClass base;
 
-	YMatrixSize	 (*load_size)    (YMatrix *vec);
-	double	 *(*load_values) (YMatrix *vec);
-	double	 (*get_value)   (YMatrix *mat, unsigned i, unsigned j);
+	YMatrixSize(*load_size) (YMatrix * vec);
+	double *(*load_values) (YMatrix * vec);
+	double (*get_value) (YMatrix * mat, unsigned i, unsigned j);
 };
 
-G_DECLARE_DERIVABLE_TYPE(YThreeDArray,y_three_d_array,Y,THREE_D_ARRAY,YData)
+G_DECLARE_DERIVABLE_TYPE(YThreeDArray, y_three_d_array, Y, THREE_D_ARRAY, YData)
 
 #define Y_TYPE_THREE_D_ARRAY (y_three_d_array_get_type())
 
@@ -172,73 +173,74 @@ G_DECLARE_DERIVABLE_TYPE(YThreeDArray,y_three_d_array,Y,THREE_D_ARRAY,YData)
 struct _YThreeDArrayClass {
 	YDataClass base;
 
-	YThreeDArraySize	 (*load_size)    (YThreeDArray *vec);
-	double	 *(*load_values) (YThreeDArray *vec);
-	double	 (*get_value)   (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
+	YThreeDArraySize(*load_size) (YThreeDArray * vec);
+	double *(*load_values) (YThreeDArray * vec);
+	double (*get_value) (YThreeDArray * mat, unsigned i, unsigned j,
+			     unsigned k);
 };
 
-YData *	y_data_dup (YData *src);
-YData * y_data_dup_to_simple (YData *src);
+YData *y_data_dup(YData * src);
+YData *y_data_dup_to_simple(YData * src);
 
-char * y_data_serialize (YData *dat, gpointer user);
-void y_data_emit_changed (YData *dat);
+char *y_data_serialize(YData * dat, gpointer user);
+void y_data_emit_changed(YData * dat);
 
-void		y_data_get_bounds		(YData *data, double *minimum, double *maximum);
-gboolean	y_data_has_value	    (YData *data);
+void y_data_get_bounds(YData * data, double *minimum, double *maximum);
+gboolean y_data_has_value(YData * data);
 
-char 	y_data_get_n_dimensions 	(YData *data);
-unsigned int	y_data_get_n_values		(YData *data);
-
-/*************************************************************************/
-
-double      y_scalar_get_value  (YScalar *scalar);
-char *y_scalar_get_str (YScalar *scalar, const gchar *format);
+char y_data_get_n_dimensions(YData * data);
+unsigned int y_data_get_n_values(YData * data);
 
 /*************************************************************************/
 
-unsigned int	 y_vector_get_len    (YVector *vec);
-const double	*y_vector_get_values (YVector *vec);
-double	 y_vector_get_value  (YVector *vec, unsigned i);
-char *	 y_vector_get_str  (YVector *vec, unsigned int i, const gchar *format);
-gboolean	y_vector_is_varying_uniformly	(YVector *data);
-void	 y_vector_get_minmax (YVector *vec, double *min, double *max);
-gboolean y_vector_vary_uniformly (YVector *vec);
+double y_scalar_get_value(YScalar * scalar);
+char *y_scalar_get_str(YScalar * scalar, const gchar * format);
 
 /*************************************************************************/
 
-YMatrixSize	 y_matrix_get_size    (YMatrix *mat);
-unsigned int 	 y_matrix_get_rows   (YMatrix *mat);
-unsigned int 	 y_matrix_get_columns (YMatrix *mat);
-const double	*y_matrix_get_values (YMatrix *mat);
-double	 y_matrix_get_value  (YMatrix *mat, unsigned i, unsigned j);
-char *y_matrix_get_str (YMatrix *mat, unsigned i, unsigned j, const gchar *format);
-void	 y_matrix_get_minmax (YMatrix *mat, double *min, double *max);
+unsigned int y_vector_get_len(YVector * vec);
+const double *y_vector_get_values(YVector * vec);
+double y_vector_get_value(YVector * vec, unsigned i);
+char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format);
+gboolean y_vector_is_varying_uniformly(YVector * data);
+void y_vector_get_minmax(YVector * vec, double *min, double *max);
+gboolean y_vector_vary_uniformly(YVector * vec);
 
 /*************************************************************************/
 
-YThreeDArraySize	 y_three_d_array_get_size    (YThreeDArray *mat);
-unsigned int 	 y_three_d_array_get_rows   (YThreeDArray *mat);
-unsigned int 	 y_three_d_array_get_columns (YThreeDArray *mat);
-unsigned int 	 y_three_d_array_get_layers (YThreeDArray *mat);
-const double	*y_three_d_array_get_values (YThreeDArray *mat);
-double	 y_three_d_array_get_value  (YThreeDArray *mat, unsigned i, unsigned j, unsigned k);
-char *y_three_d_array_get_str (YThreeDArray *mat, unsigned i, unsigned j, unsigned k, const gchar *format);
-void	 y_three_d_array_get_minmax (YThreeDArray *mat, double *min, double *max);
+YMatrixSize y_matrix_get_size(YMatrix * mat);
+unsigned int y_matrix_get_rows(YMatrix * mat);
+unsigned int y_matrix_get_columns(YMatrix * mat);
+const double *y_matrix_get_values(YMatrix * mat);
+double y_matrix_get_value(YMatrix * mat, unsigned i, unsigned j);
+char *y_matrix_get_str(YMatrix * mat, unsigned i, unsigned j,
+		       const gchar * format);
+void y_matrix_get_minmax(YMatrix * mat, double *min, double *max);
 
 /*************************************************************************/
 
-G_DECLARE_FINAL_TYPE(YStruct,y_struct,Y,STRUCT,YData)
+YThreeDArraySize y_three_d_array_get_size(YThreeDArray * mat);
+unsigned int y_three_d_array_get_rows(YThreeDArray * mat);
+unsigned int y_three_d_array_get_columns(YThreeDArray * mat);
+unsigned int y_three_d_array_get_layers(YThreeDArray * mat);
+const double *y_three_d_array_get_values(YThreeDArray * mat);
+double y_three_d_array_get_value(YThreeDArray * mat, unsigned i, unsigned j,
+				 unsigned k);
+char *y_three_d_array_get_str(YThreeDArray * mat, unsigned i, unsigned j,
+			      unsigned k, const gchar * format);
+void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max);
+
+/*************************************************************************/
+
+G_DECLARE_FINAL_TYPE(YStruct, y_struct, Y, STRUCT, YData)
 
 #define Y_TYPE_STRUCT (y_struct_get_type())
 
-YData *y_struct_get_data(YStruct     *s,
-                         const gchar *name);
-void y_struct_set_data(YStruct     *s,
-                         const gchar *name, YData *d);
-void y_struct_foreach(YStruct   *s,
-                      GHFunc  f,
-                      gpointer   user_data);
+YData *y_struct_get_data(YStruct * s, const gchar * name);
+void y_struct_set_data(YStruct * s, const gchar * name, YData * d);
+void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data);
 
 G_END_DECLS
 
-#endif /* Y_DATA_H */
+#endif				/* Y_DATA_H */
+

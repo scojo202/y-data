@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
- 
+
 #include "y-vector-ring.h"
 #include <math.h>
 
@@ -50,81 +50,77 @@
  **/
 
 struct _YVectorRing {
-	YVector	 base;
-	unsigned	 n;
+	YVector base;
+	unsigned n;
 	unsigned int nmax;
 	double *val;
 	YScalar *source;
 	gulong handler;
 };
 
-G_DEFINE_TYPE (YVectorRing, y_vector_ring, Y_TYPE_VECTOR);
+G_DEFINE_TYPE(YVectorRing, y_vector_ring, Y_TYPE_VECTOR);
 
-static void
-y_vector_ring_finalize (GObject *obj)
+static void y_vector_ring_finalize(GObject * obj)
 {
-	YVectorRing *vec = (YVectorRing *)obj;
+	YVectorRing *vec = (YVectorRing *) obj;
 	if (vec->val)
 		g_free(vec->val);
-        if (vec->source) {
-                g_object_unref(vec->source);
-                g_signal_handler_disconnect(vec->source,vec->handler);
-        }
+	if (vec->source) {
+		g_object_unref(vec->source);
+		g_signal_handler_disconnect(vec->source, vec->handler);
+	}
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_vector_ring_parent_class);
 
 	(*obj_class->finalize) (obj);
 }
 
-static YData *
-y_vector_ring_dup (YData *src)
+static YData *y_vector_ring_dup(YData * src)
 {
-	YVectorRing *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
+	YVectorRing *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
 	YVectorRing const *src_val = (YVectorRing const *)src;
-	dst->val = g_new (double, src_val->n);
-	memcpy (dst->val, src_val->val, src_val->n * sizeof (double));
+	dst->val = g_new(double, src_val->n);
+	memcpy(dst->val, src_val->val, src_val->n * sizeof(double));
 	dst->n = src_val->n;
-	return Y_DATA (dst);
+	return Y_DATA(dst);
 }
 
-static unsigned int
-y_vector_ring_load_len (YVector *vec)
+static unsigned int y_vector_ring_load_len(YVector * vec)
 {
-	return ((YVectorRing *)vec)->n;
+	return ((YVectorRing *) vec)->n;
 }
 
-static double *
-y_vector_ring_load_values (YVector *vec)
+static double *y_vector_ring_load_values(YVector * vec)
 {
 	YVectorRing const *val = (YVectorRing const *)vec;
 
 	return val->val;
 }
 
-static double
-y_vector_ring_get_value (YVector *vec, unsigned i)
+static double y_vector_ring_get_value(YVector * vec, unsigned i)
 {
 	YVectorRing const *val = (YVectorRing const *)vec;
-	g_return_val_if_fail (val != NULL && val->val != NULL && i < val->n, NAN);
+	g_return_val_if_fail(val != NULL && val->val != NULL
+			     && i < val->n, NAN);
 	return val->val[i];
 }
 
-static void
-y_vector_ring_class_init (YVectorRingClass *val_klass)
+static void y_vector_ring_class_init(YVectorRingClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	YVectorClass *vector_klass = (YVectorClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
 	gobject_klass->finalize = y_vector_ring_finalize;
-	ydata_klass->dup	= y_vector_ring_dup;
-	vector_klass->load_len    = y_vector_ring_load_len;
+	ydata_klass->dup = y_vector_ring_dup;
+	vector_klass->load_len = y_vector_ring_load_len;
 	vector_klass->load_values = y_vector_ring_load_values;
-	vector_klass->get_value   = y_vector_ring_get_value;
+	vector_klass->get_value = y_vector_ring_get_value;
 }
 
-static void
-y_vector_ring_init(YVectorRing *val) {}
+static void y_vector_ring_init(YVectorRing * val)
+{
+}
 
 /**
  * y_vector_ring_new:
@@ -136,14 +132,13 @@ y_vector_ring_init(YVectorRing *val) {}
  * Returns: a #YData
  *
  **/
-YData *
-y_vector_ring_new (unsigned nmax, unsigned n)
+YData *y_vector_ring_new(unsigned nmax, unsigned n)
 {
-	YVectorRing *res = g_object_new (Y_TYPE_VECTOR_RING, NULL);
+	YVectorRing *res = g_object_new(Y_TYPE_VECTOR_RING, NULL);
 	res->val = g_new0(double, nmax);
 	res->n = n;
 	res->nmax = nmax;
-	return Y_DATA (res);
+	return Y_DATA(res);
 }
 
 /**
@@ -154,21 +149,20 @@ y_vector_ring_new (unsigned nmax, unsigned n)
  * Append a new value to the vector.
  *
  **/
-void y_vector_ring_append(YVectorRing *d, double val)
+void y_vector_ring_append(YVectorRing * d, double val)
 {
-  g_assert(Y_IS_VECTOR_RING(d));
-  unsigned int l = MIN(d->nmax,y_vector_get_len(Y_VECTOR(d)));
-  double *frames = d->val;
-  if(l<d->nmax) {
-    frames[l]=val;
-    y_vector_ring_set_length(d, l+1);
-  }
-  else if (l==d->nmax) {
-    memmove(frames, &frames[1], (l-1)*sizeof(double));
-    frames[l-1]=val;
-  }
-  else return;
-  y_data_emit_changed(Y_DATA(d));
+	g_assert(Y_IS_VECTOR_RING(d));
+	unsigned int l = MIN(d->nmax, y_vector_get_len(Y_VECTOR(d)));
+	double *frames = d->val;
+	if (l < d->nmax) {
+		frames[l] = val;
+		y_vector_ring_set_length(d, l + 1);
+	} else if (l == d->nmax) {
+		memmove(frames, &frames[1], (l - 1) * sizeof(double));
+		frames[l - 1] = val;
+	} else
+		return;
+	y_data_emit_changed(Y_DATA(d));
 }
 
 /**
@@ -180,32 +174,33 @@ void y_vector_ring_append(YVectorRing *d, double val)
  * Append a new value to the vector.
  *
  **/
-void y_vector_ring_append_array(YVectorRing *d, double *arr, int len)
+void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
 {
-  g_assert(Y_IS_VECTOR_RING(d));
-  g_assert(arr);
-  unsigned int l = MIN(d->nmax,y_vector_get_len(Y_VECTOR(d)));
-  double *frames = d->val;
-  int i;
-  if(l+len<d->nmax) {
-    for(i=0;i<len;i++) {
-      frames[i+l]=arr[i];
-    }
-    y_vector_ring_set_length(d, l+len);
-  }
-  /*else {
-    memmove(frames, &frames[1], (l-1)*sizeof(double));
-    frames[l-1]=val;
-  }*/
-  else return;
-  y_data_emit_changed(Y_DATA(d));
+	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(arr);
+	unsigned int l = MIN(d->nmax, y_vector_get_len(Y_VECTOR(d)));
+	double *frames = d->val;
+	int i;
+	if (l + len < d->nmax) {
+		for (i = 0; i < len; i++) {
+			frames[i + l] = arr[i];
+		}
+		y_vector_ring_set_length(d, l + len);
+	}
+	/*else {
+	   memmove(frames, &frames[1], (l-1)*sizeof(double));
+	   frames[l-1]=val;
+	   } */
+	else
+		return;
+	y_data_emit_changed(Y_DATA(d));
 }
 
-static void
-on_source_changed(YData *data, gpointer   user_data) {
-        YVectorRing *d = Y_VECTOR_RING(user_data);
-        YScalar *source = Y_SCALAR(data);
-        y_vector_ring_append(d,y_scalar_get_value(source));
+static void on_source_changed(YData * data, gpointer user_data)
+{
+	YVectorRing *d = Y_VECTOR_RING(user_data);
+	YScalar *source = Y_SCALAR(data);
+	y_vector_ring_append(d, y_scalar_get_value(source));
 }
 
 /**
@@ -216,22 +211,23 @@ on_source_changed(YData *data, gpointer   user_data) {
  * Set a source for the #YVectorRing. When the source emits a "changed" signal,
  * a new value will be appended to the vector.
  **/
-void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
+void y_vector_ring_set_source(YVectorRing * d, YScalar * source)
 {
-        g_assert(Y_IS_VECTOR_RING(d));
-        g_assert(Y_IS_SCALAR(source));
-        if(d->source) {
-                g_object_unref(d->source);
-                g_signal_handler_disconnect(d->source,d->handler);
-        }
-        if(Y_IS_SCALAR(source)) {
-                d->source = g_object_ref_sink(source);
-        }
-        else if(source==NULL) {
-                d->source = NULL;
-                return;
-        }
-        d->handler = g_signal_connect_after(source,"changed",G_CALLBACK(on_source_changed),d);
+	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(Y_IS_SCALAR(source));
+	if (d->source) {
+		g_object_unref(d->source);
+		g_signal_handler_disconnect(d->source, d->handler);
+	}
+	if (Y_IS_SCALAR(source)) {
+		d->source = g_object_ref_sink(source);
+	} else if (source == NULL) {
+		d->source = NULL;
+		return;
+	}
+	d->handler =
+	    g_signal_connect_after(source, "changed",
+				   G_CALLBACK(on_source_changed), d);
 }
 
 /**
@@ -243,12 +239,11 @@ void y_vector_ring_set_source(YVectorRing *d, YScalar *source)
  * length is longer than the previous length, tailing elements are set to
  * zero.
  **/
-void y_vector_ring_set_length(YVectorRing *d, unsigned newlength)
+void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
 {
-  g_assert(Y_IS_VECTOR_RING(d));
-  if(newlength<=d->nmax) {
-    d->n = newlength;
-    y_data_emit_changed(Y_DATA(d));
-  }
+	g_assert(Y_IS_VECTOR_RING(d));
+	if (newlength <= d->nmax) {
+		d->n = newlength;
+		y_data_emit_changed(Y_DATA(d));
+	}
 }
-
