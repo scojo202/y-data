@@ -75,14 +75,12 @@ typedef struct {
 struct _YDataClass {
 	GObjectClass base;
 
-	char n_dimensions;
-
 	YData *(*dup) (YData * src);
 
 	char *(*serialize) (YData * dat, gpointer user);
 
-	void (*get_sizes) (YData * data, unsigned int *sizes);
-	void (*get_bounds) (YData * data, double *minimum, double *maximum);
+	char (*get_sizes) (YData * data, unsigned int *sizes);
+    gboolean (*has_value) (YData *data);
 
 	/* signals */
 	void (*emit_changed) (YData * dat);
@@ -185,7 +183,6 @@ YData *y_data_dup_to_simple(YData * src);
 char *y_data_serialize(YData * dat, gpointer user);
 void y_data_emit_changed(YData * dat);
 
-void y_data_get_bounds(YData * data, double *minimum, double *maximum);
 gboolean y_data_has_value(YData * data);
 
 char y_data_get_n_dimensions(YData * data);

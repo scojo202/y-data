@@ -21,7 +21,6 @@
 
 #include <memory.h>
 #include <math.h>
-#include <complex.h>
 #include "y-simple-operation.h"
 
 /**

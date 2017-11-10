@@ -178,6 +178,7 @@ void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
 {
 	g_assert(Y_IS_VECTOR_RING(d));
 	g_assert(arr);
+    g_assert(len>=0);
 	unsigned int l = MIN(d->nmax, y_vector_get_len(Y_VECTOR(d)));
 	double *frames = d->val;
 	int i;

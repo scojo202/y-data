@@ -171,8 +171,12 @@ gboolean y_data_has_value(YData * data)
 {
 	g_return_val_if_fail(Y_IS_DATA(data), FALSE);
 	YDataPrivate *priv = y_data_get_instance_private(data);
-	if (!(priv->flags & Y_DATA_MINMAX_CACHED))
-		y_data_get_bounds(Y_DATA(data), NULL, NULL);
+    if (!(priv->flags & Y_DATA_HAS_VALUE)) {
+        g_return_val_if_fail(data_class->has_value != NULL, FALSE);
+        gboolean has_value = data_class->has_value(data);
+        if(has_value)
+            priv->flags |= Y_DATA_HAS_VALUE;
+    }
 	return priv->flags & Y_DATA_HAS_VALUE;
 }
 
@@ -192,8 +196,10 @@ char y_data_get_n_dimensions(YData * data)
 	g_return_val_if_fail(Y_IS_DATA(data), 0);
 
 	data_class = Y_DATA_GET_CLASS(data);
+    
+    g_return_val_if_fail(data_class->get_sizes != NULL, 0);
 
-	return data_class->n_dimensions;
+	return data_class->get_sizes(data, NULL);
 }
 
 /**
@@ -208,50 +214,28 @@ unsigned int y_data_get_n_values(YData * data)
 {
 	YDataClass const *data_class;
 	unsigned int n_values;
-	unsigned int n_dimensions;
-	unsigned int *sizes;
+	int n_dimensions;
+	unsigned int sizes[3];
 	unsigned int i;
 
 	g_return_val_if_fail(Y_IS_DATA(data), 0);
 
 	data_class = Y_DATA_GET_CLASS(data);
 
-	n_dimensions = data_class->n_dimensions;
+    n_dimensions = data_class->get_sizes(data, sizes);
+    
 	if (n_dimensions < 1)
 		return 1;
-
-	sizes = g_newa(unsigned int, n_dimensions);
+    
+    g_assert(n_dimensions<4);
 
 	g_return_val_if_fail(data_class->get_sizes != NULL, 0);
-
-	data_class->get_sizes(data, sizes);
 
 	n_values = 1;
 	for (i = 0; i < n_dimensions; i++)
 		n_values *= sizes[i];
 
 	return n_values;
-}
-
-/**
- * y_data_get_bounds :
- * @data: #YData
- * @minimum: (out)(nullable): return location for minimum value, or @NULL
- * @maximum: (out)(nullable): return location for maximum value, or @NULL
- *
- * Get the minimum and maximum values in @data.
- **/
-void y_data_get_bounds(YData * data, double *minimum, double *maximum)
-{
-	YDataClass const *data_class;
-
-	g_return_if_fail(Y_IS_DATA(data));
-
-	data_class = Y_DATA_GET_CLASS(data);
-
-	g_return_if_fail(data_class->get_bounds != NULL);
-
-	data_class->get_bounds(data, minimum, maximum);
 }
 
 /*************************************************************************/
@@ -275,23 +259,15 @@ typedef struct {
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YScalar, y_scalar, Y_TYPE_DATA);
 
-static void
-_data_scalar_get_bounds(YData * data, double *minimum, double *maximum)
+static gboolean
+_data_scalar_has_value(YData * data)
 {
-	YScalar *scalar = (YScalar *) data;
+    YScalar *scalar = (YScalar *) data;
+    YDataPrivate *dpriv = y_data_get_instance_private(data);
 
-	YDataPrivate *dpriv = y_data_get_instance_private(data);
+    double v = y_scalar_get_value(scalar);
 
-	double v = y_scalar_get_value(scalar);
-
-	if (minimum)
-		*minimum = v;
-	if (maximum)
-		*maximum = v;
-
-	if (isfinite(v)) {
-		dpriv->flags |= Y_DATA_HAS_VALUE;
-	}
+    return isfinite(v);
 }
 
 static char *_scalar_serialize(YData * dat, gpointer user)
@@ -310,8 +286,7 @@ static void _data_scalar_emit_changed(YData * data)
 static void y_scalar_class_init(YScalarClass * scalar_class)
 {
 	YDataClass *data_class = Y_DATA_CLASS(scalar_class);
-	data_class->n_dimensions = 0;
-	data_class->get_bounds = _data_scalar_get_bounds;
+	data_class->has_value = _data_scalar_has_value;
 	data_class->serialize = _scalar_serialize;
 	data_class->emit_changed = _data_scalar_emit_changed;
 }
@@ -463,17 +438,22 @@ static void _data_array_emit_changed(YData * data)
 	      Y_DATA_MINMAX_CACHED);
 }
 
-static void _data_vector_get_sizes(YData * data, unsigned int *sizes)
+static char _data_vector_get_sizes(YData * data, unsigned int *sizes)
 {
 	YVector *vector = (YVector *) data;
 
 	sizes[0] = y_vector_get_len(vector);
+    
+    return 1;
 }
 
-static void
-_data_vector_get_bounds(YData * data, double *minimum, double *maximum)
+static gboolean _vector_has_value(YData *dat)
 {
-	y_vector_get_minmax((YVector *) data, minimum, maximum);
+    YVector *vec = (YVector *) dat;
+    double minimum,maximum;
+    y_vector_get_minmax(vec,&minimum,&maximum);
+    if (isfinite(minimum) && isfinite(maximum) && minimum <= maximum)
+        return TRUE;
 }
 
 static char *_vector_serialize(YData * dat, gpointer user)
@@ -508,10 +488,9 @@ static void y_vector_class_init(YVectorClass * vec_class)
 {
 	YDataClass *data_class = (YDataClass *) vec_class;
 	data_class->emit_changed = _data_array_emit_changed;
-	data_class->n_dimensions = 1;
 	data_class->get_sizes = _data_vector_get_sizes;
-	data_class->get_bounds = _data_vector_get_bounds;
 	data_class->serialize = _vector_serialize;
+    data_class->has_value = _vector_has_value;
 }
 
 /**
@@ -719,12 +698,6 @@ void y_vector_get_minmax(YVector * vec, double *min, double *max)
 		vpriv->minimum = minimum;
 		vpriv->maximum = maximum;
 		priv->flags |= Y_DATA_MINMAX_CACHED;
-		{
-			if (isfinite(minimum) && isfinite(maximum)
-			    && minimum <= maximum)
-				priv->flags |= Y_DATA_HAS_VALUE;
-		}
-
 	}
 
 	if (min != NULL)
@@ -771,7 +744,7 @@ typedef struct {
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YMatrix, y_matrix, Y_TYPE_DATA);
 
-static void _data_matrix_get_sizes(YData * data, unsigned int *sizes)
+static char _data_matrix_get_sizes(YData * data, unsigned int *sizes)
 {
 	YMatrix *matrix = (YMatrix *) data;
 	YMatrixSize size;
@@ -780,12 +753,17 @@ static void _data_matrix_get_sizes(YData * data, unsigned int *sizes)
 
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
+    
+    return 2;
 }
 
-static void
-_data_matrix_get_bounds(YData * data, double *minimum, double *maximum)
+static gboolean _matrix_has_value(YData *dat)
 {
-	y_matrix_get_minmax((YMatrix *) data, minimum, maximum);
+    YMatrix *mat = (YMatrix *) dat;
+    double minimum,maximum;
+    y_matrix_get_minmax(mat,&minimum,&maximum);
+    if (isfinite(minimum) && isfinite(maximum) && minimum <= maximum)
+        return TRUE;
 }
 
 static char *_matrix_serialize(YData * dat, gpointer user)
@@ -819,10 +797,9 @@ static void y_matrix_class_init(YMatrixClass * mat_class)
 	YDataClass *data_class = Y_DATA_CLASS(mat_class);
 
 	data_class->emit_changed = _data_array_emit_changed;
-	data_class->n_dimensions = 2;
 	data_class->get_sizes = _data_matrix_get_sizes;
-	data_class->get_bounds = _data_matrix_get_bounds;
 	data_class->serialize = _matrix_serialize;
+    data_class->has_value = _matrix_has_value;
 }
 
 static void y_matrix_init(YMatrix * mat)
@@ -1015,12 +992,6 @@ void y_matrix_get_minmax(YMatrix * mat, double *min, double *max)
 		mpriv->minimum = minimum;
 		mpriv->maximum = maximum;
 		priv->flags |= Y_DATA_MINMAX_CACHED;
-		{
-			if (isfinite(minimum) && isfinite(maximum)
-			    && minimum <= maximum)
-				priv->flags |= Y_DATA_HAS_VALUE;
-		}
-
 	}
 
 	if (min != NULL)
@@ -1052,7 +1023,7 @@ typedef struct {
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YThreeDArray, y_three_d_array, Y_TYPE_DATA);
 
-static void _data_tda_get_sizes(YData * data, unsigned int *sizes)
+static char _data_tda_get_sizes(YData * data, unsigned int *sizes)
 {
 	YThreeDArray *matrix = (YThreeDArray *) data;
 	YThreeDArraySize size;
@@ -1062,11 +1033,17 @@ static void _data_tda_get_sizes(YData * data, unsigned int *sizes)
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
 	sizes[2] = size.layers;
+    
+    return 3;
 }
 
-static void _data_tda_get_bounds(YData * data, double *minimum, double *maximum)
+static gboolean _three_d_array_has_value(YData *dat)
 {
-	y_three_d_array_get_minmax((YThreeDArray *) data, minimum, maximum);
+    YThreeDArray *t = (YThreeDArray *) dat;
+    double minimum,maximum;
+    y_three_d_array_get_minmax(t,&minimum,&maximum);
+    if (isfinite(minimum) && isfinite(maximum) && minimum <= maximum)
+        return TRUE;
 }
 
 #if 0
@@ -1101,9 +1078,8 @@ static void y_three_d_array_class_init(YThreeDArrayClass * mat_class)
 	YDataClass *data_class = Y_DATA_CLASS(mat_class);
 
 	data_class->emit_changed = _data_array_emit_changed;
-	data_class->n_dimensions = 3;
 	data_class->get_sizes = _data_tda_get_sizes;
-	data_class->get_bounds = _data_tda_get_bounds;
+    data_class->has_value = _three_d_array_has_value;
 }
 
 static void y_three_d_array_init(YThreeDArray * mat)
@@ -1328,12 +1304,6 @@ void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max)
 		mpriv->minimum = minimum;
 		mpriv->maximum = maximum;
 		priv->flags |= Y_DATA_MINMAX_CACHED;
-		{
-			if (isfinite(minimum) && isfinite(maximum)
-			    && minimum <= maximum)
-				priv->flags |= Y_DATA_HAS_VALUE;
-		}
-
 	}
 
 	if (min != NULL)
@@ -1380,7 +1350,6 @@ static void y_struct_class_init(YStructClass * val_klass)
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
 	gobject_klass->finalize = y_struct_finalize;
-	ydata_klass->n_dimensions = -1;
 	//ydata_klass->dup      = y_vector_val_dup;
 }
 
