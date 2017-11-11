@@ -109,6 +109,8 @@ static void y_data_class_init(YDataClass * klass)
 					       NULL, NULL,
 					       g_cclosure_marshal_VOID__VOID,
 					       G_TYPE_NONE, 0);
+    
+    klass->dup = y_data_dup_to_simple;
 }
 
 /**

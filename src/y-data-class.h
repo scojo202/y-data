@@ -62,11 +62,10 @@ typedef struct {
 /**
  * YDataClass:
  * @base: base class.
- * @n_dimensions: number of dimensions of the array (-1 if struct)
  * @dup: duplicates the #YData.
  * @serialize: serializes to text.
- * @get_sizes: gets the sizes.
- * @get_bounds: gets the bounds.
+ * @get_sizes: gets the size of each dimension and returns the number of dimensions.
+ * @has_value: returns whether data has a finite value.
  * @emit_changed: changed signal default handler
  *
  * Class for YData.
