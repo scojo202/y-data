@@ -266,7 +266,6 @@ static gboolean
 _data_scalar_has_value(YData * data)
 {
     YScalar *scalar = (YScalar *) data;
-    YDataPrivate *dpriv = y_data_get_instance_private(data);
 
     double v = y_scalar_get_value(scalar);
 
@@ -462,8 +461,7 @@ static gboolean _vector_has_value(YData *dat)
     YVector *vec = (YVector *) dat;
     double minimum,maximum;
     y_vector_get_minmax(vec,&minimum,&maximum);
-    if (isfinite(minimum) && isfinite(maximum) && minimum <= maximum)
-        return TRUE;
+    return (isfinite(minimum) && isfinite(maximum) && minimum <= maximum);
 }
 
 static char *_vector_serialize(YData * dat, gpointer user)
@@ -774,8 +772,7 @@ static gboolean _matrix_has_value(YData *dat)
     YMatrix *mat = (YMatrix *) dat;
     double minimum,maximum;
     y_matrix_get_minmax(mat,&minimum,&maximum);
-    if (isfinite(minimum) && isfinite(maximum) && minimum <= maximum)
-        return TRUE;
+    return (isfinite(minimum) && isfinite(maximum) && minimum <= maximum);
 }
 
 static char *_matrix_serialize(YData * dat, gpointer user)
@@ -1056,8 +1053,7 @@ static gboolean _three_d_array_has_value(YData *dat)
     YThreeDArray *t = (YThreeDArray *) dat;
     double minimum,maximum;
     y_three_d_array_get_minmax(t,&minimum,&maximum);
-    if (isfinite(minimum) && isfinite(maximum) && minimum <= maximum)
-        return TRUE;
+    return (isfinite(minimum) && isfinite(maximum) && minimum <= maximum);
 }
 
 #if 0
