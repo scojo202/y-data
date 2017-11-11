@@ -1,7 +1,7 @@
 #include <math.h>
 #include <y-data.h>
 
-static YData *d1, *d2, *d3;
+YData *d1, *d2, *d3;
 
 #define DATA_COUNT 20000
 
@@ -101,7 +101,21 @@ main (int argc, char *argv[])
   y_struct_set_data(s,"slice2",der2);
   y_struct_set_data(s,"slice3",der3);
 
-  g_object_unref(s);
+  //y_vector_derived_set_autorun(Y_VECTOR_DERIVED(der3),TRUE);
+  y_data_emit_changed(d2);
+
+  g_usleep(2000000);
+
+  GError *err = NULL;
+  hid_t hfile = y_open_hdf5_file_for_writing("test.h5", FALSE, &err);
+  if(err==NULL) {
+    y_data_attach_h5(Y_DATA(s),hfile,NULL);
+    H5Fclose(hfile);
+  }
+  else {
+    fprintf (stderr, "Error, %s\n", err->message);
+  }
+  //g_object_unref(s);
 
   return 0;
 }

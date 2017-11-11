@@ -11,6 +11,15 @@ testdata = executable('testdata',
   ],
 )
 
+testhdf5 = executable('testhdf5',
+  'testhdf5.c',
+  c_args : test_cflags,
+  link_args : ['-lm'],
+  dependencies: [
+    libydata_dep
+  ],
+)
+
 testsignals = executable('testsignals',
   'testsignals.c',
   c_args : test_cflags,

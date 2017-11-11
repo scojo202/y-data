@@ -438,13 +438,13 @@ y_vector_derived_set_property(GObject * object,
 		d->autorun = g_value_get_boolean(value);
 		break;
 	case PROP_INPUT:
-		d->input = g_value_get_object(value);
+		d->input = g_value_dup_object(value);
 		g_signal_connect(d->input, "changed",
 				 G_CALLBACK(on_input_changed_after), v);
 		y_data_emit_changed(Y_DATA(v));
 		break;
 	case PROP_OPERATION:
-		d->op = g_value_get_object(value);
+		d->op = g_value_dup_object(value);
 		/* listen to "notify" from op for property changes */
 		g_signal_connect(d->op, "notify", G_CALLBACK(on_op_changed), v);
 		break;
