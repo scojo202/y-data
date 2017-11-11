@@ -170,6 +170,7 @@ void y_data_emit_changed(YData * dat)
 gboolean y_data_has_value(YData * data)
 {
 	g_return_val_if_fail(Y_IS_DATA(data), FALSE);
+	YDataClass *data_class = Y_DATA_GET_CLASS(data);
 	YDataPrivate *priv = y_data_get_instance_private(data);
     if (!(priv->flags & Y_DATA_HAS_VALUE)) {
         g_return_val_if_fail(data_class->has_value != NULL, FALSE);
@@ -283,12 +284,18 @@ static void _data_scalar_emit_changed(YData * data)
 	priv->flags &= ~(Y_DATA_CACHE_IS_VALID | Y_DATA_HAS_VALUE);
 }
 
+static char _scalar_get_sizes(YData * data, unsigned int *sizes)
+{
+    return 0;
+}
+
 static void y_scalar_class_init(YScalarClass * scalar_class)
 {
 	YDataClass *data_class = Y_DATA_CLASS(scalar_class);
 	data_class->has_value = _data_scalar_has_value;
 	data_class->serialize = _scalar_serialize;
 	data_class->emit_changed = _data_scalar_emit_changed;
+	data_class->get_sizes = _scalar_get_sizes;
 }
 
 static void y_scalar_init(YScalar * scalar)
@@ -442,7 +449,8 @@ static char _data_vector_get_sizes(YData * data, unsigned int *sizes)
 {
 	YVector *vector = (YVector *) data;
 
-	sizes[0] = y_vector_get_len(vector);
+	if(sizes!=NULL)
+		sizes[0] = y_vector_get_len(vector);
     
     return 1;
 }
@@ -749,11 +757,13 @@ static char _data_matrix_get_sizes(YData * data, unsigned int *sizes)
 	YMatrix *matrix = (YMatrix *) data;
 	YMatrixSize size;
 
+	if(sizes!=NULL) {
+
 	size = y_matrix_get_size(matrix);
 
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
-    
+    }
     return 2;
 }
 
@@ -1028,12 +1038,14 @@ static char _data_tda_get_sizes(YData * data, unsigned int *sizes)
 	YThreeDArray *matrix = (YThreeDArray *) data;
 	YThreeDArraySize size;
 
+	if(sizes!=NULL) {
+
 	size = y_three_d_array_get_size(matrix);
 
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
 	sizes[2] = size.layers;
-    
+	}    
     return 3;
 }
 
@@ -1344,6 +1356,11 @@ static void y_struct_finalize(GObject * obj)
 	(*obj_class->finalize) (obj);
 }
 
+static char _struct_get_sizes(YData * data, unsigned int *sizes)
+{
+    return -1;
+}
+
 static void y_struct_class_init(YStructClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
@@ -1351,6 +1368,7 @@ static void y_struct_class_init(YStructClass * val_klass)
 
 	gobject_klass->finalize = y_struct_finalize;
 	//ydata_klass->dup      = y_vector_val_dup;
+	ydata_klass->get_sizes = _struct_get_sizes;
 }
 
 static void y_struct_init(YStruct * s)
