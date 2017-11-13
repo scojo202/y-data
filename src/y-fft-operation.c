@@ -28,7 +28,7 @@
  * SECTION: y-fft-operation
  * @short_description: Operations that take the Fourier transform of input.
  *
- *
+ * These operations take the Fourier transform of the input and output the magnitude and phase of the spectrum.
  *
  *
  */
@@ -220,6 +220,14 @@ static void y_fft_operation_init(YFFTOperation * fft)
 	fft->type = FFT_MAG;
 }
 
+/**
+ * y_fft_operation_new:
+ * @type: the type of operation
+ *
+ * Create a new FFT operation.
+ *
+ * Returns: a #YOperation
+ **/
 YOperation *y_fft_operation_new(int type)
 {
 	YOperation *o = g_object_new(Y_TYPE_FFT_OPERATION, "type", type, NULL);

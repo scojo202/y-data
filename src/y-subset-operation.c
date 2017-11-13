@@ -25,9 +25,9 @@
 
 /**
  * SECTION: y-subset-operation
- * @short_description: Operation that ouputs a subset of a vector or matrix.
+ * @short_description: Operation that outputs a subset of a vector or matrix.
  *
- * 
+ * These output a subset of the input array. The output is smaller in size but has the same number of dimensions.
  *
  * 
  */

@@ -341,8 +341,6 @@ static double *vector_derived_load_values(YVector * vec)
 
 	unsigned int len = y_vector_get_len(vec);
 
-	//g_message("load values, len is %u",len);
-
 	if (vecs->currlen != len) {
 		if (vecs->cache)
 			g_free(vecs->cache);

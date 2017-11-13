@@ -27,7 +27,7 @@
  * SECTION: y-simple-operation
  * @short_description: Operations that apply a function to every element of a vector or matrix.
  *
- *
+ * This operation applies a function to every element of an array. The output will be the same size as the input.
  *
  *
  */
@@ -136,6 +136,14 @@ static void y_simple_operation_init(YSimpleOperation * s)
 	g_assert(Y_IS_SIMPLE_OPERATION(s));
 }
 
+/**
+ * y_simple_operation_new:
+ * @func: the function
+ *
+ * Create a new simple operation.
+ *
+ * Returns: a #YOperation
+ **/
 YOperation *y_simple_operation_new(double_to_double func)
 {
 	YSimpleOperation *o = g_object_new(Y_TYPE_SIMPLE_OPERATION, NULL);

@@ -1,7 +1,7 @@
 #include <math.h>
 #include <y-data.h>
 
-static YData *d1, *d2, *d3;
+static YData *d1, *d2, *d3, *d4;
 
 #define DATA_COUNT 20000
 
@@ -40,6 +40,7 @@ build_vector_val (void)
   d1 = y_vector_val_new (x, DATA_COUNT, g_free);
   d2 = y_vector_val_new (y, DATA_COUNT, g_free);
   d3 = y_vector_val_new_copy (z, DATA_COUNT);
+  d4 = y_linear_range_vector_new (0.3, 0.01, 20000);
   g_free(z);
 }
 
@@ -82,6 +83,7 @@ main (int argc, char *argv[])
   
   y_struct_set_data(s,"vector_data1",d1);
   y_struct_set_data(s,"vector_data2",d2);
+  y_struct_set_data(s,"range",d4);
   g_object_unref(d3);
   
   build_matrix_val ();

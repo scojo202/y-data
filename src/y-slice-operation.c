@@ -27,7 +27,7 @@
  * SECTION: y-slice-operation
  * @short_description: Operation that slices matrices or vectors, outputting vectors or scalars, respectively.
  *
- * 
+ * This operation slices elements out of an array, yielding an array with one less dimension.
  *
  * 
  */
@@ -336,6 +336,16 @@ static void y_slice_operation_init(YSliceOperation * slice)
 	slice->width = 1;
 }
 
+/**
+ * y_slice_operation_new:
+ * @type: the type of slice
+ * @index: the index of the slice
+ * @width: the width over which to sum or average
+ *
+ * Create a new slice operation.
+ *
+ * Returns: a #YOperation
+ **/
 YOperation *y_slice_operation_new(int type, int index, int width)
 {
 	g_assert(index >= 0);
@@ -348,6 +358,15 @@ YOperation *y_slice_operation_new(int type, int index, int width)
 	return o;
 }
 
+/**
+ * y_slice_operation_set_pars:
+ * @d: a #YSliceOperation
+ * @type: the type of slice
+ * @index: the index of the slice
+ * @width: the width over which to sum or average
+ *
+ * Set the parameters of a slice operation.
+ **/
 void y_slice_operation_set_pars(YSliceOperation * d, int type, int index,
 				int width)
 {
