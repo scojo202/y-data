@@ -58,6 +58,8 @@ struct _YOperationClass {
 double *y_create_input_array_from_vector(YVector *input, gboolean is_new, unsigned int old_size, double *old_input);
 double *y_create_input_array_from_matrix(YMatrix *input, gboolean is_new, YMatrixSize old_size, double *old_input);
 
+YData *y_data_new_from_operation(YOperation *op, YData *input);
+
 GTask * y_operation_get_task(YOperation *op, gpointer user_data, GAsyncReadyCallback cb, gpointer cb_data);
 gpointer y_operation_create_task_data(YOperation *op, YData *input);
 void y_operation_run_task(YOperation *op, gpointer user_data, GAsyncReadyCallback cb, gpointer cb_data);

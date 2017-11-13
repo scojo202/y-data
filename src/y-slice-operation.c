@@ -172,7 +172,7 @@ gpointer vector_slice_op_create_data(YOperation *op, gpointer data, YData *input
     if(d->output_len!=1) {
       if(d->output)
         g_free(d->output);
-      d->output = g_new(double,1);
+      d->output = g_new0(double,1);
       d->output_len = 1;
     }
     return d;
@@ -185,7 +185,7 @@ gpointer vector_slice_op_create_data(YOperation *op, gpointer data, YData *input
   if(d->output_len != dims[0]) {
     if(d->output)
       g_free(d->output);
-    d->output = g_new(double,dims[0]);
+    d->output = g_new0(double,dims[0]);
     d->output_len = dims[0];
   }
   return d;

@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <y-operation.h>
+#include <y-data-simple.h>
 
 /**
  * SECTION: y-operation
@@ -79,6 +80,43 @@ double *y_create_input_array_from_matrix(YMatrix *input, gboolean is_new, YMatri
   return d;
 }
 
+/**
+ * y_data_new_from_operation :
+ * @op: a #YOperation
+ * @input: input data
+ *
+ * Create a new simple #YData from an operation and an input.
+ *
+ * returns: the new data object.
+ *
+ **/
+YData *y_data_new_from_operation(YOperation *op, YData *input)
+{
+  g_assert(Y_IS_OPERATION(op));
+  g_assert(Y_IS_DATA(input));
+  YOperationClass *klass = Y_OPERATION_GET_CLASS (op);
+  gpointer data = y_operation_create_task_data(op,input);
+  unsigned int dims[4];
+  int s = klass->op_size(op,input,dims);
+  gpointer output = klass->op_func(data);
+  if(output==NULL) return NULL;
+  YData *out;
+  if(s==0) {
+    double *d = (double *) output;
+    out = y_scalar_val_new(*d);
+    g_free(output);
+  }
+  else if(s==1) {
+    double *d = (double *) output;
+    out = y_vector_val_new(d,dims[0],g_free);
+  }
+  else if(s==2) {
+    double *d = (double *) output;
+    out = y_matrix_val_new(d,dims[0],dims[1],g_free);
+  }
+  klass->op_data_free(input);
+  return out;
+}
 
 /**
  * y_operation_get_task :
