@@ -23,15 +23,11 @@
 #include "y-linear-range.h"
 #include <math.h>
 
-/* make v0 and dv properties?
- *
- * */
-
 /**
  * SECTION: y-linear-range
  * @short_description: Vector for equally spaced data.
  *
- * Data for equally spaced data.
+ * A vector y_i = v_0 + i*dv, where i ranges from 0 to n-1.
  */
 
 struct _YLinearRangeVector {
@@ -46,22 +42,8 @@ G_DEFINE_TYPE (YLinearRangeVector, y_linear_range_vector, Y_TYPE_VECTOR);
 
 static GObjectClass *vector_parent_klass;
 
-#if 0
 static void
-_linear_range_vector_get_bounds (YData *data, double *minimum, double *maximum)
-{
-  YLinearRangeVector const *v = (YLinearRangeVector const *)data;
-  if(minimum!=NULL) {
-    *minimum=(v->dv>0) ? v->v0 : v->v0+v->dv*(v->n-1);
-  }
-  if(maximum!=NULL) {
-    *maximum=(v->dv>0) ? v->v0+v->dv*(v->n-1) : v->v0;
-  }
-}
-#endif
-
-static void
-data_vector_val_finalize (GObject *obj)
+linear_range_vector_finalize (GObject *obj)
 {
 	YLinearRangeVector *vec = (YLinearRangeVector *)obj;
 	
@@ -71,18 +53,18 @@ data_vector_val_finalize (GObject *obj)
 }
 
 static YData *
-data_vector_val_dup (YData *src)
+linear_range_vector_dup (YData *src)
 {
 	YLinearRangeVector *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
 	YLinearRangeVector const *src_val = (YLinearRangeVector const *)src;
 	dst->v0 = src_val->v0;
 	dst->dv = src_val->dv;
-	dst->n = src_val->n;
+	y_linear_range_vector_set_length(dst, src_val->n);
 	return Y_DATA (dst);
 }
 
 static unsigned int
-data_vector_val_load_len (YVector *vec)
+linear_range_vector_load_len (YVector *vec)
 {
 	return ((YLinearRangeVector *)vec)->n;
 }
@@ -90,16 +72,11 @@ data_vector_val_load_len (YVector *vec)
 #define get_val(d,i) (d->v0+i*(d->dv))
 
 static double *
-data_vector_val_load_values (YVector *vec)
+linear_range_vector_load_values (YVector *vec)
 {
 	YLinearRangeVector *val = (YLinearRangeVector *)vec;
 	int i = val->n;
-	
-  val->values = g_new0(double, val->n);
 
-	if(y_vector_get_len(vec) != val->n) {
-	  data_vector_val_load_len(vec);
-	}
   g_assert(isfinite(val->v0));
   g_assert(isfinite(val->dv));
 
@@ -110,11 +87,18 @@ data_vector_val_load_values (YVector *vec)
 }
 
 static double
-data_vector_val_get_value (YVector *vec, unsigned i)
+linear_range_vector_get_value (YVector *vec, unsigned i)
 {
 	YLinearRangeVector const *val = (YLinearRangeVector const *)vec;
 	g_return_val_if_fail (val != NULL && i < val->n, NAN);
 	return get_val(val,i);
+}
+
+static gboolean
+linear_range_vector_has_value (YData *dat)
+{
+    YLinearRangeVector const *val = (YLinearRangeVector const *)dat;
+    return (isfinite(val->v0) && isfinite(val->dv));
 }
 
 static void
@@ -125,32 +109,35 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
 {
   GObjectClass *gobject_klass = (GObjectClass *) klass;
 	YDataClass *ydata_klass = (YDataClass *) klass;
+    ydata_klass->has_value = linear_range_vector_has_value;
 	YVectorClass *vector_klass = (YVectorClass *) klass;
 
 	vector_parent_klass = g_type_class_peek_parent (gobject_klass);
-	gobject_klass->finalize = data_vector_val_finalize;
-	ydata_klass->dup	= data_vector_val_dup;
-	//ydata_klass->get_bounds =	_linear_range_vector_get_bounds;
-	vector_klass->load_len    = data_vector_val_load_len;
-	vector_klass->load_values = data_vector_val_load_values;
-	vector_klass->get_value   = data_vector_val_get_value;
+	gobject_klass->finalize = linear_range_vector_finalize;
+	ydata_klass->dup	= linear_range_vector_dup;
+	vector_klass->load_len    = linear_range_vector_load_len;
+	vector_klass->load_values = linear_range_vector_load_values;
+	vector_klass->get_value   = linear_range_vector_get_value;
 }
 
 /**
  * y_linear_range_vector_set_length :
  * @d: a #YLinearRangeVector
- * @newlength: length
+ * @n: length
  *
  * Set the length of @d. 
  *
  **/
 
-void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned newlength)
+void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned n)
 {
   g_assert(Y_IS_LINEAR_RANGE_VECTOR(d));
 
-  if(newlength!=d->n) {
-    d->n = newlength;
+  if(n!=d->n) {
+    d->n = n;
+    if(d->values!=NULL)
+        g_free(d->values);
+    d->values = g_new0(double, d->n);
     y_data_emit_changed(Y_DATA(d));
   }
 }
@@ -161,7 +148,7 @@ void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned newlength)
  * @v0: first value
  * @dv: step size
  *
- * Set the initial value and step size of @d.
+ * Set the initial value @v0 and step size @dv of @d.
  *
  **/
 
@@ -190,7 +177,7 @@ y_linear_range_vector_new (double v0, double dv, unsigned n)
 	YLinearRangeVector *res = g_object_new (Y_TYPE_LINEAR_RANGE_VECTOR, NULL);
 	res->v0 = v0;
 	res->dv = dv;
-	res->n = n;
+    y_linear_range_vector_set_length(res,n);
 	return Y_DATA (res);
 }
 
