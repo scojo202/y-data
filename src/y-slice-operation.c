@@ -105,7 +105,7 @@ y_slice_operation_get_property(GObject * gobject, guint param_id,
 static
 int slice_size(YOperation * op, YData * input, unsigned int *dims)
 {
-	int n_dims;
+	int n_dims = 0;
 	g_assert(dims);
 	YSliceOperation *sop = Y_SLICE_OPERATION(op);
 

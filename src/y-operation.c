@@ -101,7 +101,7 @@ YData *y_data_new_from_operation(YOperation *op, YData *input)
   int s = klass->op_size(op,input,dims);
   gpointer output = klass->op_func(data);
   if(output==NULL) return NULL;
-  YData *out;
+  YData *out = NULL;
   if(s==0) {
     double *d = (double *) output;
     out = y_scalar_val_new(*d);
