@@ -30,6 +30,7 @@
 	    <title>Operations</title>
     <xi:include href="xml/y-operation.xml"/>
     <xi:include href="xml/y-data-derived.xml"/>
+    <xi:include href="xml/y-operation-slice.xml"/>
 	    </chapter>
 	    <chapter id="utilities">
 		    <title>Utilities</title>

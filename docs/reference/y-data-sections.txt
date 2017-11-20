@@ -6,7 +6,6 @@ y_data_dup
 y_data_dup_to_simple
 y_data_serialize
 y_data_emit_changed
-y_data_get_bounds
 y_data_has_value
 y_data_get_n_dimensions
 y_data_get_n_values
@@ -153,6 +152,7 @@ y_operation_get_task
 y_operation_create_task_data
 y_operation_run_task
 y_operation_update_task_data
+y_data_new_from_operation
 YOperation
 <SUBSECTION Standard>
 Y_TYPE_OPERATION
