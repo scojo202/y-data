@@ -36,6 +36,12 @@ YData	*y_linear_range_vector_new  (double v0, double dv, unsigned n);
 void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned newlength);
 void y_linear_range_vector_set_pars(YLinearRangeVector *d, double v0, double dv);
 
+G_DECLARE_FINAL_TYPE(YFourierLinearRangeVector,y_fourier_linear_range_vector,Y,FOURIER_LINEAR_RANGE_VECTOR,YVector)
+
+#define Y_TYPE_FOURIER_LINEAR_RANGE_VECTOR  (y_fourier_linear_range_vector_get_type ())
+
+YData *y_fourier_linear_range_vector_new( YLinearRangeVector *v);
+
 G_END_DECLS
 
 #endif

@@ -181,3 +181,119 @@ y_linear_range_vector_new (double v0, double dv, unsigned n)
 	return Y_DATA (res);
 }
 
+/******************************************************************/
+
+struct _YFourierLinearRangeVector {
+    YVector     base;
+    YLinearRangeVector *range;
+    unsigned n;
+    double *values;
+};
+
+G_DEFINE_TYPE (YFourierLinearRangeVector, y_fourier_linear_range_vector, Y_TYPE_VECTOR);
+
+static void
+fourier_linear_range_vector_finalize (GObject *obj)
+{
+    YFourierLinearRangeVector *vec = (YFourierLinearRangeVector *)obj;
+    
+    g_free(vec->values);
+    
+    (*vector_parent_klass->finalize) (obj);
+}
+
+static YData *
+fourier_linear_range_vector_dup (YData *src)
+{
+    YFourierLinearRangeVector *dst = g_object_new (G_OBJECT_TYPE (src), NULL);
+    YFourierLinearRangeVector const *src_val = (YFourierLinearRangeVector const *)src;
+    dst->range = g_object_ref(src_val->range);
+    dst->n = src_val->n;
+    return Y_DATA (dst);
+}
+
+static unsigned int
+fourier_linear_range_vector_load_len (YVector *vec)
+{
+    YFourierLinearRangeVector *f = (YFourierLinearRangeVector *) vec;
+    return f->n/2 + 1;
+}
+
+static double *
+fourier_linear_range_vector_load_values (YVector *vec)
+{
+    YFourierLinearRangeVector *val = (YFourierLinearRangeVector *)vec;
+    YLinearRangeVector *range = val->range;
+    int i = val->n;
+    
+    g_assert(isfinite(range->v0));
+    g_assert(isfinite(range->dv));
+    
+    double df = 1./range->n/range->dv;
+    
+    while (i-- > 0) {
+        val->values[i]=i*df;
+    }
+    return val->values;
+}
+
+static double
+fourier_linear_range_vector_get_value (YVector *vec, unsigned i)
+{
+    YFourierLinearRangeVector const *val = (YFourierLinearRangeVector const *)vec;
+    YLinearRangeVector *range = val->range;
+    
+    double df = 1./range->n/range->dv;
+    return i*df;
+}
+
+static gboolean
+fourier_linear_range_vector_has_value (YData *dat)
+{
+    YFourierLinearRangeVector const *val = (YFourierLinearRangeVector const *)dat;
+    return linear_range_vector_has_value(Y_DATA(val->range));
+}
+
+static void
+y_fourier_linear_range_vector_init(YFourierLinearRangeVector *v) {}
+
+static void
+y_fourier_linear_range_vector_class_init (YFourierLinearRangeVectorClass *klass)
+{
+    GObjectClass *gobject_klass = (GObjectClass *) klass;
+    YDataClass *ydata_klass = (YDataClass *) klass;
+    ydata_klass->has_value = fourier_linear_range_vector_has_value;
+    YVectorClass *vector_klass = (YVectorClass *) klass;
+    
+    vector_parent_klass = g_type_class_peek_parent (gobject_klass);
+    gobject_klass->finalize = fourier_linear_range_vector_finalize;
+    ydata_klass->dup    = fourier_linear_range_vector_dup;
+    vector_klass->load_len    = fourier_linear_range_vector_load_len;
+    vector_klass->load_values = fourier_linear_range_vector_load_values;
+    vector_klass->get_value   = fourier_linear_range_vector_get_value;
+}
+
+static void
+on_range_changed (YData *d, gpointer user_data)
+{
+    YData *dat = (YData *) user_data;
+    y_data_emit_changed(dat);
+}
+
+/**
+ * y_fourier_linear_range_vector_new :
+ * @v: real space range
+ *
+ * Create a new #YFourierLinearRangeVector connected to @v.
+ *
+ * Returns: a new #YFourierLinearRangeVector as a #YData
+ **/
+
+YData *
+y_fourier_linear_range_vector_new (YLinearRangeVector *v)
+{
+    YFourierLinearRangeVector *res = g_object_new (Y_TYPE_FOURIER_LINEAR_RANGE_VECTOR, NULL);
+    res->range = g_object_ref_sink(v);
+    g_signal_connect(v,"changed",G_CALLBACK(on_range_changed),res);
+    return Y_DATA (res);
+}
