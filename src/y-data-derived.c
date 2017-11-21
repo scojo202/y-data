@@ -251,6 +251,31 @@ void y_derived_scalar_class_init(YDerivedScalarClass * klass)
 					 "operation");
 }
 
+/**
+ * y_derived_scalar_new:
+ * @input: an input array
+ * @op: an operation
+ *
+ * Create a new #YDerivedScalar based on an input #YData and a #YOperation.
+ *
+ * Returns: a #YData
+ **/
+YData *y_derived_scalar_new(YData * input, YOperation * op)
+{
+	if (input)
+		g_assert(Y_IS_DATA(input));
+	g_assert(Y_IS_OPERATION(op));
+
+	YData *d = g_object_new(Y_TYPE_DERIVED_SCALAR, "operation", op, NULL);
+
+	YDerivedScalar *vd = (YDerivedScalar *) d;
+
+	if (Y_IS_DATA(d) && Y_IS_DATA(input)) {
+		g_object_set(vd, "input", input, NULL);
+	}
+	return d;
+}
+
 /****************************************************************************/
 
 /**

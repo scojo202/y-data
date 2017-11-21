@@ -129,7 +129,7 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
  *
  **/
 
-void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned n)
+void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned int n)
 {
   g_assert(Y_IS_LINEAR_RANGE_VECTOR(d));
 

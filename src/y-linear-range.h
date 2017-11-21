@@ -33,7 +33,7 @@ G_DECLARE_FINAL_TYPE(YLinearRangeVector,y_linear_range_vector,Y,LINEAR_RANGE_VEC
 
 YData	*y_linear_range_vector_new  (double v0, double dv, unsigned n);
 
-void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned newlength);
+void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned int n);
 void y_linear_range_vector_set_pars(YLinearRangeVector *d, double v0, double dv);
 void y_linear_range_vector_set_v0(YLinearRangeVector *d, double v0);
 void y_linear_range_vector_set_dv(YLinearRangeVector *d, double dv);

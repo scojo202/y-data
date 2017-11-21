@@ -134,7 +134,17 @@ Y_TYPE_MATRIX_VAL
 </SECTION>
 
 <SECTION>
-<FILE>y-operation-slice</FILE>
+<FILE>y-simple-operation</FILE>
+<TITLE>Simple operations</TITLE>
+y_simple_operation_new
+YSimpleOperation
+<SUBSECTION Standard>
+Y_TYPE_SIMPLE_OPERATION
+</SECTION>
+
+
+<SECTION>
+<FILE>y-slice-operation</FILE>
 <TITLE>Slice operations</TITLE>
 SLICE_ELEMENT
 y_slice_operation_new
@@ -142,6 +152,16 @@ y_slice_operation_set_pars
 YSliceOperation
 <SUBSECTION Standard>
 Y_TYPE_SLICE_OPERATION
+</SECTION>
+
+
+<SECTION>
+<FILE>y-subset-operation</FILE>
+<TITLE>Subset operations</TITLE>
+y_subset_operation_new
+YSubsetOperation
+<SUBSECTION Standard>
+Y_TYPE_SUBSET_OPERATION
 </SECTION>
 
 <SECTION>
@@ -186,6 +206,8 @@ Y_TYPE_VECTOR_RING
 y_linear_range_vector_new
 y_linear_range_vector_set_length
 y_linear_range_vector_set_pars
+y_fourier_linear_range_vector_new
 <SUBSECTION Standard>
 Y_TYPE_LINEAR_RANGE_VECTOR
+Y_TYPE_FOURIER_LINEAR_RANGE_VECTOR
 </SECTION>
