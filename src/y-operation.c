@@ -68,6 +68,9 @@ double *y_create_input_array_from_matrix(YMatrix * input, gboolean is_new,
 	unsigned int old_nrow = old_size.rows;
 	unsigned int old_ncol = old_size.columns;
 	YMatrixSize size = y_matrix_get_size(input);
+	if(size.rows<1 || size.columns<1) {
+	  return NULL;
+	}
 	if (!is_new) {
 		if (old_nrow != size.rows || old_ncol != size.columns) {
 			g_free(old_input);
@@ -76,6 +79,10 @@ double *y_create_input_array_from_matrix(YMatrix * input, gboolean is_new,
 	} else {
 		d = g_new(double, size.rows * size.columns);
 	}
+	if(d==NULL) {
+	  d = g_new(double, size.rows * size.columns);
+	}
+	g_assert(y_matrix_get_values(input));
 	memcpy(d, y_matrix_get_values(input),
 	       size.rows * size.columns * sizeof(double));
 	return d;

@@ -45,6 +45,7 @@ G_DECLARE_FINAL_TYPE(YRingMatrix,y_ring_matrix,Y,RING_MATRIX,YMatrix)
 
 YData *y_ring_matrix_new (unsigned c, unsigned rmax, unsigned r);
 void y_ring_matrix_set_rows(YRingMatrix *d, unsigned r);
+void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax);
 void y_ring_matrix_append(YRingMatrix *d, const double *values, unsigned len);
 void y_ring_matrix_set_source(YRingMatrix *d, YVector *source);
 

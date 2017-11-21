@@ -314,7 +314,7 @@ static YMatrixSize ring_matrix_load_size(YMatrix * mat)
 
 static double *ring_matrix_load_values(YMatrix * vec)
 {
-    YVectorRing const *val = (YVectorRing const *)vec;
+    YRingMatrix const *val = (YRingMatrix const *)vec;
     
     return val->val;
 }
@@ -366,7 +366,7 @@ YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r)
 }
 
 /**
- * y_ring_matrix_append_array :
+ * y_ring_matrix_append :
  * @d: #YRingMatrix
  * @values: array
  * @len: array length
@@ -405,12 +405,12 @@ static void on_vector_source_changed(YData * data, gpointer user_data)
 }
 
 /**
- * y_vector_ring_set_source :
- * @d: #YVectorRing
- * @source: a #YScalar
+ * y_ring_matrix_set_source :
+ * @d: #YRingMatrix
+ * @source: a #YVector
  *
- * Set a source for the #YVectorRing. When the source emits a "changed" signal,
- * a new value will be appended to the vector.
+ * Set a source for the #YRingMatrix. When the source emits a "changed" signal,
+ * a new row will be appended to the matrix.
  **/
 void y_ring_matrix_set_source(YRingMatrix * d, YVector * source)
 {
@@ -432,12 +432,12 @@ void y_ring_matrix_set_source(YRingMatrix * d, YVector * source)
 }
 
 /**
- * y_vector_ring_set_length :
- * @d: #YVectorRing
- * @newlength: new length of array
+ * y_ring_matrix_set_rows :
+ * @d: #YRingMatrix
+ * @r: new number of rows
  *
- * Set the current length of the #YVectorRing to a new value. If the new
- * length is longer than the previous length, tailing elements are set to
+ * Set the current height of the #YRingMatrix to a new value. If the new
+ * height is greater than the previous length, tailing elements are set to
  * zero.
  **/
 void y_ring_matrix_set_rows(YRingMatrix * d, unsigned r)
@@ -448,3 +448,30 @@ void y_ring_matrix_set_rows(YRingMatrix * d, unsigned r)
         y_data_emit_changed(Y_DATA(d));
     }
 }
+
+/**
+ * y_ring_matrix_set_max_rows :
+ * @d: #YRingMatrix
+ * @rmax: new maximum number of rows
+ *
+ * Set the maximum height of the #YRingMatrix to a new value.
+ **/
+void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax)
+{
+    g_assert(Y_IS_RING_MATRIX(d));
+    if (rmax<d->rmax) { /* don't bother shrinking the array */
+        d->rmax = rmax;
+        if(d->nr>d->rmax) {
+          d->nr=d->rmax;
+        }
+    }
+    else if (rmax>d->rmax) {
+        double *a = g_new0(double, rmax*d->nc);
+        memcpy(a,d->val,sizeof(double)*d->rmax*d->nc);
+        g_free(d->val);
+        d->val = a;
+        d->rmax = rmax;
+    }
+    y_data_emit_changed(Y_DATA(d));
+}
+

@@ -249,10 +249,17 @@ gpointer vector_slice_op(gpointer input)
 			}
 		} else if (d->sop.type == SLICE_SUMROWS) {
 			int w = d->sop.width;
-			int start = d->sop.index - w / 2;
-			start = MAX(start, 0);
-			int end = d->sop.index + w / 2;
-			end = MIN(end, (int)(nrow - 1));
+			int start, end;
+			if(w==-1) {
+				start = 0;
+				end = nrow-1;
+			}
+			else {
+				start = d->sop.index - w / 2;
+				start = MAX(start, 0);
+				end = d->sop.index + w / 2;
+				end = MIN(end, (int)(nrow - 1));
+			}
 			unsigned int j;
 			int k;
 			for (j = 0; j < ncol; j++) {
@@ -267,10 +274,17 @@ gpointer vector_slice_op(gpointer input)
 			}
 		} else if (d->sop.type == SLICE_SUMCOLS) {
 			int w = d->sop.width;
-			int start = d->sop.index - w / 2;
-			start = MAX(start, 0);
-			int end = d->sop.index + w / 2;
-			end = MIN(end, (int)(ncol - 1));
+			int start,end;
+			if(w==-1) {
+				start=0;
+				end=ncol-1;
+			}
+			else {
+				start = d->sop.index - w / 2;
+				start = MAX(start, 0);
+				end = d->sop.index + w / 2;
+				end = MIN(end, (int)(ncol - 1));
+			}
 			unsigned int j;
 			int k;
 			for (j = 0; j < nrow; j++) {
@@ -316,7 +330,7 @@ static void y_slice_operation_class_init(YSliceOperationClass * slice_klass)
 	g_object_class_install_property(gobject_klass, SLICE_PROP_WIDTH,
 					g_param_spec_int("width", "Width",
 							 "Width of slice, if appropriate",
-							 1, 2000000000, 1,
+							 -1, 2000000000, 1,
 							 G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_klass,
@@ -349,7 +363,7 @@ static void y_slice_operation_init(YSliceOperation * slice)
 YOperation *y_slice_operation_new(int type, int index, int width)
 {
 	g_assert(index >= 0);
-	g_assert(width > 0);
+	g_assert(width >= -1);
 
 	YOperation *o =
 	    g_object_new(Y_TYPE_SLICE_OPERATION, "type", type, "index", index,
@@ -363,7 +377,7 @@ YOperation *y_slice_operation_new(int type, int index, int width)
  * @d: a #YSliceOperation
  * @type: the type of slice
  * @index: the index of the slice
- * @width: the width over which to sum or average
+ * @width: the width over which to sum or average (-1 to sum or average over entire width)
  *
  * Set the parameters of a slice operation.
  **/
@@ -372,7 +386,7 @@ void y_slice_operation_set_pars(YSliceOperation * d, int type, int index,
 {
 	g_assert(Y_IS_SLICE_OPERATION(d));
 	g_assert(index >= 0);
-	g_assert(width > 0);
+	g_assert(width >= -1);
 	if (d->type != type)
 		g_object_set(d, "type", type, NULL);
 	if (d->index != index)
