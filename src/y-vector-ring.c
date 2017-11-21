@@ -79,7 +79,7 @@ static YData *y_vector_ring_dup(YData * src)
 {
 	YVectorRing *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
 	YVectorRing const *src_val = (YVectorRing const *)src;
-	dst->val = g_new(double, src_val->n);
+	dst->val = g_new0(double, src_val->nmax);
 	memcpy(dst->val, src_val->val, src_val->n * sizeof(double));
 	dst->n = src_val->n;
 	return Y_DATA(dst);
@@ -247,4 +247,204 @@ void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
 		d->n = newlength;
 		y_data_emit_changed(Y_DATA(d));
 	}
+    /* TODO: set tailing elements to zero */
+}
+
+/********************************************************************/
+
+/**
+ * YRingMatrix:
+ *
+ * @base: base
+ * @nr: number of rows
+ * @nc: number of columns
+ * @rmax: maximum number of rows
+ * @val: the array
+ * @source: a #YVector source of numbers
+ * @handler: a handler for @source
+ *
+ * A YMatrix that grows up to a maximum height @rmax.
+ **/
+
+struct _YRingMatrix {
+    YMatrix base;
+    unsigned nr, nc;
+    unsigned int rmax;
+    double *val;
+    YVector *source;
+    gulong handler;
+};
+
+G_DEFINE_TYPE(YRingMatrix, y_ring_matrix, Y_TYPE_MATRIX);
+
+static void ring_matrix_finalize(GObject * obj)
+{
+    YRingMatrix *vec = (YRingMatrix *) obj;
+    if (vec->val)
+        g_free(vec->val);
+    if (vec->source) {
+        g_object_unref(vec->source);
+        g_signal_handler_disconnect(vec->source, vec->handler);
+    }
+    
+    GObjectClass *obj_class = G_OBJECT_CLASS(y_ring_matrix_parent_class);
+    
+    (*obj_class->finalize) (obj);
+}
+
+static YData *ring_matrix_dup(YData * src)
+{
+    YRingMatrix *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
+    YRingMatrix const *src_val = (YRingMatrix const *)src;
+    dst->val = g_new(double, src_val->nc*src_val->rmax);
+    memcpy(dst->val, src_val->val, src_val->nc*src_val->nr * sizeof(double));
+    dst->nr = src_val->nr;
+    dst->nc = src_val->nc;
+    return Y_DATA(dst);
+}
+
+static YMatrixSize ring_matrix_load_size(YMatrix * mat)
+{
+    YRingMatrix *ring = (YRingMatrix *) mat;
+    YMatrixSize s;
+    s.rows = ring->nr;
+    s.columns = ring->nc;
+    return s;
+}
+
+static double *ring_matrix_load_values(YMatrix * vec)
+{
+    YVectorRing const *val = (YVectorRing const *)vec;
+    
+    return val->val;
+}
+
+static double ring_matrix_get_value(YMatrix * vec, unsigned i, unsigned j)
+{
+    YRingMatrix const *val = (YRingMatrix const *)vec;
+    g_return_val_if_fail(val != NULL && val->val != NULL
+                         && i < val->nr && j<val->nc, NAN);
+    return val->val[i * val->nc + j];
+}
+
+static void y_ring_matrix_class_init(YRingMatrixClass * val_klass)
+{
+    YDataClass *ydata_klass = (YDataClass *) val_klass;
+    YMatrixClass *matrix_klass = (YMatrixClass *) val_klass;
+    GObjectClass *gobject_klass = (GObjectClass *) val_klass;
+    
+    gobject_klass->finalize = ring_matrix_finalize;
+    ydata_klass->dup = ring_matrix_dup;
+    matrix_klass->load_size = ring_matrix_load_size;
+    matrix_klass->load_values = ring_matrix_load_values;
+    matrix_klass->get_value = ring_matrix_get_value;
+}
+
+static void y_ring_matrix_init(YRingMatrix * val)
+{
+}
+
+/**
+ * y_ring_matrix_new:
+ * @c: number of columns
+ * @rmax: maximum number of rows
+ * @r: initial number of rows
+ *
+ * If @r is not zero, elements are initialized to zero.
+ *
+ * Returns: a #YData
+ *
+ **/
+YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r)
+{
+    YRingMatrix *res = g_object_new(Y_TYPE_RING_MATRIX, NULL);
+    res->val = g_new0(double, rmax*c);
+    res->nr = r;
+    res->nc = c;
+    res->rmax = rmax;
+    return Y_DATA(res);
+}
+
+/**
+ * y_ring_matrix_append_array :
+ * @d: #YRingMatrix
+ * @values: array
+ * @len: array length
+ *
+ * Append a new row to the matrix.
+ *
+ **/
+void y_ring_matrix_append(YRingMatrix * d, const double *values, unsigned len)
+{
+    g_assert(Y_IS_RING_MATRIX(d));
+    g_assert(values);
+    g_assert(len>=0);
+    unsigned int l = MIN(d->rmax, y_matrix_get_rows(Y_MATRIX(d)));
+    double *frames = d->val;
+    int k;
+    if (l < d->rmax) {
+        for(k=0;k<len;k++) {
+          frames[l*d->nc+k] = values[k];
+        }
+        y_ring_matrix_set_rows(d, l + 1);
+    } else if (l == d->rmax) {
+        memmove(frames, &frames[d->nc], (l - 1) * d->nc*sizeof(double));
+        for(k=0;k<len;k++) {
+            frames[(l-1)*d->nc+k] = values[k];
+        }
+    } else
+        return;
+    y_data_emit_changed(Y_DATA(d));
+}
+
+static void on_vector_source_changed(YData * data, gpointer user_data)
+{
+    YRingMatrix *d = Y_RING_MATRIX(user_data);
+    YVector *source = Y_VECTOR(data);
+    y_ring_matrix_append(d, y_vector_get_values(source), y_vector_get_len(source));
+}
+
+/**
+ * y_vector_ring_set_source :
+ * @d: #YVectorRing
+ * @source: a #YScalar
+ *
+ * Set a source for the #YVectorRing. When the source emits a "changed" signal,
+ * a new value will be appended to the vector.
+ **/
+void y_ring_matrix_set_source(YRingMatrix * d, YVector * source)
+{
+    g_assert(Y_IS_RING_MATRIX(d));
+    g_assert(Y_IS_VECTOR(source) || source==NULL);
+    if (d->source) {
+        g_object_unref(d->source);
+        g_signal_handler_disconnect(d->source, d->handler);
+    }
+    if (Y_IS_VECTOR(source)) {
+        d->source = g_object_ref_sink(source);
+    } else if (source == NULL) {
+        d->source = NULL;
+        return;
+    }
+    d->handler =
+    g_signal_connect_after(source, "changed",
+                           G_CALLBACK(on_vector_source_changed), d);
+}
+
+/**
+ * y_vector_ring_set_length :
+ * @d: #YVectorRing
+ * @newlength: new length of array
+ *
+ * Set the current length of the #YVectorRing to a new value. If the new
+ * length is longer than the previous length, tailing elements are set to
+ * zero.
+ **/
+void y_ring_matrix_set_rows(YRingMatrix * d, unsigned r)
+{
+    g_assert(Y_IS_RING_MATRIX(d));
+    if (r <= d->rmax) {
+        d->nr = r;
+        y_data_emit_changed(Y_DATA(d));
+    }
 }

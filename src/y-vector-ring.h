@@ -38,6 +38,17 @@ void y_vector_ring_append_array(YVectorRing *d, double *arr, int len);
 
 void y_vector_ring_set_source(YVectorRing *d, YScalar *source);
 
+
+G_DECLARE_FINAL_TYPE(YRingMatrix,y_ring_matrix,Y,RING_MATRIX,YMatrix)
+
+#define Y_TYPE_RING_MATRIX  (y_ring_matrix_get_type ())
+
+YData *y_ring_matrix_new (unsigned c, unsigned rmax, unsigned r);
+void y_ring_matrix_set_rows(YRingMatrix *d, unsigned r);
+void y_ring_matrix_append(YRingMatrix *d, const double *values, unsigned len);
+void y_ring_matrix_set_source(YRingMatrix *d, YVector *source);
+
+
 G_END_DECLS
 
 #endif
