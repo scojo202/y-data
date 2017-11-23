@@ -60,7 +60,7 @@ typedef enum {
 } YDataFlags;
 
 typedef struct {
-	gint32 flags;
+	guint32 flags;
 } YDataPrivate;
 
 enum {
@@ -77,6 +77,13 @@ static char *render_val(double val)
 	return g_strdup(buf);
 }
 
+static char *format_val(double val, const gchar *format)
+{
+    char buf[G_ASCII_DTOSTR_BUF_SIZE];
+    g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
+    return g_strdup(buf);
+}
+
 /**
  * YData:
  *
@@ -87,8 +94,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(YData, y_data, G_TYPE_INITIALLY_UNOWNED);
 
 static void y_data_init(YData * data)
 {
-	YDataPrivate *priv = y_data_get_instance_private(data);
-	priv->flags = 0;
 }
 
 static void y_data_class_init(YDataClass * klass)
@@ -335,10 +340,8 @@ double y_scalar_get_value(YScalar * scalar)
  **/
 char *y_scalar_get_str(YScalar * scalar, const gchar * format)
 {
-	char buf[G_ASCII_DTOSTR_BUF_SIZE];
 	double val = y_scalar_get_value(scalar);
-	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-	return g_strdup(buf);
+	return format_val(val,format);
 }
 
 /**********************************************************/
@@ -425,7 +428,7 @@ double *y_scalar_val_get_val(YScalarVal * s)
  */
 
 typedef struct {
-	int len;		/* negative if dirty, includes missing values */
+	unsigned int len;
 	double *values;		/* NULL = inititialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YVectorPrivate;
@@ -470,7 +473,7 @@ static char *_vector_serialize(YData * dat, gpointer user)
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
 	GString *str;
 	char sep;
-	unsigned i;
+	unsigned int i;
 
 	sep = '\t';
 	str = g_string_new(NULL);
@@ -487,9 +490,6 @@ static char *_vector_serialize(YData * dat, gpointer user)
 
 static void y_vector_init(YVector * vec)
 {
-	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
-	vpriv->len = 0;
-	vpriv->values = NULL;
 }
 
 static void y_vector_class_init(YVectorClass * vec_class)
@@ -595,10 +595,8 @@ double y_vector_get_value(YVector * vec, unsigned i)
  **/
 char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format)
 {
-	char buf[G_ASCII_DTOSTR_BUF_SIZE];
 	double val = y_vector_get_value(vec, i);
-	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-	return g_strdup(buf);
+	return format_val(val, format);
 }
 
 static int range_increasing(double const *xs, int n)
@@ -963,10 +961,8 @@ double y_matrix_get_value(YMatrix * mat, unsigned i, unsigned j)
 char *y_matrix_get_str(YMatrix * mat, unsigned i, unsigned j,
 		       const gchar * format)
 {
-	char buf[G_ASCII_DTOSTR_BUF_SIZE];
 	double val = y_matrix_get_value(mat, i, j);
-	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-	return g_strdup(buf);
+	return format_val(val,format);
 }
 
 /**
@@ -988,7 +984,7 @@ void y_matrix_get_minmax(YMatrix * mat, double *min, double *max)
 		double minimum = DBL_MAX, maximum = -DBL_MAX;
 
 		YMatrixSize s = y_matrix_get_size(mat);
-		int i = s.rows * s.columns;
+		unsigned int i = s.rows * s.columns;
 
 		while (i-- > 0) {
 			if (!isfinite(v[i]))
@@ -1276,10 +1272,8 @@ y_three_d_array_get_value(YThreeDArray * mat, unsigned i, unsigned j,
 char *y_three_d_array_get_str(YThreeDArray * mat, unsigned i, unsigned j,
 			      unsigned k, const gchar * format)
 {
-	char buf[G_ASCII_DTOSTR_BUF_SIZE];
 	double val = y_three_d_array_get_value(mat, i, j, k);
-	g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, format, val);
-	return g_strdup(buf);
+	return format_val(val,format);
 }
 
 /**

@@ -116,7 +116,6 @@ int slice_size(YOperation * op, YData * input, unsigned int *dims)
 		if (sop->type == SLICE_ELEMENT
 		    || sop->type == SLICE_SUMELEMENTS) {
 			dims[0] = 1;
-			n_dims = 0;
 		} else {
 			g_warning
 			    ("Only SLICE_ELEMENT supported for vector input.");
@@ -345,7 +344,6 @@ static void y_slice_operation_class_init(YSliceOperationClass * slice_klass)
 static void y_slice_operation_init(YSliceOperation * slice)
 {
 	g_assert(Y_IS_SLICE_OPERATION(slice));
-	slice->index = 0;
 	slice->type = SLICE_ROW;
 	slice->width = 1;
 }

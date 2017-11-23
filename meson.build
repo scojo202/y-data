@@ -1,4 +1,5 @@
-project('y-data','c', version: '0.0.0')
+project('y-data','c', version: '0.0.0', default_options: [
+                     'c_std=gnu11'])
 
 gnome = import('gnome')
 
