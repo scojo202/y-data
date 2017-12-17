@@ -56,6 +56,7 @@ struct _YVectorRing {
 	double *val;
 	YScalar *source;
 	gulong handler;
+    YVectorRing *timestamps;
 };
 
 G_DEFINE_TYPE(YVectorRing, y_vector_ring, Y_TYPE_VECTOR);
@@ -132,12 +133,15 @@ static void y_vector_ring_init(YVectorRing * val)
  * Returns: a #YData
  *
  **/
-YData *y_vector_ring_new(unsigned nmax, unsigned n)
+YData *y_vector_ring_new(unsigned nmax, unsigned n, gboolean track_timestamps)
 {
 	YVectorRing *res = g_object_new(Y_TYPE_VECTOR_RING, NULL);
 	res->val = g_new0(double, nmax);
 	res->n = n;
 	res->nmax = nmax;
+    if(track_timestamps) {
+        res->timestamps = g_object_ref_sink(y_vector_ring_new(nmax,n,FALSE));
+    }
 	return Y_DATA(res);
 }
 
@@ -162,6 +166,8 @@ void y_vector_ring_append(YVectorRing * d, double val)
 		frames[l - 1] = val;
 	} else
 		return;
+    if(d->timestamps)
+        y_vector_ring_append(d->timestamps,((double)g_get_real_time())/1e6);
 	y_data_emit_changed(Y_DATA(d));
 }
 
@@ -171,7 +177,7 @@ void y_vector_ring_append(YVectorRing * d, double val)
  * @arr: array
  * @len: array length
  *
- * Append a new value to the vector.
+ * Append a new array of values @arr to the vector.
  *
  **/
 void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
@@ -182,9 +188,12 @@ void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
 	unsigned int l = MIN(d->nmax, y_vector_get_len(Y_VECTOR(d)));
 	double *frames = d->val;
 	int i;
+    double now = ((double)g_get_real_time())/1e6;
 	if (l + len < d->nmax) {
 		for (i = 0; i < len; i++) {
 			frames[i + l] = arr[i];
+            if(d->timestamps)
+                y_vector_ring_append(d->timestamps,now);
 		}
 		y_vector_ring_set_length(d, l + len);
 	}
@@ -246,8 +255,15 @@ void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
 	if (newlength <= d->nmax) {
 		d->n = newlength;
 		y_data_emit_changed(Y_DATA(d));
+        if(d->timestamps)
+            y_vector_ring_set_length(d->timestamps,newlength);
 	}
     /* TODO: set tailing elements to zero */
+}
+
+YVectorRing *y_vector_ring_get_timestamps(YVectorRing *d)
+{
+    return d->timestamps;
 }
 
 /********************************************************************/
@@ -273,6 +289,7 @@ struct _YRingMatrix {
     double *val;
     YVector *source;
     gulong handler;
+    YVectorRing *timestamps;
 };
 
 G_DEFINE_TYPE(YRingMatrix, y_ring_matrix, Y_TYPE_MATRIX);
@@ -355,13 +372,16 @@ static void y_ring_matrix_init(YRingMatrix * val)
  * Returns: a #YData
  *
  **/
-YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r)
+YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r, gboolean track_timestamps)
 {
     YRingMatrix *res = g_object_new(Y_TYPE_RING_MATRIX, NULL);
     res->val = g_new0(double, rmax*c);
     res->nr = r;
     res->nc = c;
     res->rmax = rmax;
+    if(track_timestamps) {
+        res->timestamps = g_object_ref_sink(y_vector_ring_new(rmax,r,FALSE));
+    }
     return Y_DATA(res);
 }
 
@@ -394,6 +414,8 @@ void y_ring_matrix_append(YRingMatrix * d, const double *values, unsigned len)
         }
     } else
         return;
+    if(d->timestamps)
+        y_vector_ring_append(d->timestamps,((double)g_get_real_time())/1e6);
     y_data_emit_changed(Y_DATA(d));
 }
 
@@ -446,6 +468,8 @@ void y_ring_matrix_set_rows(YRingMatrix * d, unsigned r)
     if (r <= d->rmax) {
         d->nr = r;
         y_data_emit_changed(Y_DATA(d));
+        if(d->timestamps)
+            y_vector_ring_set_length(d->timestamps,r);
     }
 }
 
@@ -475,3 +499,7 @@ void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax)
     y_data_emit_changed(Y_DATA(d));
 }
 
+YVectorRing *y_ring_matrix_get_timestamps(YRingMatrix *d)
+{
+    return d->timestamps;
+}

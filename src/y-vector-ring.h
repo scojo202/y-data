@@ -31,24 +31,26 @@ G_DECLARE_FINAL_TYPE(YVectorRing,y_vector_ring,Y,VECTOR_RING,YVector)
 
 #define Y_TYPE_VECTOR_RING  (y_vector_ring_get_type ())
 
-YData *y_vector_ring_new (unsigned nmax, unsigned n);
+YData *y_vector_ring_new (unsigned nmax, unsigned n, gboolean track_timestamps);
 void y_vector_ring_set_length(YVectorRing *d, unsigned newlength);
 void y_vector_ring_append(YVectorRing *d, double val);
 void y_vector_ring_append_array(YVectorRing *d, double *arr, int len);
 
 void y_vector_ring_set_source(YVectorRing *d, YScalar *source);
 
+YVectorRing *y_vector_ring_get_timestamps(YVectorRing *d);
 
 G_DECLARE_FINAL_TYPE(YRingMatrix,y_ring_matrix,Y,RING_MATRIX,YMatrix)
 
 #define Y_TYPE_RING_MATRIX  (y_ring_matrix_get_type ())
 
-YData *y_ring_matrix_new (unsigned c, unsigned rmax, unsigned r);
+YData *y_ring_matrix_new (unsigned c, unsigned rmax, unsigned r, gboolean track_timestamps);
 void y_ring_matrix_set_rows(YRingMatrix *d, unsigned r);
 void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax);
 void y_ring_matrix_append(YRingMatrix *d, const double *values, unsigned len);
 void y_ring_matrix_set_source(YRingMatrix *d, YVector *source);
 
+YVectorRing *y_ring_matrix_get_timestamps(YRingMatrix *d);
 
 G_END_DECLS
 
