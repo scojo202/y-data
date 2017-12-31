@@ -181,9 +181,7 @@ YData *y_vector_val_new_copy(const double *val, unsigned n)
  * @n: length of array
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
- * Get the array of values of @vec. 
- *
- * Returns: an array. Should not be freed.
+ * Replace the array of values of @s.
  **/
 void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
 				GDestroyNotify notify)
@@ -363,9 +361,9 @@ double *y_matrix_val_get_array(YMatrixVal * s)
 }
 
 /**
- * y_matrix_val_replace_array :
+ * y_matrix_val_replace_array : (skip)
  * @s: #YMatrixVal
- * @array: (array length=n): array of doubles
+ * @array: array of doubles
  * @rows: number of rows
  * @columns: number of columns
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL

@@ -135,6 +135,8 @@ YData *y_data_new_from_operation(YOperation *op, YData *input)
  *
  * Get the #GTask for an operation.
  *
+ * returns: (transfer none): the task
+ *
  **/
 GTask *y_operation_get_task(YOperation * op, gpointer user_data,
 			    GAsyncReadyCallback cb, gpointer cb_data)

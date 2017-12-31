@@ -112,8 +112,9 @@ void y_vector_attach_h5(YVector * v, hid_t group_id, const gchar * data_name)
 /**
  * y_vector_attach_attr_h5: (skip)
  * @v: #YVector
- * @obj_id: HDF5 dataset or group
- * @data_name: name
+ * @group_id: HDF5 dataset or group
+ * @obj_name: name
+ * @attr_name: attribute name
  *
  * Add a vector to an HDF5 group as an attribute.
  **/

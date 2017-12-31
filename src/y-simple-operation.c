@@ -137,7 +137,7 @@ static void y_simple_operation_init(YSimpleOperation * s)
 }
 
 /**
- * y_simple_operation_new:
+ * y_simple_operation_new: (skip)
  * @func: the function
  *
  * Create a new simple operation.
