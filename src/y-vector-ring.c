@@ -263,6 +263,7 @@ void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
 
 YVectorRing *y_vector_ring_get_timestamps(YVectorRing *d)
 {
+    g_assert(Y_IS_VECTOR_RING(d));
     return d->timestamps;
 }
 
@@ -388,7 +389,7 @@ YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r, gboolean track_t
 /**
  * y_ring_matrix_append :
  * @d: #YRingMatrix
- * @values: array
+ * @values: (array length=len): array
  * @len: array length
  *
  * Append a new row to the matrix.
@@ -398,7 +399,6 @@ void y_ring_matrix_append(YRingMatrix * d, const double *values, unsigned len)
 {
     g_assert(Y_IS_RING_MATRIX(d));
     g_assert(values);
-    g_assert(len>=0);
     unsigned int l = MIN(d->rmax, y_matrix_get_rows(Y_MATRIX(d)));
     double *frames = d->val;
     int k;
@@ -501,5 +501,6 @@ void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax)
 
 YVectorRing *y_ring_matrix_get_timestamps(YRingMatrix *d)
 {
+    g_assert(Y_IS_RING_MATRIX(d));
     return d->timestamps;
 }
