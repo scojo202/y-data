@@ -170,6 +170,7 @@ YData *y_vector_val_new_alloc(unsigned n)
 
 YData *y_vector_val_new_copy(const double *val, unsigned n)
 {
+    g_assert(val!=NULL);
 	double *val2 = g_memdup(val, sizeof(double) * n);
 	return y_vector_val_new(val2, n, g_free);
 }
@@ -186,7 +187,8 @@ YData *y_vector_val_new_copy(const double *val, unsigned n)
 void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
 				GDestroyNotify notify)
 {
-	if (s->val && s->notify)
+	g_assert(Y_IS_VECTOR_VAL(s));
+    if (s->val && s->notify)
 		(*s->notify) (s->val);
 	s->val = array;
 	s->n = n;
@@ -204,7 +206,8 @@ void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
  **/
 double *y_vector_val_get_array(YVectorVal * s)
 {
-	return s->val;
+    g_assert(Y_IS_VECTOR_VAL(s));
+    return s->val;
 }
 
 /*****************************************************************************/
@@ -323,7 +326,8 @@ YData *y_matrix_val_new(double *val, unsigned rows, unsigned columns,
  **/
 YData *y_matrix_val_new_copy(const double *val, unsigned rows, unsigned columns)
 {
-	return y_matrix_val_new(g_memdup(val, sizeof(double) * rows * columns),
+    g_assert(val!=NULL);
+    return y_matrix_val_new(g_memdup(val, sizeof(double) * rows * columns),
 				rows, columns, g_free);
 }
 
@@ -357,7 +361,8 @@ YData *y_matrix_val_new_alloc(unsigned rows, unsigned columns)
 
 double *y_matrix_val_get_array(YMatrixVal * s)
 {
-	return s->val;
+    g_assert(Y_IS_MATRIX_VAL(s));
+    return s->val;
 }
 
 /**
@@ -374,7 +379,8 @@ double *y_matrix_val_get_array(YMatrixVal * s)
 void y_matrix_val_replace_array(YMatrixVal * s, double *array, unsigned rows,
 				unsigned columns, GDestroyNotify notify)
 {
-	if (s->val && s->notify)
+	g_assert(Y_IS_MATRIX_VAL(s));
+    if (s->val && s->notify)
 		(*s->notify) (s->val);
 	s->val = array;
 	s->size.rows = rows;
@@ -395,7 +401,8 @@ void y_matrix_val_replace_array(YMatrixVal * s, double *array, unsigned rows,
  **/
 YData *y_data_dup_to_simple(YData * src)
 {
-	YData *d = NULL;
+    g_assert(Y_IS_DATA(src));
+    YData *d = NULL;
 	if (Y_IS_SCALAR(src)) {
 		double v = y_scalar_get_value(Y_SCALAR(src));
 		d = Y_DATA(y_scalar_val_new(v));

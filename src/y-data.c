@@ -116,7 +116,8 @@ static void y_data_class_init(YDataClass * klass)
  **/
 YData *y_data_dup(YData * src)
 {
-	if (src != NULL) {
+    g_assert(Y_IS_DATA(src));
+    if (src != NULL) {
 		YDataClass *klass = Y_DATA_GET_CLASS(src);
 		g_return_val_if_fail(klass != NULL, NULL);
 		return (*klass->dup) (src);
@@ -134,7 +135,8 @@ YData *y_data_dup(YData * src)
  **/
 char *y_data_serialize(YData * dat, gpointer user)
 {
-	YDataClass *klass = Y_DATA_GET_CLASS(dat);
+    g_assert(Y_IS_DATA(dat));
+    YDataClass *klass = Y_DATA_GET_CLASS(dat);
 	g_return_val_if_fail(klass != NULL, NULL);
 	return (*klass->serialize) (dat, user);
 }
@@ -402,7 +404,8 @@ YData *y_scalar_val_new(double val)
  **/
 double *y_scalar_val_get_val(YScalarVal * s)
 {
-	YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(s));
+    g_assert(Y_IS_SCALAR_VAL(s));
+    YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(s));
 	return &priv->value;
 }
 
@@ -583,7 +586,8 @@ double y_vector_get_value(YVector * vec, unsigned i)
  **/
 char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format)
 {
-	double val = y_vector_get_value(vec, i);
+    g_assert(Y_IS_VECTOR(vec));
+    double val = y_vector_get_value(vec, i);
 	return format_val(val, format);
 }
 
@@ -645,7 +649,7 @@ gboolean y_vector_is_varying_uniformly(YVector * data)
 	double const *values;
 	unsigned int n_values;
 
-	g_return_val_if_fail(Y_IS_DATA(data), FALSE);
+	g_return_val_if_fail(Y_IS_VECTOR(data), FALSE);
 
 	values = y_vector_get_values(data);
 	if (values == NULL)
@@ -698,21 +702,6 @@ void y_vector_get_minmax(YVector * vec, double *min, double *max)
 		*min = vpriv->minimum;
 	if (max != NULL)
 		*max = vpriv->maximum;
-}
-
-/**
- * y_vector_vary_uniformly :
- * @vec: #YVector
- *
- * Returns whether elements of @vec strictly increase or decrease with increasing index.
- *
- * Returns: %TRUE if elements of @vec only increase or decrease.
- **/
-gboolean y_vector_vary_uniformly(YVector * vec)
-{
-	const double *data = y_vector_get_values(vec);
-	int length = y_vector_get_len(vec);
-	return range_vary_uniformly(data, length);
 }
 
 /*************************************************************************/
@@ -811,7 +800,8 @@ static void y_matrix_init(YMatrix * mat)
  **/
 YMatrixSize y_matrix_get_size(YMatrix * mat)
 {
-	static YMatrixSize null_size = { 0, 0 };
+    g_assert(Y_IS_MATRIX(mat));
+    static YMatrixSize null_size = { 0, 0 };
 	if (!mat)
 		return null_size;
 	YData *data = Y_DATA(mat);
@@ -839,8 +829,7 @@ YMatrixSize y_matrix_get_size(YMatrix * mat)
  **/
 unsigned int y_matrix_get_rows(YMatrix * mat)
 {
-	if (!mat)
-		return 0;
+    g_return_val_if_fail(Y_IS_MATRIX(mat),0);
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
@@ -866,8 +855,7 @@ unsigned int y_matrix_get_rows(YMatrix * mat)
  **/
 unsigned int y_matrix_get_columns(YMatrix * mat)
 {
-	if (!mat)
-		return 0;
+	g_return_val_if_fail(Y_IS_MATRIX(mat),0);
 	YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
@@ -893,7 +881,8 @@ unsigned int y_matrix_get_columns(YMatrix * mat)
  **/
 const double *y_matrix_get_values(YMatrix * mat)
 {
-	YData *data = Y_DATA(mat);
+    g_assert(Y_IS_MATRIX(mat));
+    YData *data = Y_DATA(mat);
 	YDataPrivate *priv = y_data_get_instance_private(data);
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
 	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
@@ -921,7 +910,8 @@ const double *y_matrix_get_values(YMatrix * mat)
  **/
 double y_matrix_get_value(YMatrix * mat, unsigned i, unsigned j)
 {
-	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
+    g_assert(Y_IS_MATRIX(mat));
+    YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
 	g_return_val_if_fail((i < mpriv->size.rows)
 			     && (j < mpriv->size.columns), NAN);
 	YData *data = Y_DATA(mat);

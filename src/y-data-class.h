@@ -200,7 +200,6 @@ double y_vector_get_value(YVector * vec, unsigned i);
 char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format);
 gboolean y_vector_is_varying_uniformly(YVector * data);
 void y_vector_get_minmax(YVector * vec, double *min, double *max);
-gboolean y_vector_vary_uniformly(YVector * vec);
 
 /*************************************************************************/
 
