@@ -39,18 +39,6 @@
  * refill the cache.
  */
 
-/**
- * YDataFlags:
- *
- * Various flags used internally.
- *
- * @Y_DATA_CACHE_IS_VALID: data in cache are valid.
- * @Y_DATA_IS_EDITABLE: data can be edited.
- * @Y_DATA_SIZE_CACHED: cached size is valid.
- * @Y_DATA_HAS_VALUE: data has at least one finite value.
- * @Y_DATA_MINMAX_CACHED: bounds cache is valid.
- **/
-
 typedef enum {
 	Y_DATA_CACHE_IS_VALID = 1 << 0,
 	Y_DATA_IS_EDITABLE = 1 << 1,

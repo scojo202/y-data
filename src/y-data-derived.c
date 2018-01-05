@@ -72,8 +72,6 @@ static GParamSpec *scalar_properties[N_PROPERTIES] = { NULL, };
 /**
  * YDerivedScalar:
  *
- * @base: base
- * @cache: the current value
  *
  **/
 
@@ -280,11 +278,6 @@ YData *y_derived_scalar_new(YData * input, YOperation * op)
 
 /**
  * YVectorDerived:
- *
- * @base: base
- * @currlen: the length of the array
- * @der: struct containing derived stuff
- * @cache: the current value of the array
  *
  * Object representing data.
  **/
@@ -567,11 +560,6 @@ YData *y_vector_derived_new(YData * input, YOperation * op)
 
 /**
  * YDerivedMatrix:
- *
- * @base: base
- * @currlen: the length of the array
- * @der: struct containing derived stuff
- * @cache: the current value of the array
  *
  * Object representing data.
  **/

@@ -13,10 +13,6 @@
 /**
  * YScalarProperty:
  *
- * @base: base
- * @obj: the object whose property this scalar mirrors
- * @name: property name
- *
  * YScalar that changes when a property changes.
  **/
 

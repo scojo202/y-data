@@ -44,6 +44,8 @@ libydata = shared_library('ydata-0.0',src_public_sources, dependencies: ydata_de
 
 libydata_dep = declare_dependency(dependencies: ydata_deps, link_with: libydata, include_directories: include_directories('.'),)
 
+ydata_dep_sources = []
+
 pkgg = import('pkgconfig')
 
 pkgg.generate(
@@ -56,3 +58,24 @@ pkgg.generate(
      requires: [ 'glib-2.0', 'gobject-2.0', 'gio-2.0', 'fftw3'],
   install_dir: join_paths(get_option('libdir'), 'pkgconfig'),
 )
+
+# Introspection
+if build_gir
+  gir_extra_args = [
+    '--quiet',
+    '--warn-all',
+  ]
+
+  ydata_gir = gnome.generate_gir(libydata,
+                                    sources: src_public_headers + src_public_sources,
+                                    namespace: 'YData',
+                                    nsversion: '0.0',
+                                    identifier_prefix: 'Y',
+                                    symbol_prefix: 'y',
+                                    export_packages: 'ydata',
+                                    includes: [ 'GObject-2.0', 'Gio-2.0' ],
+                                    install: true,
+                                    extra_args: gir_extra_args)
+  ydata_dep_sources += ydata_gir
+endif
+

@@ -22,6 +22,9 @@
 #include <memory.h>
 #include <math.h>
 #include <complex.h>
+#ifndef __GI_SCANNER__
+#include <fftw3.h>
+#endif
 #include "y-fft-operation.h"
 
 /**

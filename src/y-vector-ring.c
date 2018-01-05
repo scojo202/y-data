@@ -39,13 +39,6 @@
 /**
  * YVectorRing:
  *
- * @base: base
- * @n: length of array
- * @nmax: maximum length of array
- * @val: the array
- * @source: a #YScalar source of numbers
- * @handler: a handler for @source
- *
  * A YVector that grows up to a maximum length @nmax.
  **/
 
@@ -254,14 +247,6 @@ void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
 
 /**
  * YRingMatrix:
- *
- * @base: base
- * @nr: number of rows
- * @nc: number of columns
- * @rmax: maximum number of rows
- * @val: the array
- * @source: a #YVector source of numbers
- * @handler: a handler for @source
  *
  * A YMatrix that grows up to a maximum height @rmax.
  **/

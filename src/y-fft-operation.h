@@ -24,7 +24,6 @@
 
 #include <y-data-class.h>
 #include <y-operation.h>
-#include <fftw3.h>
 
 G_BEGIN_DECLS
 
