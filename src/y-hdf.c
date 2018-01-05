@@ -32,6 +32,15 @@
  *
  **/
 
+/**
+ * y_open_hdf5_file_for_writing: (skip)
+ * @filename: filename
+ * @overwrite: whether to overwrite the file if it already exists
+ * @err: (nullable): a #GError or %NULL
+ *
+ * Create an HDF5 file for writing.
+ **/
+
 hid_t y_open_hdf5_file_for_writing(const gchar * filename, gboolean overwrite,
 				   GError ** err)
 {
@@ -50,6 +59,14 @@ hid_t y_open_hdf5_file_for_writing(const gchar * filename, gboolean overwrite,
 	return hfile;
 }
 
+/**
+ * y_open_hdf5_file_for_reading: (skip)
+ * @filename: filename
+ * @err: (nullable): a #GError or %NULL
+ *
+ * Create an HDF5 file to be read.
+ **/
+
 hid_t y_open_hdf5_file_for_reading(const gchar * filename, GError ** err)
 {
 	/* make sure file exists */
@@ -64,6 +81,14 @@ hid_t y_open_hdf5_file_for_reading(const gchar * filename, GError ** err)
 	hid_t hfile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
 	return hfile;
 }
+
+/**
+ * y_hdf5_create_group: (skip)
+ * @id: file handle
+ * @name: group name
+ *
+ * Create an HDF5 group.
+ **/
 
 hid_t y_hdf5_create_group(hid_t id, const gchar * name)
 {

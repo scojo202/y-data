@@ -120,6 +120,7 @@ static void y_vector_ring_init(YVectorRing * val)
  * y_vector_ring_new:
  * @nmax: maximum length of array
  * @n: initial length of array
+ * @track_timestamps: whether to save timestamps for each element
  *
  * If @n is not zero, elements are initialized to zero.
  *
@@ -167,7 +168,7 @@ void y_vector_ring_append(YVectorRing * d, double val)
 /**
  * y_vector_ring_append_array :
  * @d: #YVectorRing
- * @arr: array
+ * @arr: (array length=len): array
  * @len: array length
  *
  * Append a new array of values @arr to the vector.
@@ -253,6 +254,15 @@ void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
 	}
     /* TODO: set tailing elements to zero */
 }
+
+/**
+ * y_vector_ring_get_timestamps :
+ * @d: #YVectorRing
+ *
+ * Get timestamps for when each element was added.
+ *
+ * Returns: (transfer none): The timestamps.
+ **/
 
 YVectorRing *y_vector_ring_get_timestamps(YVectorRing *d)
 {
@@ -352,6 +362,7 @@ static void y_ring_matrix_init(YRingMatrix * val)
  * @c: number of columns
  * @rmax: maximum number of rows
  * @r: initial number of rows
+ * @track_timestamps: whether to save timestamps for each element
  *
  * If @r is not zero, elements are initialized to zero.
  *
@@ -384,6 +395,7 @@ void y_ring_matrix_append(YRingMatrix * d, const double *values, unsigned len)
 {
     g_assert(Y_IS_RING_MATRIX(d));
     g_assert(values);
+    g_return_if_fail(len<=d->nc);
     unsigned int l = MIN(d->rmax, y_matrix_get_rows(Y_MATRIX(d)));
     double *frames = d->val;
     int k;
@@ -414,7 +426,7 @@ static void on_vector_source_changed(YData * data, gpointer user_data)
 /**
  * y_ring_matrix_set_source :
  * @d: #YRingMatrix
- * @source: a #YVector
+ * @source: (nullable): a #YVector or %NULL
  *
  * Set a source for the #YRingMatrix. When the source emits a "changed" signal,
  * a new row will be appended to the matrix.
@@ -465,6 +477,7 @@ void y_ring_matrix_set_rows(YRingMatrix * d, unsigned r)
  *
  * Set the maximum height of the #YRingMatrix to a new value.
  **/
+
 void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax)
 {
     g_assert(Y_IS_RING_MATRIX(d));
@@ -483,6 +496,15 @@ void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax)
     }
     y_data_emit_changed(Y_DATA(d));
 }
+
+/**
+ * y_ring_matrix_get_timestamps :
+ * @d: #YRingMatrix
+ *
+ * Get timestamps for when each row was added.
+ *
+ * Returns: (transfer none): The timestamps.
+ **/
 
 YVectorRing *y_ring_matrix_get_timestamps(YRingMatrix *d)
 {
