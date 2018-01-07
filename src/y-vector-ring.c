@@ -160,8 +160,9 @@ void y_vector_ring_append(YVectorRing * d, double val)
 		frames[l - 1] = val;
 	} else
 		return;
-    if(d->timestamps)
+    if(d->timestamps) {
         y_vector_ring_append(d->timestamps,((double)g_get_real_time())/1e6);
+    }
 	y_data_emit_changed(Y_DATA(d));
 }
 

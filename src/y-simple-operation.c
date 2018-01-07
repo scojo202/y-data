@@ -34,7 +34,7 @@
 
 struct _YSimpleOperation {
 	YOperation base;
-	double_to_double func;
+	YDoubleToDouble func;
 };
 
 G_DEFINE_TYPE(YSimpleOperation, y_simple_operation, Y_TYPE_OPERATION);
@@ -55,7 +55,7 @@ typedef struct {
 	YSimpleOperation sop;
 	double *input;
 	unsigned int len;
-	double_to_double func;
+	YDoubleToDouble func;
 	double *output;
 } SimpleOpData;
 
@@ -144,7 +144,7 @@ static void y_simple_operation_init(YSimpleOperation * s)
  *
  * Returns: a #YOperation
  **/
-YOperation *y_simple_operation_new(double_to_double func)
+YOperation *y_simple_operation_new(YDoubleToDouble func)
 {
 	YSimpleOperation *o = g_object_new(Y_TYPE_SIMPLE_OPERATION, NULL);
 	o->func = func;

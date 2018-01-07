@@ -31,9 +31,9 @@ G_DECLARE_FINAL_TYPE(YSimpleOperation,y_simple_operation,Y,SIMPLE_OPERATION,YOpe
 
 #define Y_TYPE_SIMPLE_OPERATION  (y_simple_operation_get_type ())
 
-typedef double (*double_to_double) (double);
+typedef double (*YDoubleToDouble) (double x);
 
-YOperation *y_simple_operation_new (double_to_double func);
+YOperation *y_simple_operation_new (YDoubleToDouble func);
 
 G_END_DECLS
 
