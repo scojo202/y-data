@@ -29,11 +29,17 @@
 
 G_BEGIN_DECLS
 
-hid_t y_open_hdf5_file_for_writing(const gchar *filename, gboolean overwrite, GError **err);
-hid_t y_open_hdf5_file_for_reading(const gchar *filename, GError **err);
+G_DECLARE_FINAL_TYPE(YFile,y_file,Y,FILE,GObject)
+
+#define Y_TYPE_FILE  (y_file_get_type ())
+
+YFile * y_file_open_for_writing(const gchar * filename, gboolean overwrite, GError **err);
+YFile * y_file_open_for_reading(const gchar *filename, GError **err);
+hid_t y_file_get_handle(YFile *f);
+void y_file_attach_data(YFile *f, const gchar *data_name, YData *d);
+
 hid_t y_hdf5_create_group(hid_t id, const gchar *name);
 #define y_hdf5_close_group(id) H5Gclose(id);
-#define y_hdf5_close_file(id) H5Fclose(id);
 
 void y_data_attach_h5(YData *d, hid_t group_id, const gchar *data_name);
 //YData *y_data_from_h5(hid_t group_id, const gchar *data_name);

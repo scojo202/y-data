@@ -32,54 +32,100 @@
  *
  **/
 
+struct _YFile {
+  GObject	 base;
+  hid_t handle;
+  gboolean write;
+};
+
+G_DEFINE_TYPE (YFile, y_file, G_TYPE_OBJECT);
+
+static
+void y_file_finalize (GObject *obj)
+{
+    YFile *f = (YFile *) obj;
+    H5Fclose(f->handle);
+}
+
+static
+void y_file_class_init(YFileClass *class)
+{
+    GObjectClass *gobj_class = (GObjectClass *) class;
+    gobj_class->finalize = y_file_finalize;
+}
+
+static
+void y_file_init(YFile *file)
+{
+
+}
+
 /**
- * y_open_hdf5_file_for_writing: (skip)
+ * y_file_open_for_writing:
  * @filename: filename
  * @overwrite: whether to overwrite the file if it already exists
  * @err: (nullable): a #GError or %NULL
  *
  * Create an HDF5 file for writing.
+ *
+ * Returns: (transfer full): The #YFile object.
  **/
-
-hid_t y_open_hdf5_file_for_writing(const gchar * filename, gboolean overwrite,
-				   GError ** err)
+YFile * y_file_open_for_writing(const gchar * filename, gboolean overwrite, GError **err)
 {
-	/* make sure file doesn't already exist */
-	GFile *file = g_file_new_for_path(filename);
-	gboolean exists = g_file_query_exists(file, NULL);
-	g_object_unref(file);
-	if (exists) {
-		g_set_error(err, G_IO_ERROR, G_IO_ERROR_EXISTS,
-			    "file already exists: %s", filename);
-		if (!overwrite)
-			return 0;
-	}
-	hid_t hfile =
-	    H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-	return hfile;
+    /* make sure file doesn't already exist */
+    GFile *file = g_file_new_for_path(filename);
+    gboolean exists = g_file_query_exists(file, NULL);
+    g_object_unref(file);
+    if (exists) {
+        g_set_error(err, G_IO_ERROR, G_IO_ERROR_EXISTS,
+                    "file already exists: %s", filename);
+        if (!overwrite)
+            return 0;
+    }
+    hid_t hfile =
+    H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    YFile *f = g_object_new(Y_TYPE_FILE,NULL);
+    f->handle = hfile;
+    f->write = TRUE;
+    return f;
 }
 
 /**
- * y_open_hdf5_file_for_reading: (skip)
+ * y_file_open_for_reading:
  * @filename: filename
  * @err: (nullable): a #GError or %NULL
  *
  * Create an HDF5 file to be read.
+ *
+ * Returns: (transfer full): The #YFile object.
  **/
 
-hid_t y_open_hdf5_file_for_reading(const gchar * filename, GError ** err)
+YFile * y_file_open_for_reading(const gchar *filename, GError **err)
 {
-	/* make sure file exists */
-	GFile *file = g_file_new_for_path(filename);
-	gboolean exists = g_file_query_exists(file, NULL);
-	g_object_unref(file);
-	if (!exists) {
-		g_set_error(err, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-			    "file not found: %s", filename);
-		return 0;
-	}
-	hid_t hfile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-	return hfile;
+    /* make sure file exists */
+    GFile *file = g_file_new_for_path(filename);
+    gboolean exists = g_file_query_exists(file, NULL);
+    g_object_unref(file);
+    if (!exists) {
+        g_set_error(err, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                    "file not found: %s", filename);
+        return 0;
+    }
+    hid_t hfile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    YFile *f = g_object_new(Y_TYPE_FILE,NULL);
+    f->handle = hfile;
+    f->write = FALSE;
+    return f;
+}
+
+/**
+ * y_file_get_handle: (skip)
+ * @f: a #YFile
+ *
+ **/
+hid_t y_file_get_handle(YFile *f)
+{
+    return f->handle;
 }
 
 /**
@@ -200,6 +246,20 @@ void save_func(gpointer key, gpointer value, gpointer user_data)
 	YData *d = Y_DATA(value);
 	hid_t *subgroup_id = (hid_t *) user_data;
 	y_data_attach_h5(d, *subgroup_id, name);
+}
+
+/**
+ * y_file_attach_data:
+ * @f: #YFile
+ * @data_name: path
+ * @d: #YData
+ *
+ * Add a YData object to a #YFile.
+ **/
+void y_file_attach_data(YFile *f, const gchar *data_name, YData *d)
+{
+    g_assert(f->write);
+    y_data_attach_h5(d,f->handle,data_name);
 }
 
 /**

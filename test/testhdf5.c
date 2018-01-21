@@ -107,10 +107,10 @@ main (int argc, char *argv[])
   g_usleep(2000000);
 
   GError *err = NULL;
-  hid_t hfile = y_open_hdf5_file_for_writing("test.h5", FALSE, &err);
+  YFile *hfile = y_file_open_for_writing("test.h5", FALSE, &err);
   if(err==NULL) {
-    y_data_attach_h5(Y_DATA(s),hfile,NULL);
-    H5Fclose(hfile);
+    y_data_attach_h5(Y_DATA(s),y_file_get_handle(hfile),NULL);
+    g_object_unref(hfile);
   }
   else {
     fprintf (stderr, "Error, %s\n", err->message);
