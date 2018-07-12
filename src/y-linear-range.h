@@ -45,6 +45,7 @@ G_DECLARE_FINAL_TYPE(YFourierLinearRangeVector,y_fourier_linear_range_vector,Y,F
 
 #define Y_TYPE_FOURIER_LINEAR_RANGE_VECTOR  (y_fourier_linear_range_vector_get_type ())
 
+void y_fourier_linear_range_vector_set_inverse(YFourierLinearRangeVector *v, gboolean val);
 YData *y_fourier_linear_range_vector_new( YLinearRangeVector *v);
 
 G_END_DECLS

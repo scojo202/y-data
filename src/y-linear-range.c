@@ -230,6 +230,7 @@ struct _YFourierLinearRangeVector {
     YLinearRangeVector *range;
     unsigned int n;
     double *values;
+    gboolean inverse;
 };
 
 G_DEFINE_TYPE (YFourierLinearRangeVector, y_fourier_linear_range_vector, Y_TYPE_VECTOR);
@@ -285,6 +286,9 @@ fourier_linear_range_vector_get_value (YVector *vec, unsigned i)
     YLinearRangeVector *range = val->range;
     
     double df = 1./range->n/range->dv;
+    if(val->inverse) {
+        df *= 2*M_PI;
+    }
     return i*df;
 }
 
@@ -325,6 +329,15 @@ on_range_changed (YData *d, gpointer user_data)
       res->values = g_new0(double, res->n);
     }
     y_data_emit_changed(dat);
+}
+
+void
+y_fourier_linear_range_vector_set_inverse(YFourierLinearRangeVector *v, gboolean val)
+{
+    if(v->inverse!=val) {
+      v->inverse = val;
+      y_data_emit_changed(Y_DATA(v));
+    }
 }
 
 /**
