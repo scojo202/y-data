@@ -272,6 +272,9 @@ fourier_linear_range_vector_load_values (YVector *vec)
     g_assert(isfinite(range->dv));
     
     double df = 1./range->n/range->dv;
+    if(val->inverse) {
+        df *= 2*M_PI;
+    }
     
     while (i-- > 0) {
         val->values[i]=i*df;
