@@ -79,10 +79,31 @@ typedef
     struct {
 	YOperation *op;
 	YData *input;
+	gulong handler;
 	gboolean autorun;
 	gboolean running;	/* is operation currently running? */
 	gpointer task_data;
 } Derived;
+
+void finalize_derived(Derived *d) {
+  if(d->handler != 0 && d->input !=NULL) {
+    g_signal_handler_disconnect(d->input,d->handler);
+  }
+  /* unref matrix */
+  if(d->input!=NULL) {
+    g_object_unref(d->input);
+  }
+  if (d->task_data) {
+    YOperationClass *klass =
+        (YOperationClass *) G_OBJECT_GET_CLASS(d->op);
+    if (klass->op_data_free) {
+      klass->op_data_free(d->task_data);
+    }
+  }
+  if (d->op) {
+    g_object_unref(d->op);
+  }
+}
 
 struct _YDerivedScalar {
 	YScalar base;
@@ -169,6 +190,16 @@ scalar_on_op_changed(GObject * gobject, GParamSpec * pspec, gpointer user_data)
 	y_data_emit_changed(Y_DATA(d));
 }
 
+static void scalar_derived_finalize(GObject * obj)
+{
+	YDerivedScalar *vec = (YDerivedScalar *) obj;
+	finalize_derived(&vec->der);
+
+	GObjectClass *obj_class = G_OBJECT_CLASS(y_derived_scalar_parent_class);
+
+	obj_class->finalize(obj);
+}
+
 static void
 y_scalar_derived_set_property(GObject * object,
 			      guint property_id,
@@ -223,6 +254,7 @@ void y_derived_scalar_class_init(YDerivedScalarClass * klass)
 	GObjectClass *gobject_class = (GObjectClass *) klass;
 	YScalarClass *scalar_class = (YScalarClass *) klass;
 
+        gobject_class->finalize = scalar_derived_finalize;
 	gobject_class->set_property = y_scalar_derived_set_property;
 	gobject_class->get_property = y_scalar_derived_get_property;
 
@@ -304,18 +336,7 @@ G_DEFINE_TYPE_WITH_CODE(YVectorDerived, y_vector_derived, Y_TYPE_VECTOR,
 static void vector_derived_finalize(GObject * obj)
 {
 	YVectorDerived *vec = (YVectorDerived *) obj;
-	/* unref matrix */
-	g_object_unref(vec->der.input);
-	if (vec->der.task_data) {
-		YOperationClass *klass =
-		    (YOperationClass *) G_OBJECT_GET_CLASS(vec->der.op);
-		if (klass->op_data_free) {
-			klass->op_data_free(vec->der.task_data);
-		}
-	}
-	if (vec->der.op) {
-		g_object_unref(vec->der.op);
-	}
+	finalize_derived(&vec->der);
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_vector_derived_parent_class);
 
@@ -454,8 +475,12 @@ y_vector_derived_set_property(GObject * object,
 		d->autorun = g_value_get_boolean(value);
 		break;
 	case PROP_INPUT:
+		/* unref old one */
+		if(d->input != NULL) {
+		  g_object_unref(d->input);
+		}
 		d->input = g_value_dup_object(value);
-		g_signal_connect(d->input, "changed",
+		d->handler = g_signal_connect(d->input, "changed",
 				 G_CALLBACK(on_input_changed_after), v);
 		y_data_emit_changed(Y_DATA(v));
 		break;
@@ -586,18 +611,8 @@ G_DEFINE_TYPE_WITH_CODE(YDerivedMatrix, y_derived_matrix, Y_TYPE_MATRIX,
 static void derived_matrix_finalize(GObject * obj)
 {
 	YDerivedMatrix *vec = (YDerivedMatrix *) obj;
-	/* unref matrix */
-	g_object_unref(vec->der.input);
-	if (vec->der.task_data) {
-		YOperationClass *klass =
-		    (YOperationClass *) G_OBJECT_GET_CLASS(vec->der.op);
-		if (klass->op_data_free) {
-			klass->op_data_free(vec->der.task_data);
-		}
-	}
-	if (vec->der.op) {
-		g_object_unref(vec->der.op);
-	}
+	
+	finalize_derived(&vec->der);
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_derived_matrix_parent_class);
 
