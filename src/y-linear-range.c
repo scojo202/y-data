@@ -324,8 +324,10 @@ y_fourier_linear_range_vector_class_init (YFourierLinearRangeVectorClass *klass)
 static void
 on_range_changed (YData *d, gpointer user_data)
 {
-    YData *dat = (YData *) user_data;
-    YFourierLinearRangeVector *res = (YFourierLinearRangeVector *)dat;
+    YData *dat = Y_DATA(user_data);
+    YFourierLinearRangeVector *res = Y_FOURIER_LINEAR_RANGE_VECTOR(user_data);
+    g_assert(Y_IS_LINEAR_RANGE_VECTOR(res->range));
+    g_assert(d == res->range);
     if(res->n != res->range->n/2 + 1) {
       g_free(res->values);
       res->n = res->range->n/2 + 1;
@@ -356,9 +358,10 @@ YData *
 y_fourier_linear_range_vector_new (YLinearRangeVector *v)
 {
     YFourierLinearRangeVector *res = g_object_new (Y_TYPE_FOURIER_LINEAR_RANGE_VECTOR, NULL);
+    g_assert(Y_IS_LINEAR_RANGE_VECTOR(v));
     res->range = g_object_ref_sink(v);
     res->n = res->range->n/2 + 1;
     res->values = g_new0(double, res->n);
-    g_signal_connect(v,"changed",G_CALLBACK(on_range_changed),res);
+    g_signal_connect_after(res->range,"changed",G_CALLBACK(on_range_changed),res);
     return Y_DATA (res);
 }
