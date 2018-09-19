@@ -237,26 +237,26 @@ static void y_subset_operation_class_init(YSubsetOperationClass * subset_klass)
 							 "Start index #1",
 							 "First index", 0,
 							 2000000000, 0,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_property(gobject_klass, SUBSET_PROP_LENGTH1,
 					g_param_spec_int("length1", "Length #1",
 							 "First length",
 							 1, 2000000000, 1,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_property(gobject_klass, SUBSET_PROP_START2,
 					g_param_spec_int("start2",
 							 "Start index #2",
 							 "Second index", 0,
 							 2000000000, 0,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_property(gobject_klass, SUBSET_PROP_LENGTH2,
 					g_param_spec_int("length2", "Length #2",
 							 "Second length",
 							 1, 2000000000, 1,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void y_subset_operation_init(YSubsetOperation * slice)

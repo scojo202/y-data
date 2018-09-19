@@ -266,13 +266,13 @@ void y_derived_scalar_class_init(YDerivedScalarClass * klass)
 							       FALSE
 							       /* default value */
 							       ,
-							       G_PARAM_READWRITE);
+							       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	scalar_properties[PROP_INPUT] =
 	    g_param_spec_object("input", "Input data", "The input data",
-				Y_TYPE_DATA, G_PARAM_READWRITE);
+				Y_TYPE_DATA, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	scalar_properties[PROP_OPERATION] =
 	    g_param_spec_object("operation", "Operation", "The operation",
-				Y_TYPE_OPERATION, G_PARAM_READWRITE);
+				Y_TYPE_OPERATION, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	g_object_class_override_property(gobject_class, PROP_AUTORUN,
 					 "autorun");

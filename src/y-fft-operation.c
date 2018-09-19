@@ -214,7 +214,7 @@ static void y_fft_operation_class_init(YFFTOperationClass * slice_klass)
 							 "Type of FFT operation",
 							 FFT_MAG, FFT_PHASE,
 							 FFT_MAG,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void y_fft_operation_init(YFFTOperation * fft)

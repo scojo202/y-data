@@ -317,20 +317,20 @@ static void y_slice_operation_class_init(YSliceOperationClass * slice_klass)
 					g_param_spec_int("index", "Index",
 							 "Index of slice",
 							 0, 2000000000, 0,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_property(gobject_klass, SLICE_PROP_TYPE,
 					g_param_spec_int("type", "Type",
 							 "Type of slicing operation",
 							 SLICE_ROW, 7,
 							 SLICE_ROW,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_property(gobject_klass, SLICE_PROP_WIDTH,
 					g_param_spec_int("width", "Width",
 							 "Width of slice, if appropriate",
 							 -1, 2000000000, 1,
-							 G_PARAM_READWRITE));
+							 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_property(gobject_klass,
 					SLICE_PROP_MEAN,
@@ -338,7 +338,7 @@ static void y_slice_operation_class_init(YSliceOperationClass * slice_klass)
 							     "average over elements",
 							     "Average over elements if TRUE, sum over them if FALSE.",
 							     FALSE,
-							     G_PARAM_READWRITE));
+							     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void y_slice_operation_init(YSliceOperation * slice)
