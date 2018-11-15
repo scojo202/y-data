@@ -29,7 +29,7 @@
  *
  * YOperations are objects that take data and create other data automatically.
  *
- * 
+ *
  */
 
 G_DEFINE_ABSTRACT_TYPE(YOperation, y_operation, G_TYPE_OBJECT);
@@ -69,7 +69,7 @@ double *y_create_input_array_from_matrix(YMatrix * input, gboolean is_new,
 	unsigned int old_ncol = old_size.columns;
 	YMatrixSize size = y_matrix_get_size(input);
 	if(size.rows<1 || size.columns<1) {
-	  return NULL;
+		return NULL;
 	}
 	if (!is_new) {
 		if (old_nrow != size.rows || old_ncol != size.columns) {
@@ -80,7 +80,7 @@ double *y_create_input_array_from_matrix(YMatrix * input, gboolean is_new,
 		d = g_new(double, size.rows * size.columns);
 	}
 	if(d==NULL) {
-	  d = g_new(double, size.rows * size.columns);
+		d = g_new(double, size.rows * size.columns);
 	}
 	g_assert(y_matrix_get_values(input));
 	memcpy(d, y_matrix_get_values(input),
@@ -100,30 +100,30 @@ double *y_create_input_array_from_matrix(YMatrix * input, gboolean is_new,
  **/
 YData *y_data_new_from_operation(YOperation *op, YData *input)
 {
-  g_assert(Y_IS_OPERATION(op));
-  g_assert(Y_IS_DATA(input));
-  YOperationClass *klass = Y_OPERATION_GET_CLASS (op);
-  gpointer data = y_operation_create_task_data(op,input);
-  unsigned int dims[4];
-  int s = klass->op_size(op,input,dims);
-  gpointer output = klass->op_func(data);
-  if(output==NULL) return NULL;
-  YData *out = NULL;
-  if(s==0) {
-    double *d = (double *) output;
-    out = y_scalar_val_new(*d);
-    g_free(output);
-  }
-  else if(s==1) {
-    double *d = (double *) output;
-    out = y_vector_val_new(d,dims[0],g_free);
-  }
-  else if(s==2) {
-    double *d = (double *) output;
-    out = y_matrix_val_new(d,dims[0],dims[1],g_free);
-  }
-  klass->op_data_free(input);
-  return out;
+	g_assert(Y_IS_OPERATION(op));
+	g_assert(Y_IS_DATA(input));
+	YOperationClass *klass = Y_OPERATION_GET_CLASS (op);
+	gpointer data = y_operation_create_task_data(op,input);
+	unsigned int dims[4];
+	int s = klass->op_size(op,input,dims);
+	gpointer output = klass->op_func(data);
+	if(output==NULL) return NULL;
+	YData *out = NULL;
+	if(s==0) {
+		double *d = (double *) output;
+		out = y_scalar_val_new(*d);
+		g_free(output);
+	}
+	else if(s==1) {
+		double *d = (double *) output;
+		out = y_vector_val_new(d,dims[0],g_free);
+	}
+	else if(s==2) {
+		double *d = (double *) output;
+		out = y_matrix_val_new(d,dims[0],dims[1],g_free);
+	}
+	klass->op_data_free(input);
+	return out;
 }
 
 /**

@@ -79,7 +79,7 @@ struct _YDataClass {
 	char *(*serialize) (YData * dat, gpointer user);
 
 	char (*get_sizes) (YData * data, unsigned int *sizes);
-    gboolean (*has_value) (YData *data);
+	gboolean (*has_value) (YData *data);
 
 	/* signals */
 	void (*emit_changed) (YData * dat);
@@ -242,4 +242,3 @@ void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data);
 G_END_DECLS
 
 #endif				/* Y_DATA_H */
-

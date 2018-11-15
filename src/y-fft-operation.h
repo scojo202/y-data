@@ -32,8 +32,8 @@ G_DECLARE_FINAL_TYPE(YFFTOperation,y_fft_operation,Y,FFT_OPERATION,YOperation)
 #define Y_TYPE_FFT_OPERATION  (y_fft_operation_get_type ())
 
 enum {
-  FFT_MAG = 0,
-  FFT_PHASE
+	FFT_MAG = 0,
+	FFT_PHASE
 };
 
 YOperation *y_fft_operation_new (int type);
@@ -41,4 +41,3 @@ YOperation *y_fft_operation_new (int type);
 G_END_DECLS
 
 #endif
-

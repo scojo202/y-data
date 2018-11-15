@@ -170,7 +170,7 @@ YData *y_vector_val_new_alloc(unsigned n)
 
 YData *y_vector_val_new_copy(const double *val, unsigned n)
 {
-    g_assert(val!=NULL);
+	g_assert(val!=NULL);
 	double *val2 = g_memdup(val, sizeof(double) * n);
 	return y_vector_val_new(val2, n, g_free);
 }
@@ -188,7 +188,7 @@ void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
 				GDestroyNotify notify)
 {
 	g_assert(Y_IS_VECTOR_VAL(s));
-    if (s->val && s->notify)
+	if (s->val && s->notify)
 		(*s->notify) (s->val);
 	s->val = array;
 	s->n = n;
@@ -200,14 +200,14 @@ void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
  * y_vector_val_get_array :
  * @s: #YVectorVal
  *
- * Get the array of values of @vec. 
+ * Get the array of values of @vec.
  *
  * Returns: an array. Should not be freed.
  **/
 double *y_vector_val_get_array(YVectorVal * s)
 {
-    g_assert(Y_IS_VECTOR_VAL(s));
-    return s->val;
+	g_assert(Y_IS_VECTOR_VAL(s));
+	return s->val;
 }
 
 /*****************************************************************************/
@@ -326,8 +326,8 @@ YData *y_matrix_val_new(double *val, unsigned rows, unsigned columns,
  **/
 YData *y_matrix_val_new_copy(const double *val, unsigned rows, unsigned columns)
 {
-    g_assert(val!=NULL);
-    return y_matrix_val_new(g_memdup(val, sizeof(double) * rows * columns),
+	g_assert(val!=NULL);
+	return y_matrix_val_new(g_memdup(val, sizeof(double) * rows * columns),
 				rows, columns, g_free);
 }
 
@@ -354,15 +354,15 @@ YData *y_matrix_val_new_alloc(unsigned rows, unsigned columns)
  * y_matrix_val_get_array :
  * @s: #YVectorVal
  *
- * Get the array of values of @s. 
+ * Get the array of values of @s.
  *
  * Returns: an array. Should not be freed.
  **/
 
 double *y_matrix_val_get_array(YMatrixVal * s)
 {
-    g_assert(Y_IS_MATRIX_VAL(s));
-    return s->val;
+	g_assert(Y_IS_MATRIX_VAL(s));
+	return s->val;
 }
 
 /**
@@ -380,7 +380,7 @@ void y_matrix_val_replace_array(YMatrixVal * s, double *array, unsigned rows,
 				unsigned columns, GDestroyNotify notify)
 {
 	g_assert(Y_IS_MATRIX_VAL(s));
-    if (s->val && s->notify)
+	if (s->val && s->notify)
 		(*s->notify) (s->val);
 	s->val = array;
 	s->size.rows = rows;
@@ -401,15 +401,15 @@ void y_matrix_val_replace_array(YMatrixVal * s, double *array, unsigned rows,
  **/
 YData *y_data_dup_to_simple(YData * src)
 {
-    g_assert(Y_IS_DATA(src));
-    YData *d = NULL;
+	g_assert(Y_IS_DATA(src));
+	YData *d = NULL;
 	if (Y_IS_SCALAR(src)) {
 		double v = y_scalar_get_value(Y_SCALAR(src));
 		d = Y_DATA(y_scalar_val_new(v));
 	} else if (Y_IS_VECTOR(src)) {
 		const double *v = y_vector_get_values(Y_VECTOR(src));
 		d = Y_DATA(y_vector_val_new_copy
-			   (v, y_vector_get_len(Y_VECTOR(src))));
+			(v, y_vector_get_len(Y_VECTOR(src))));
 	} else if (Y_IS_MATRIX(src)) {
 		const double *v = y_matrix_get_values(Y_MATRIX(src));
 		YMatrixSize s = y_matrix_get_size(Y_MATRIX(src));
@@ -579,7 +579,7 @@ YData *y_three_d_array_val_new_alloc(unsigned rows, unsigned columns,
  * y_three_d_array_val_get_array :
  * @s: #YThreeDArrayVal
  *
- * Get the array of values of @s. 
+ * Get the array of values of @s.
  *
  * Returns: an array. Should not be freed.
  **/

@@ -29,7 +29,7 @@
  *
  * These can change automatically when input data emit changed signals.
  *
- * 
+ *
  */
 
 enum {
@@ -75,8 +75,7 @@ static GParamSpec *scalar_properties[N_PROPERTIES] = { NULL, };
  *
  **/
 
-typedef
-    struct {
+typedef struct {
 	YOperation *op;
 	YData *input;
 	gulong handler;
@@ -86,23 +85,23 @@ typedef
 } Derived;
 
 void finalize_derived(Derived *d) {
-  if(d->handler != 0 && d->input !=NULL) {
-    g_signal_handler_disconnect(d->input,d->handler);
-  }
-  /* unref matrix */
-  if(d->input!=NULL) {
-    g_object_unref(d->input);
-  }
-  if (d->task_data) {
-    YOperationClass *klass =
+	if(d->handler != 0 && d->input !=NULL) {
+		g_signal_handler_disconnect(d->input,d->handler);
+	}
+	/* unref matrix */
+	if(d->input!=NULL) {
+		g_object_unref(d->input);
+	}
+	if (d->task_data) {
+		YOperationClass *klass =
         (YOperationClass *) G_OBJECT_GET_CLASS(d->op);
-    if (klass->op_data_free) {
-      klass->op_data_free(d->task_data);
-    }
-  }
-  if (d->op) {
-    g_object_unref(d->op);
-  }
+		if (klass->op_data_free) {
+			klass->op_data_free(d->task_data);
+		}
+	}
+	if (d->op) {
+		g_object_unref(d->op);
+	}
 }
 
 struct _YDerivedScalar {
@@ -254,7 +253,7 @@ void y_derived_scalar_class_init(YDerivedScalarClass * klass)
 	GObjectClass *gobject_class = (GObjectClass *) klass;
 	YScalarClass *scalar_class = (YScalarClass *) klass;
 
-        gobject_class->finalize = scalar_derived_finalize;
+	gobject_class->finalize = scalar_derived_finalize;
 	gobject_class->set_property = y_scalar_derived_set_property;
 	gobject_class->get_property = y_scalar_derived_get_property;
 
@@ -611,7 +610,7 @@ G_DEFINE_TYPE_WITH_CODE(YDerivedMatrix, y_derived_matrix, Y_TYPE_MATRIX,
 static void derived_matrix_finalize(GObject * obj)
 {
 	YDerivedMatrix *vec = (YDerivedMatrix *) obj;
-	
+
 	finalize_derived(&vec->der);
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_derived_matrix_parent_class);

@@ -47,12 +47,12 @@ G_DECLARE_DERIVABLE_TYPE(YOperation,y_operation,Y,OPERATION,GObject)
  **/
 
 struct _YOperationClass {
-  GObjectClass base;
-  gboolean thread_safe; /* does this operation keep copies of all data so it can be done in a thread? */
-  int (*op_size) (YOperation *op, YData *input, unsigned int *dims);
-  gpointer (*op_func) (gpointer data);
-  gpointer (*op_data) (YOperation *op, gpointer data, YData *input);
-  GDestroyNotify op_data_free;
+	GObjectClass base;
+	gboolean thread_safe; /* does this operation keep copies of all data so it can be done in a thread? */
+	int (*op_size) (YOperation *op, YData *input, unsigned int *dims);
+	gpointer (*op_func) (gpointer data);
+	gpointer (*op_data) (YOperation *op, gpointer data, YData *input);
+	GDestroyNotify op_data_free;
 };
 
 double *y_create_input_array_from_vector(YVector *input, gboolean is_new, unsigned int old_size, double *old_input);
@@ -68,4 +68,3 @@ void y_operation_update_task_data(YOperation *op, gpointer task_data, YData *inp
 G_END_DECLS
 
 #endif
-

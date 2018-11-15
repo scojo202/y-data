@@ -29,7 +29,7 @@
  *
  * These output a subset of the input array. The output is smaller in size but has the same number of dimensions.
  *
- * 
+ *
  */
 
 enum {

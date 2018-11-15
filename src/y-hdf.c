@@ -33,9 +33,9 @@
  **/
 
 struct _YFile {
-  GObject	 base;
-  hid_t handle;
-  gboolean write;
+	GObject	 base;
+	hid_t handle;
+	gboolean write;
 };
 
 G_DEFINE_TYPE (YFile, y_file, G_TYPE_OBJECT);
@@ -43,15 +43,15 @@ G_DEFINE_TYPE (YFile, y_file, G_TYPE_OBJECT);
 static
 void y_file_finalize (GObject *obj)
 {
-    YFile *f = (YFile *) obj;
-    H5Fclose(f->handle);
+	YFile *f = (YFile *) obj;
+	H5Fclose(f->handle);
 }
 
 static
 void y_file_class_init(YFileClass *class)
 {
-    GObjectClass *gobj_class = (GObjectClass *) class;
-    gobj_class->finalize = y_file_finalize;
+	GObjectClass *gobj_class = (GObjectClass *) class;
+	gobj_class->finalize = y_file_finalize;
 }
 
 static
@@ -72,22 +72,22 @@ void y_file_init(YFile *file)
  **/
 YFile * y_file_open_for_writing(const gchar * filename, gboolean overwrite, GError **err)
 {
-    /* make sure file doesn't already exist */
-    GFile *file = g_file_new_for_path(filename);
-    gboolean exists = g_file_query_exists(file, NULL);
-    g_object_unref(file);
-    if (exists) {
-        g_set_error(err, G_IO_ERROR, G_IO_ERROR_EXISTS,
+	/* make sure file doesn't already exist */
+	GFile *file = g_file_new_for_path(filename);
+	gboolean exists = g_file_query_exists(file, NULL);
+	g_object_unref(file);
+	if (exists) {
+		g_set_error(err, G_IO_ERROR, G_IO_ERROR_EXISTS,
                     "file already exists: %s", filename);
-        if (!overwrite)
-            return 0;
-    }
-    hid_t hfile =
-    H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    YFile *f = g_object_new(Y_TYPE_FILE,NULL);
-    f->handle = hfile;
-    f->write = TRUE;
-    return f;
+		if (!overwrite)
+			return 0;
+	}
+	hid_t hfile =
+		H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+	YFile *f = g_object_new(Y_TYPE_FILE,NULL);
+	f->handle = hfile;
+	f->write = TRUE;
+	return f;
 }
 
 /**
@@ -102,20 +102,20 @@ YFile * y_file_open_for_writing(const gchar * filename, gboolean overwrite, GErr
 
 YFile * y_file_open_for_reading(const gchar *filename, GError **err)
 {
-    /* make sure file exists */
-    GFile *file = g_file_new_for_path(filename);
-    gboolean exists = g_file_query_exists(file, NULL);
-    g_object_unref(file);
-    if (!exists) {
-        g_set_error(err, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+	/* make sure file exists */
+	GFile *file = g_file_new_for_path(filename);
+	gboolean exists = g_file_query_exists(file, NULL);
+	g_object_unref(file);
+	if (!exists) {
+		g_set_error(err, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
                     "file not found: %s", filename);
-        return 0;
-    }
-    hid_t hfile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-    YFile *f = g_object_new(Y_TYPE_FILE,NULL);
-    f->handle = hfile;
-    f->write = FALSE;
-    return f;
+		return 0;
+	}
+	hid_t hfile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+	YFile *f = g_object_new(Y_TYPE_FILE,NULL);
+	f->handle = hfile;
+	f->write = FALSE;
+	return f;
 }
 
 /**
@@ -125,7 +125,7 @@ YFile * y_file_open_for_reading(const gchar *filename, GError **err)
  **/
 hid_t y_file_get_handle(YFile *f)
 {
-    return f->handle;
+	return f->handle;
 }
 
 /**
@@ -258,8 +258,8 @@ void save_func(gpointer key, gpointer value, gpointer user_data)
  **/
 void y_file_attach_data(YFile *f, const gchar *data_name, YData *d)
 {
-    g_assert(f->write);
-    y_data_attach_h5(d,f->handle,data_name);
+	g_assert(f->write);
+	y_data_attach_h5(d,f->handle,data_name);
 }
 
 /**

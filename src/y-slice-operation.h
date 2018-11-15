@@ -32,10 +32,10 @@ G_DECLARE_FINAL_TYPE(YSliceOperation,y_slice_operation,Y,SLICE_OPERATION,YOperat
 #define Y_TYPE_SLICE_OPERATION  (y_slice_operation_get_type ())
 
 enum {
-  SLICE_ROW = 0,
-  SLICE_COL = 1,
-  SLICE_SUMROWS = 2,
-  SLICE_SUMCOLS = 3
+	SLICE_ROW = 0,
+	SLICE_COL = 1,
+	SLICE_SUMROWS = 2,
+	SLICE_SUMCOLS = 3
 };
 
 #define SLICE_ELEMENT SLICE_ROW
@@ -49,4 +49,3 @@ void y_slice_operation_set_pars(YSliceOperation *d, int type, int index,
 G_END_DECLS
 
 #endif
-
