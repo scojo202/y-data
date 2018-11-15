@@ -1303,10 +1303,9 @@ void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max)
  * A data object that can contain other data objects.
  */
 
-struct _YStruct {
-	YData base;
+typedef struct {
 	GHashTable *hash;
-};
+} YStructPrivate;
 
 /**
  * YStruct:
@@ -1314,12 +1313,13 @@ struct _YStruct {
  * Object representing a dictionary full of YData objects.
  **/
 
-G_DEFINE_TYPE(YStruct, y_struct, Y_TYPE_DATA);
+G_DEFINE_TYPE_WITH_PRIVATE(YStruct, y_struct, Y_TYPE_DATA);
 
 static void y_struct_finalize(GObject * obj)
 {
 	YStruct *s = (YStruct *) obj;
-	g_hash_table_unref(s->hash);
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+	g_hash_table_unref(priv->hash);
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
 
@@ -1341,11 +1341,20 @@ static void y_struct_class_init(YStructClass * val_klass)
 	ydata_klass->get_sizes = _struct_get_sizes;
 }
 
+static void
+unref_if_not_null (gpointer object)
+{
+  if(object!=NULL) {
+    g_object_unref(object);
+  }
+}
+
 static void y_struct_init(YStruct * s)
 {
-	s->hash =
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+	priv->hash =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
-				  g_object_unref);
+				  unref_if_not_null);
 }
 
 /**
@@ -1359,7 +1368,8 @@ static void y_struct_init(YStruct * s)
  **/
 YData *y_struct_get_data(YStruct * s, const gchar * name)
 {
-	return g_hash_table_lookup(s->hash, name);
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+	return g_hash_table_lookup(priv->hash, name);
 }
 
 /**
@@ -1372,7 +1382,15 @@ YData *y_struct_get_data(YStruct * s, const gchar * name)
  **/
 void y_struct_set_data(YStruct * s, const gchar * name, YData * d)
 {
-	g_hash_table_insert(s->hash, g_strdup(name), g_object_ref_sink(d));
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+  if(d==NULL) {
+    g_hash_table_insert(priv->hash, g_strdup(name), NULL);
+  }
+  else {
+    g_assert(Y_IS_DATA(d));
+	  g_hash_table_insert(priv->hash, g_strdup(name), g_object_ref_sink(d));
+  }
+	y_data_emit_changed(Y_DATA(s));
 }
 
 /**
@@ -1385,5 +1403,6 @@ void y_struct_set_data(YStruct * s, const gchar * name, YData * d)
  **/
 void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data)
 {
-	g_hash_table_foreach(s->hash, f, user_data);
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+	g_hash_table_foreach(priv->hash, f, user_data);
 }

@@ -227,9 +227,13 @@ void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max);
 
 /*************************************************************************/
 
-G_DECLARE_FINAL_TYPE(YStruct, y_struct, Y, STRUCT, YData)
+G_DECLARE_DERIVABLE_TYPE(YStruct, y_struct, Y, STRUCT, YData)
 
 #define Y_TYPE_STRUCT (y_struct_get_type())
+
+struct _YStructClass {
+	YDataClass base;
+};
 
 YData *y_struct_get_data(YStruct * s, const gchar * name);
 void y_struct_set_data(YStruct * s, const gchar * name, YData * d);
