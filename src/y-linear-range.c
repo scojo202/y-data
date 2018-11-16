@@ -327,7 +327,7 @@ on_range_changed (YData *d, gpointer user_data)
 	YData *dat = Y_DATA(user_data);
 	YFourierLinearRangeVector *res = Y_FOURIER_LINEAR_RANGE_VECTOR(user_data);
 	g_assert(Y_IS_LINEAR_RANGE_VECTOR(res->range));
-	g_assert(d == res->range);
+	g_assert(d == Y_DATA(res->range));
 	if(res->n != res->range->n/2 + 1) {
 		g_free(res->values);
 		res->n = res->range->n/2 + 1;

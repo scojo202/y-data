@@ -193,7 +193,7 @@ gboolean scalar_poll_func(GObject *pollable_stream,gpointer user_data)
     y_data_emit_changed(Y_DATA(r));
     g_message("read %f",r->val);
   }
-  
+
   return TRUE;
 }
 
@@ -205,7 +205,7 @@ YScalarTcpReceiver *y_scalar_tcp_receiver_new (const gchar *url, guint16 port, g
   r->socket_conn = g_socket_client_connect_to_host(client,url,port,NULL,NULL);
   GInputStream *i = g_io_stream_get_input_stream(G_IO_STREAM(r->socket_conn));
   GSource *source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM(i), NULL);
-  g_source_set_callback(source,scalar_poll_func,r,NULL);
+  g_source_set_callback(source,G_SOURCE_FUNC(scalar_poll_func),r,NULL);
   g_source_attach(source,NULL);
   return r;
 }
@@ -243,7 +243,7 @@ gboolean vector_poll_func(GObject *pollable_stream,gpointer user_data)
       //double d = *(double *)id;
     }
   }
-  
+
   return TRUE;
 }
 
@@ -259,8 +259,7 @@ YVectorTcpReceiver	*y_vector_tcp_receiver_new      (const gchar *url, guint16 po
   r->socket_conn = g_socket_client_connect_to_host(client,url,port,NULL,NULL);
   GInputStream *i = g_io_stream_get_input_stream(G_IO_STREAM(r->socket_conn));
   GSource *source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM(i), NULL);
-  g_source_set_callback(source,vector_poll_func,r,NULL);
+  g_source_set_callback(source,G_SOURCE_FUNC(vector_poll_func),r,NULL);
   g_source_attach(source,NULL);
   return r;
 }
-
