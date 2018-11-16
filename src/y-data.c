@@ -1306,6 +1306,12 @@ typedef struct {
 	GHashTable *hash;
 } YStructPrivate;
 
+enum {
+  CHANGED_SUBDATA,
+  LAST_STRUCT_SIGNAL
+};
+static guint struct_signals[LAST_STRUCT_SIGNAL] = { 0 };
+
 /**
  * YStruct:
  *
@@ -1330,10 +1336,19 @@ static char _struct_get_sizes(YData * data, unsigned int *sizes)
 	return -1;
 }
 
-static void y_struct_class_init(YStructClass * val_klass)
+static void y_struct_class_init(YStructClass * s_klass)
 {
-	YDataClass *ydata_klass = (YDataClass *) val_klass;
-	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
+	YDataClass *ydata_klass = (YDataClass *) s_klass;
+	GObjectClass *gobject_klass = (GObjectClass *) s_klass;
+
+	struct_signals[CHANGED_SUBDATA] =
+    g_signal_new ("subdata-changed",
+		  G_TYPE_FROM_CLASS (s_klass),
+		  G_SIGNAL_RUN_LAST,
+		  G_STRUCT_OFFSET (YStructClass, subdata_changed),
+		  NULL, NULL,
+		  g_cclosure_marshal_VOID__POINTER,
+		  G_TYPE_NONE, 1, G_TYPE_POINTER);
 
 	gobject_klass->finalize = y_struct_finalize;
 	//ydata_klass->dup      = y_vector_val_dup;
@@ -1371,6 +1386,14 @@ YData *y_struct_get_data(YStruct * s, const gchar * name)
 	return g_hash_table_lookup(priv->hash, name);
 }
 
+static
+void on_subdata_changed(YData *d, gpointer user_data)
+{
+	YStruct *s = Y_STRUCT(user_data);
+	g_message("sub: %p %p",d,user_data);
+	g_signal_emit(G_OBJECT(s), struct_signals[CHANGED_SUBDATA], 0, d);
+}
+
 /**
  * y_struct_set_data :
  * @s: #YStruct
@@ -1382,12 +1405,18 @@ YData *y_struct_get_data(YStruct * s, const gchar * name)
 void y_struct_set_data(YStruct * s, const gchar * name, YData * d)
 {
 	YStructPrivate *priv = y_struct_get_instance_private(s);
+	YData *od = Y_DATA(g_hash_table_lookup(priv->hash, name));
+	if(od!=NULL) {
+		g_signal_handlers_disconnect_by_data(od,s);
+	}
 	if(d==NULL) {
 		g_hash_table_insert(priv->hash, g_strdup(name), NULL);
 	}
 	else {
 		g_assert(Y_IS_DATA(d));
 		g_hash_table_insert(priv->hash, g_strdup(name), g_object_ref_sink(d));
+		g_signal_connect(d, "changed",
+				 G_CALLBACK(on_subdata_changed), s);
 	}
 	y_data_emit_changed(Y_DATA(s));
 }
