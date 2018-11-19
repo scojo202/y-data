@@ -1,109 +1,119 @@
 #include <math.h>
 #include <y-data.h>
 
-static YData *d1, *d2, *d3, *d4;
-
-#define DATA_COUNT 20000
-
-#define A 1e-19
-
 static void
-build_scalar_val (void)
+test_simple_scalar(void)
 {
-  double x, y, z;
+  g_autoptr(YScalarVal) sv = Y_SCALAR_VAL(y_scalar_val_new (1.0));
+  g_assert_cmpfloat (1.0, ==, y_scalar_get_value (Y_SCALAR(sv)));
+  g_assert_cmpint (0, ==, y_data_get_n_dimensions (Y_DATA(sv)));
+  g_assert_cmpint (1, ==, y_data_get_n_values (Y_DATA(sv)));
+  g_assert_true(y_data_has_value(Y_DATA(sv)));
 
-  x = 1.4;
-  y = 3.4;
-  z = 3.2;
-  
-  d1 = y_scalar_val_new (x);
-  d2 = y_scalar_val_new (y);
-  d3 = y_scalar_val_new(z);
+  g_assert_cmpstr("1.0",==, y_scalar_get_str(Y_SCALAR(sv),"%1.1f"));
 }
 
 static void
-build_vector_val (void)
+test_simple_vector_new(void)
 {
-  gint i;
-  double t;
-  double *x, *y, *z;
-
-  x=g_malloc(sizeof(double)*DATA_COUNT);
-  y=g_malloc(sizeof(double)*DATA_COUNT);
-  z=g_malloc(sizeof(double)*DATA_COUNT);
-  for (i=0; i<DATA_COUNT; ++i) {
-    t = 2*G_PI*i/(double)DATA_COUNT;
-    x[i] = 2*sin (4*t)*A;
-    y[i] = cos (3*t);
-    z[i] = cos (5*t)*A;
+  double *vals = g_malloc(sizeof(double)*100);
+  int i;
+  for(i=0;i<100;i++) {
+    vals[i]=(double) i;
   }
-  d1 = y_vector_val_new (x, DATA_COUNT, g_free);
-  d2 = y_vector_val_new (y, DATA_COUNT, g_free);
-  d3 = y_vector_val_new_copy (z, DATA_COUNT);
-  d4 = y_linear_range_vector_new (0.3, 0.01, 20000);
-  g_free(z);
+  g_autoptr(YVectorVal) vv = Y_VECTOR_VAL(y_vector_val_new (vals,100,g_free));
+  g_assert_cmpfloat (1.0, ==, y_vector_get_value (Y_VECTOR(vv),1));
+  g_assert_cmpint (1, ==, y_data_get_n_dimensions (Y_DATA(vv)));
+  g_assert_cmpint (100, ==, y_data_get_n_values (Y_DATA(vv)));
+  g_assert_true(y_data_has_value(Y_DATA(vv)));
+  double *vals2 = y_vector_val_get_array (vv);
+  g_assert_true(vals2==vals);
+  g_assert_cmpmem(vals,sizeof(double)*100,vals2,sizeof(double)*100);
+
+  g_assert_cmpint (100, ==, y_vector_get_len (Y_VECTOR(vv)));
+  const double *vals3 = y_vector_get_values(Y_VECTOR(vv));
+  g_assert_cmpmem(vals,sizeof(double)*100,vals3,sizeof(double)*100);
+
+  for(i=0;i<100;i++) {
+    g_assert_cmpfloat(y_vector_get_value(Y_VECTOR(vv),i),==,(double)i);
+  }
+  g_assert_cmpstr(y_vector_get_str(Y_VECTOR(vv),89,"%1.1f"),==,"89.0");
+  g_assert_true(y_vector_is_varying_uniformly(Y_VECTOR(vv)));
+  double mn, mx;
+  y_vector_get_minmax(Y_VECTOR(vv),&mn,&mx);
+  g_assert_cmpfloat(mn, ==, 0.0);
+  g_assert_cmpfloat(mx, ==, 99.0);
 }
 
 static void
-build_matrix_val (void)
+test_simple_vector_alloc(void)
 {
-  gint i,j;
-  double t;
-  double *x, *y, *z;
-
-  x=g_malloc(sizeof(double)*DATA_COUNT*100);
-  y=g_malloc(sizeof(double)*DATA_COUNT*100);
-  z=g_malloc(sizeof(double)*DATA_COUNT*100);
-  for (i=0; i<DATA_COUNT; ++i) {
-    for (j=0; j<100; ++j) {
-      t = 2*G_PI*(i+j)/(double)DATA_COUNT;
-      x[i+j*DATA_COUNT] = 2*sin (4*t)*A;
-      y[i+j*DATA_COUNT] = cos (3*t);
-      z[i+j*DATA_COUNT] = cos (5*t)*A;
-    }
+  g_autoptr(YVectorVal) vv = Y_VECTOR_VAL(y_vector_val_new_alloc (100));
+  double *vals = y_vector_val_get_array(vv);
+  int i;
+  for(i=0;i<100;i++) {
+    vals[i]=(double) i;
   }
-  d1 = y_matrix_val_new (x, DATA_COUNT,100, g_free);
-  d2 = y_matrix_val_new (y, DATA_COUNT,100, g_free);
-  d3 = y_matrix_val_new_copy (z, DATA_COUNT,100);
-  g_free(z);
+  g_assert_cmpfloat (1.0, ==, y_vector_get_value (Y_VECTOR(vv),1));
+  g_assert_cmpint (1, ==, y_data_get_n_dimensions (Y_DATA(vv)));
+  g_assert_cmpint (100, ==, y_data_get_n_values (Y_DATA(vv)));
+  g_assert_true(y_data_has_value(Y_DATA(vv)));
+  const double *vals2 = y_vector_get_values (Y_VECTOR(vv));
+  g_assert_true(vals2==vals);
+  g_assert_cmpmem(vals,sizeof(double)*100,vals2,sizeof(double)*100);
+
+  for(i=0;i<100;i++) {
+    g_assert_cmpfloat(y_vector_get_value(Y_VECTOR(vv),i),==,(double)i);
+  }
+  g_assert_cmpstr(y_vector_get_str(Y_VECTOR(vv),89,"%1.1f"),==,"89.0");
+  g_assert_true(y_vector_is_varying_uniformly(Y_VECTOR(vv)));
+  double mn, mx;
+  y_vector_get_minmax(Y_VECTOR(vv),&mn,&mx);
+  g_assert_cmpfloat(mn, ==, 0.0);
+  g_assert_cmpfloat(mx, ==, 99.0);
+}
+
+static void
+test_simple_vector_copy(void)
+{
+  double *vals0 = g_malloc(sizeof(double)*100);
+  int i;
+  for(i=0;i<100;i++) {
+    vals0[i]=(double) i;
+  }
+  g_autoptr(YVectorVal) vv = Y_VECTOR_VAL(y_vector_val_new_copy (vals0,100));
+  double *vals = y_vector_val_get_array(vv);
+  for(i=0;i<100;i++) {
+    vals[i]=(double) i;
+  }
+  g_assert_cmpfloat (1.0, ==, y_vector_get_value (Y_VECTOR(vv),1));
+  g_assert_cmpint (1, ==, y_data_get_n_dimensions (Y_DATA(vv)));
+  g_assert_cmpint (100, ==, y_data_get_n_values (Y_DATA(vv)));
+  g_assert_true(y_data_has_value(Y_DATA(vv)));
+  double *vals2 = y_vector_val_get_array (vv);
+  g_assert_false(vals0==vals);
+  g_assert_cmpmem(vals,sizeof(double)*100,vals2,sizeof(double)*100);
+
+  for(i=0;i<100;i++) {
+    g_assert_cmpfloat(y_vector_get_value(Y_VECTOR(vv),i),==,(double)i);
+  }
+  g_assert_cmpstr(y_vector_get_str(Y_VECTOR(vv),89,"%1.1f"),==,"89.0");
+  g_assert_true(y_vector_is_varying_uniformly(Y_VECTOR(vv)));
+  double mn, mx;
+  y_vector_get_minmax(Y_VECTOR(vv),&mn,&mx);
+  g_assert_cmpfloat(mn, ==, 0.0);
+  g_assert_cmpfloat(mx, ==, 99.0);
 }
 
 int
 main (int argc, char *argv[])
 {
-  YStruct *s = g_object_new(Y_TYPE_STRUCT,NULL);
-  
-  build_scalar_val ();
-  
-  y_struct_set_data(s,"scalar_data1",d1);
-  y_struct_set_data(s,"scalar_data2",d2);
-  g_object_unref(d3);
-  
-  build_vector_val ();
-  
-  y_struct_set_data(s,"vector_data1",d1);
-  y_struct_set_data(s,"vector_data2",d2);
-  y_struct_set_data(s,"range",d4);
-  g_object_unref(d3);
-  
-  build_matrix_val ();
-  
-  y_struct_set_data(s,"matrix_data1",d1);
-  y_struct_set_data(s,"matrix_data2",d2);
-  g_object_unref(d3);
+  g_test_init(&argc, &argv, NULL);
 
-  /* test slice */
-  YOperation *op1 = y_slice_operation_new(SLICE_ROW,50,10);
-  YOperation *op2 = y_slice_operation_new(SLICE_COL,20,10);
-  YData *der1 = y_vector_derived_new(d1,op1);
-  YData *der2 = y_vector_derived_new(d2,op1);
-  YData *der3 = y_vector_derived_new(d2,op2);
+  g_test_add_func("/YData/simple/scalar",test_simple_scalar);
+  g_test_add_func("/YData/simple/vector_new",test_simple_vector_new);
+  g_test_add_func("/YData/simple/vector_alloc",test_simple_vector_alloc);
+  g_test_add_func("/YData/simple/vector_copy",test_simple_vector_copy);
 
-  y_struct_set_data(s,"slice1",der1);
-  y_struct_set_data(s,"slice2",der2);
-  y_struct_set_data(s,"slice3",der3);
-
-  g_object_unref(s);
-
-  return 0;
+  return g_test_run();
 }

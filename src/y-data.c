@@ -420,7 +420,7 @@ double *y_scalar_val_get_val(YScalarVal * s)
 
 typedef struct {
 	unsigned int len;
-	double *values;		/* NULL = inititialized/unsupported, nan = missing */
+	double *values;		/* NULL = uninitialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YVectorPrivate;
 
@@ -522,7 +522,7 @@ unsigned int y_vector_get_len(YVector * vec)
  * y_vector_get_values :
  * @vec: #YVector
  *
- * Get the array of values of @vec and cache them.
+ * Get the full array of values of @vec and cache them.
  *
  * Returns: an array.
  **/
@@ -537,9 +537,7 @@ const double *y_vector_get_values(YVector * vec)
 
 		g_return_val_if_fail(klass != NULL, NULL);
 
-		double *v = (*klass->load_values) (vec);
-
-		vpriv->values = v;
+		vpriv->values = (*klass->load_values) (vec);
 
 		priv->flags |= Y_DATA_CACHE_IS_VALID;
 	}
@@ -558,10 +556,9 @@ const double *y_vector_get_values(YVector * vec)
  **/
 double y_vector_get_value(YVector * vec, unsigned i)
 {
-	g_assert(Y_IS_VECTOR(vec));
+	g_return_val_if_fail(Y_IS_VECTOR(vec), NAN);
 	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
-	g_assert(priv);
 	unsigned int len = y_vector_get_len(vec);
 	g_return_val_if_fail(i < len, NAN);
 	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
