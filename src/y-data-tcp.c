@@ -197,6 +197,10 @@ gboolean scalar_poll_func(GObject *pollable_stream,gpointer user_data)
   return TRUE;
 }
 
+#if !GLIB_VERSION_2_58
+#define G_SOURCE_FUNC(f) ((GSourceFunc) (void (*)(void)) (f))
+#endif
+
 YScalarTcpReceiver *y_scalar_tcp_receiver_new (const gchar *url, guint16 port, guint16 id)
 {
   YScalarTcpReceiver *r = g_object_new(Y_TYPE_SCALAR_TCP_RECEIVER,NULL);

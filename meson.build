@@ -3,8 +3,8 @@ project('y-data','c', version: '0.0.0', default_options: [
 
 gnome = import('gnome')
 
-libgio_dep = dependency('gio-2.0', version: '>= 2.44')
-libgobj_dep = dependency('gobject-2.0', version: '>= 2.44')
+libgio_dep = dependency('gio-2.0', version: '>= 2.52')
+libgobj_dep = dependency('gobject-2.0', version: '>= 2.52')
 fftw_dep = dependency('fftw3', version: '>=3.2')
 
 comp = meson.get_compiler('c')
