@@ -440,6 +440,15 @@ static void _data_array_emit_changed(YData * data)
 	      Y_DATA_MINMAX_CACHED);
 }
 
+static void _vector_dispose(GObject *dat)
+{
+	YVector *vec = (YVector *) dat;
+	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
+	if(vpriv->values) {
+		g_free(vpriv->values);
+	}
+}
+
 static char _data_vector_get_sizes(YData * data, unsigned int *sizes)
 {
 	YVector *vector = (YVector *) data;
@@ -485,11 +494,13 @@ static void y_vector_init(YVector * vec)
 
 static void y_vector_class_init(YVectorClass * vec_class)
 {
+	GObjectClass *gobj_class = (GObjectClass *) vec_class;
 	YDataClass *data_class = (YDataClass *) vec_class;
 	data_class->emit_changed = _data_array_emit_changed;
 	data_class->get_sizes = _data_vector_get_sizes;
 	data_class->serialize = _vector_serialize;
 	data_class->has_value = _vector_has_value;
+	gobj_class->dispose = _vector_dispose;
 }
 
 /**
@@ -699,6 +710,31 @@ void y_vector_get_minmax(YVector * vec, double *min, double *max)
 		*min = vpriv->minimum;
 	if (max != NULL)
 		*max = vpriv->maximum;
+}
+
+double * y_vector_replace_cache(YVector *vec, unsigned len)
+{
+	YData *data = Y_DATA(vec);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
+
+	YVectorClass const *klass = Y_VECTOR_GET_CLASS(vec);
+	g_return_val_if_fail(klass != NULL, NULL);
+	/* if subclass has a replace_cache function, it is handling this */
+	if(klass->replace_cache) {
+		return (*klass->replace_cache) (vec, len);
+	}
+
+  if(vpriv->values !=NULL) {
+		g_free(vpriv->values);
+	}
+	vpriv->values = g_malloc(sizeof(double)*len);
+
+	priv->flags &=
+	    ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE |
+	      Y_DATA_MINMAX_CACHED);
+
+	return vpriv->values;
 }
 
 /*************************************************************************/

@@ -119,6 +119,7 @@ G_DECLARE_DERIVABLE_TYPE(YVector, y_vector, Y, VECTOR, YData)
  * @load_len: loads the vector length and returns it.
  * @load_values: loads the values and returns them.
  * @get_value: gets a value.
+ * @replace_cache: replaces array cache
  *
  * Class for YVector.
  **/
@@ -129,6 +130,7 @@ struct _YVectorClass {
 	unsigned int (*load_len) (YVector * vec);
 	double *(*load_values) (YVector * vec);
 	double (*get_value) (YVector * vec, unsigned i);
+	double *(*replace_cache) (YVector *vec, unsigned len);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YMatrix, y_matrix, Y, MATRIX, YData)
@@ -200,6 +202,9 @@ double y_vector_get_value(YVector * vec, unsigned i);
 char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format);
 gboolean y_vector_is_varying_uniformly(YVector * data);
 void y_vector_get_minmax(YVector * vec, double *min, double *max);
+
+/* to be used only by subclasses */
+double* y_vector_replace_cache(YVector *vec, unsigned len);
 
 /*************************************************************************/
 

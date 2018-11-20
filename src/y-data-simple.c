@@ -104,6 +104,17 @@ static double y_vector_val_get_value(YVector * vec, unsigned i)
 	return val->val[i];
 }
 
+static double *
+y_vector_val_replace_cache(YVector *vec, unsigned len)
+{
+	YVectorVal const *val = (YVectorVal const *)vec;
+
+	if(len!=val->n) {
+		g_warning("Trying to replace cache in YVectorVal.");
+	}
+	return val->val;
+}
+
 static void y_vector_val_class_init(YVectorValClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
@@ -115,6 +126,7 @@ static void y_vector_val_class_init(YVectorValClass * val_klass)
 	vector_klass->load_len = y_vector_val_load_len;
 	vector_klass->load_values = y_vector_val_load_values;
 	vector_klass->get_value = y_vector_val_get_value;
+	vector_klass->replace_cache = y_vector_val_replace_cache;
 }
 
 static void y_vector_val_init(YVectorVal * val)
