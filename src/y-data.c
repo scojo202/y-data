@@ -1317,11 +1317,26 @@ static guint struct_signals[LAST_STRUCT_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(YStruct, y_struct, Y_TYPE_DATA);
 
-static void y_struct_finalize(GObject * obj)
+static void y_struct_dispose(GObject *obj)
 {
 	YStruct *s = (YStruct *) obj;
 	YStructPrivate *priv = y_struct_get_instance_private(s);
 	g_hash_table_unref(priv->hash);
+}
+
+static void disconnect(gpointer key, gpointer value, gpointer user_data)
+{
+	YStruct *s = (YStruct *)user_data;
+	if(value!=NULL) {
+		g_signal_handlers_disconnect_by_data(value,s);
+	}
+}
+
+static void y_struct_finalize(GObject * obj)
+{
+	YStruct *s = (YStruct *)obj;
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+	g_hash_table_foreach(priv->hash,disconnect,s);
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
 
@@ -1348,8 +1363,8 @@ static void y_struct_class_init(YStructClass * s_klass)
 		  G_TYPE_NONE, 1, G_TYPE_POINTER);
 
 	gobject_klass->finalize = y_struct_finalize;
-	//ydata_klass->dup      = y_vector_val_dup;
-	ydata_klass->get_sizes = _struct_get_sizes;
+	gobject_klass->dispose  = y_struct_dispose;
+	ydata_klass->get_sizes  = _struct_get_sizes;
 }
 
 static void
@@ -1387,7 +1402,6 @@ static
 void on_subdata_changed(YData *d, gpointer user_data)
 {
 	YStruct *s = Y_STRUCT(user_data);
-	g_message("sub: %p %p",d,user_data);
 	g_signal_emit(G_OBJECT(s), struct_signals[CHANGED_SUBDATA], 0, d);
 }
 
