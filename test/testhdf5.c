@@ -15,7 +15,7 @@ build_scalar_val (void)
   x = 1.4;
   y = 3.4;
   z = 3.2;
-  
+
   d1 = y_scalar_val_new (x);
   d2 = y_scalar_val_new (y);
   d3 = y_scalar_val_new(z);
@@ -67,25 +67,34 @@ build_matrix_val (void)
   g_free(z);
 }
 
+static
+void on_subdata_changed(YStruct *s, YData *d, gpointer user_data)
+{
+  g_message("x: %p %p %p",s,d,user_data);
+}
+
 int
 main (int argc, char *argv[])
 {
   YStruct *s = g_object_new(Y_TYPE_STRUCT,NULL);
-  
+
+  g_signal_connect(s, "subdata-changed",
+       G_CALLBACK(on_subdata_changed), NULL);
+
   build_scalar_val ();
-  
+
   y_struct_set_data(s,"scalar_data1",d1);
   y_struct_set_data(s,"scalar_data2",d2);
   g_object_unref(d3);
-  
+
   build_vector_val ();
-  
+
   y_struct_set_data(s,"vector_data1",d1);
   y_struct_set_data(s,"vector_data2",d2);
   g_object_unref(d3);
-  
+
   build_matrix_val ();
-  
+
   y_struct_set_data(s,"matrix_data1",d1);
   y_struct_set_data(s,"matrix_data2",d2);
   g_object_unref(d3);

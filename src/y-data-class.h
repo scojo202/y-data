@@ -233,6 +233,9 @@ G_DECLARE_DERIVABLE_TYPE(YStruct, y_struct, Y, STRUCT, YData)
 
 struct _YStructClass {
 	YDataClass base;
+
+	/* signals */
+	void (*subdata_changed) (YStruct * dat);
 };
 
 YData *y_struct_get_data(YStruct * s, const gchar * name);

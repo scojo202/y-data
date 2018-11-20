@@ -420,7 +420,7 @@ double *y_scalar_val_get_val(YScalarVal * s)
 
 typedef struct {
 	unsigned int len;
-	double *values;		/* NULL = inititialized/unsupported, nan = missing */
+	double *values;		/* NULL = uninitialized/unsupported, nan = missing */
 	double minimum, maximum;
 } YVectorPrivate;
 
@@ -522,7 +522,7 @@ unsigned int y_vector_get_len(YVector * vec)
  * y_vector_get_values :
  * @vec: #YVector
  *
- * Get the array of values of @vec and cache them.
+ * Get the full array of values of @vec and cache them.
  *
  * Returns: an array.
  **/
@@ -537,9 +537,7 @@ const double *y_vector_get_values(YVector * vec)
 
 		g_return_val_if_fail(klass != NULL, NULL);
 
-		double *v = (*klass->load_values) (vec);
-
-		vpriv->values = v;
+		vpriv->values = (*klass->load_values) (vec);
 
 		priv->flags |= Y_DATA_CACHE_IS_VALID;
 	}
@@ -558,10 +556,9 @@ const double *y_vector_get_values(YVector * vec)
  **/
 double y_vector_get_value(YVector * vec, unsigned i)
 {
-	g_assert(Y_IS_VECTOR(vec));
+	g_return_val_if_fail(Y_IS_VECTOR(vec), NAN);
 	YData *data = Y_DATA(vec);
 	YDataPrivate *priv = y_data_get_instance_private(data);
-	g_assert(priv);
 	unsigned int len = y_vector_get_len(vec);
 	g_return_val_if_fail(i < len, NAN);
 	if (!(priv->flags & Y_DATA_CACHE_IS_VALID)) {
@@ -1306,6 +1303,12 @@ typedef struct {
 	GHashTable *hash;
 } YStructPrivate;
 
+enum {
+  CHANGED_SUBDATA,
+  LAST_STRUCT_SIGNAL
+};
+static guint struct_signals[LAST_STRUCT_SIGNAL] = { 0 };
+
 /**
  * YStruct:
  *
@@ -1314,11 +1317,26 @@ typedef struct {
 
 G_DEFINE_TYPE_WITH_PRIVATE(YStruct, y_struct, Y_TYPE_DATA);
 
-static void y_struct_finalize(GObject * obj)
+static void y_struct_dispose(GObject *obj)
 {
 	YStruct *s = (YStruct *) obj;
 	YStructPrivate *priv = y_struct_get_instance_private(s);
 	g_hash_table_unref(priv->hash);
+}
+
+static void disconnect(gpointer key, gpointer value, gpointer user_data)
+{
+	YStruct *s = (YStruct *)user_data;
+	if(value!=NULL) {
+		g_signal_handlers_disconnect_by_data(value,s);
+	}
+}
+
+static void y_struct_finalize(GObject * obj)
+{
+	YStruct *s = (YStruct *)obj;
+	YStructPrivate *priv = y_struct_get_instance_private(s);
+	g_hash_table_foreach(priv->hash,disconnect,s);
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
 
@@ -1330,14 +1348,23 @@ static char _struct_get_sizes(YData * data, unsigned int *sizes)
 	return -1;
 }
 
-static void y_struct_class_init(YStructClass * val_klass)
+static void y_struct_class_init(YStructClass * s_klass)
 {
-	YDataClass *ydata_klass = (YDataClass *) val_klass;
-	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
+	YDataClass *ydata_klass = (YDataClass *) s_klass;
+	GObjectClass *gobject_klass = (GObjectClass *) s_klass;
+
+	struct_signals[CHANGED_SUBDATA] =
+    g_signal_new ("subdata-changed",
+		  G_TYPE_FROM_CLASS (s_klass),
+		  G_SIGNAL_RUN_LAST,
+		  G_STRUCT_OFFSET (YStructClass, subdata_changed),
+		  NULL, NULL,
+		  g_cclosure_marshal_VOID__POINTER,
+		  G_TYPE_NONE, 1, G_TYPE_POINTER);
 
 	gobject_klass->finalize = y_struct_finalize;
-	//ydata_klass->dup      = y_vector_val_dup;
-	ydata_klass->get_sizes = _struct_get_sizes;
+	gobject_klass->dispose  = y_struct_dispose;
+	ydata_klass->get_sizes  = _struct_get_sizes;
 }
 
 static void
@@ -1371,6 +1398,13 @@ YData *y_struct_get_data(YStruct * s, const gchar * name)
 	return g_hash_table_lookup(priv->hash, name);
 }
 
+static
+void on_subdata_changed(YData *d, gpointer user_data)
+{
+	YStruct *s = Y_STRUCT(user_data);
+	g_signal_emit(G_OBJECT(s), struct_signals[CHANGED_SUBDATA], 0, d);
+}
+
 /**
  * y_struct_set_data :
  * @s: #YStruct
@@ -1382,12 +1416,18 @@ YData *y_struct_get_data(YStruct * s, const gchar * name)
 void y_struct_set_data(YStruct * s, const gchar * name, YData * d)
 {
 	YStructPrivate *priv = y_struct_get_instance_private(s);
+	YData *od = Y_DATA(g_hash_table_lookup(priv->hash, name));
+	if(od!=NULL) {
+		g_signal_handlers_disconnect_by_data(od,s);
+	}
 	if(d==NULL) {
 		g_hash_table_insert(priv->hash, g_strdup(name), NULL);
 	}
 	else {
 		g_assert(Y_IS_DATA(d));
 		g_hash_table_insert(priv->hash, g_strdup(name), g_object_ref_sink(d));
+		g_signal_connect(d, "changed",
+				 G_CALLBACK(on_subdata_changed), s);
 	}
 	y_data_emit_changed(Y_DATA(s));
 }
