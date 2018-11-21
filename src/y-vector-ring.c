@@ -99,6 +99,17 @@ static double y_vector_ring_get_value(YVector * vec, unsigned i)
 	return val->val[i];
 }
 
+static double *
+y_vector_ring_replace_cache(YVector *vec, unsigned len)
+{
+	YVectorRing const *r = (YVectorRing const *)vec;
+
+	if(len!=r->n) {
+		g_warning("Trying to replace cache in YVectorRing.");
+	}
+	return r->val;
+}
+
 static void y_vector_ring_class_init(YVectorRingClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
@@ -110,6 +121,7 @@ static void y_vector_ring_class_init(YVectorRingClass * val_klass)
 	vector_klass->load_len = y_vector_ring_load_len;
 	vector_klass->load_values = y_vector_ring_load_values;
 	vector_klass->get_value = y_vector_ring_get_value;
+	vector_klass->replace_cache = y_vector_ring_replace_cache;
 }
 
 static void y_vector_ring_init(YVectorRing * val)

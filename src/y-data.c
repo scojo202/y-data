@@ -444,8 +444,12 @@ static void _vector_dispose(GObject *dat)
 {
 	YVector *vec = (YVector *) dat;
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
-	if(vpriv->values) {
-		g_free(vpriv->values);
+	YVectorClass *vec_class = Y_VECTOR_GET_CLASS(dat);
+
+	if(vec_class->replace_cache == NULL) {
+	  if(vpriv->values) {
+		  g_free(vpriv->values);
+	  }
 	}
 }
 
@@ -720,6 +724,11 @@ double * y_vector_replace_cache(YVector *vec, unsigned len)
 
 	YVectorClass const *klass = Y_VECTOR_GET_CLASS(vec);
 	g_return_val_if_fail(klass != NULL, NULL);
+
+	if(vpriv->values!=NULL && len == y_vector_get_len(vec)) {
+		return vpriv->values;
+	}
+
 	/* if subclass has a replace_cache function, it is handling this */
 	if(klass->replace_cache) {
 		return (*klass->replace_cache) (vec, len);
@@ -728,7 +737,7 @@ double * y_vector_replace_cache(YVector *vec, unsigned len)
   if(vpriv->values !=NULL) {
 		g_free(vpriv->values);
 	}
-	vpriv->values = g_malloc(sizeof(double)*len);
+	vpriv->values = g_new0(double,len);
 
 	priv->flags &=
 	    ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE |

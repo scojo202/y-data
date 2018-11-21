@@ -105,6 +105,50 @@ test_simple_vector_copy(void)
   g_assert_cmpfloat(mx, ==, 99.0);
 }
 
+static void
+test_range_vectors(void)
+{
+  YLinearRangeVector *r = Y_LINEAR_RANGE_VECTOR(y_linear_range_vector_new(0.0,1.0,10));
+  g_assert_cmpuint(10, ==, y_vector_get_len(Y_VECTOR(r)));
+  g_assert_cmpfloat(0.0, ==, y_linear_range_vector_get_v0(r));
+  g_assert_cmpfloat(1.0, ==, y_linear_range_vector_get_dv(r));
+  int i;
+  for(i=0;i<10;i++) {
+    g_assert_cmpfloat(0.0+1.0*i, ==, y_vector_get_value(Y_VECTOR(r),i));
+  }
+  g_assert_cmpstr(y_vector_get_str(Y_VECTOR(r),8,"%1.1f"),==,"8.0");
+  g_assert_true(y_vector_is_varying_uniformly(Y_VECTOR(r)));
+  double mn, mx;
+  y_vector_get_minmax(Y_VECTOR(r),&mn,&mx);
+  g_assert_cmpfloat(mn, ==, 0.0);
+  g_assert_cmpfloat(mx, ==, 9.0);
+
+  YFourierLinearRangeVector *f = Y_FOURIER_LINEAR_RANGE_VECTOR(y_fourier_linear_range_vector_new(r));
+  g_assert_cmpuint(10/2+1,==,y_vector_get_len(Y_VECTOR(f)));
+  g_assert_cmpfloat(0.0, ==, y_vector_get_value(Y_VECTOR(f),0));
+  g_assert_true(y_vector_is_varying_uniformly(Y_VECTOR(f)));
+  g_object_unref(f);
+}
+
+static void
+test_ring_vector(void)
+{
+  YVectorRing *r = Y_VECTOR_RING(y_vector_ring_new(100, 0, FALSE));
+  g_assert_cmpuint(0, ==, y_vector_get_len(Y_VECTOR(r)));
+  int i;
+  for(i=0;i<10;i++) {
+    y_vector_ring_append(r,(double)i);
+  }
+  g_assert_cmpuint(10, ==, y_vector_get_len(Y_VECTOR(r)));
+  for(i=0;i<10;i++) {
+    g_assert_cmpfloat((double)i, ==, y_vector_get_value(Y_VECTOR(r),i));
+  }
+  g_assert_true(y_vector_is_varying_uniformly(Y_VECTOR(r)));
+  y_vector_ring_set_length(r,5);
+  g_assert_cmpuint(5, ==, y_vector_get_len(Y_VECTOR(r)));
+  g_object_unref(r);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -114,6 +158,8 @@ main (int argc, char *argv[])
   g_test_add_func("/YData/simple/vector_new",test_simple_vector_new);
   g_test_add_func("/YData/simple/vector_alloc",test_simple_vector_alloc);
   g_test_add_func("/YData/simple/vector_copy",test_simple_vector_copy);
+  g_test_add_func("/YData/range/range",test_range_vectors);
+  g_test_add_func("/YData/ring/vector",test_ring_vector);
 
   return g_test_run();
 }
