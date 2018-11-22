@@ -440,7 +440,7 @@ static void _data_array_emit_changed(YData * data)
 	      Y_DATA_MINMAX_CACHED);
 }
 
-static void _vector_dispose(GObject *dat)
+static void _vector_finalize(GObject *dat)
 {
 	YVector *vec = (YVector *) dat;
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
@@ -504,7 +504,7 @@ static void y_vector_class_init(YVectorClass * vec_class)
 	data_class->get_sizes = _data_vector_get_sizes;
 	data_class->serialize = _vector_serialize;
 	data_class->has_value = _vector_has_value;
-	gobj_class->dispose = _vector_dispose;
+	gobj_class->finalize = _vector_finalize;
 }
 
 /**
@@ -1362,11 +1362,15 @@ static guint struct_signals[LAST_STRUCT_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(YStruct, y_struct, Y_TYPE_DATA);
 
-static void y_struct_dispose(GObject *obj)
+static void y_struct_finalize(GObject *obj)
 {
 	YStruct *s = (YStruct *) obj;
 	YStructPrivate *priv = y_struct_get_instance_private(s);
 	g_hash_table_unref(priv->hash);
+
+	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
+
+	(*obj_class->finalize) (obj);
 }
 
 static void disconnect(gpointer key, gpointer value, gpointer user_data)
@@ -1377,7 +1381,7 @@ static void disconnect(gpointer key, gpointer value, gpointer user_data)
 	}
 }
 
-static void y_struct_finalize(GObject * obj)
+static void y_struct_dispose(GObject * obj)
 {
 	YStruct *s = (YStruct *)obj;
 	YStructPrivate *priv = y_struct_get_instance_private(s);
@@ -1385,7 +1389,7 @@ static void y_struct_finalize(GObject * obj)
 
 	GObjectClass *obj_class = G_OBJECT_CLASS(y_struct_parent_class);
 
-	(*obj_class->finalize) (obj);
+	(*obj_class->dispose) (obj);
 }
 
 static char _struct_get_sizes(YData * data, unsigned int *sizes)

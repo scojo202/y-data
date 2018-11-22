@@ -79,11 +79,12 @@ typedef struct {
 	YOperation *op;
 	YData *input;
 	gulong handler;
-	gboolean autorun;
-	gboolean running;	/* is operation currently running? */
+	unsigned int autorun : 1;
+	unsigned int running : 1;	/* is operation currently running? */
 	gpointer task_data;
 } Derived;
 
+static
 void finalize_derived(Derived *d) {
 	if(d->handler != 0 && d->input !=NULL) {
 		g_signal_handler_disconnect(d->input,d->handler);
@@ -102,6 +103,31 @@ void finalize_derived(Derived *d) {
 	if (d->op) {
 		g_object_unref(d->op);
 	}
+}
+
+static gboolean
+derived_get_property(Derived *d,
+			      guint property_id,
+			      GValue * value)
+{
+	gboolean found = TRUE;
+
+	switch (property_id) {
+	case PROP_AUTORUN:
+		g_value_set_boolean(value, d->autorun);
+		break;
+	case PROP_INPUT:
+		g_value_set_object(value, d->input);
+		break;
+	case PROP_OPERATION:
+		g_value_set_object(value, d->op);
+		break;
+	default:
+		found = FALSE;
+		break;
+	}
+
+	return found;
 }
 
 struct _YDerivedScalar {
@@ -236,10 +262,12 @@ y_scalar_derived_get_property(GObject * object,
 {
 	YDerivedScalar *s = Y_DERIVED_SCALAR(object);
 
+	gboolean found = derived_get_property(&s->der,property_id,value);
+	if(found) {
+		return;
+	}
+
 	switch (property_id) {
-	case PROP_AUTORUN:
-		g_value_set_boolean(value, s->der.autorun);
-		break;
 	default:
 		/* We don't have any other property... */
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -317,8 +345,6 @@ struct _YVectorDerived {
 	YVector base;
 	unsigned int currlen;
 	Derived der;
-	double *cache;
-	/* might need access to whether cache is OK */
 };
 
 static GParamSpec *vector_properties[N_PROPERTIES] = { NULL, };
@@ -380,13 +406,10 @@ static double *vector_derived_load_values(YVector * vec)
 	unsigned int len = y_vector_get_len(vec);
 
 	if (vecs->currlen != len) {
-		if (vecs->cache)
-			g_free(vecs->cache);
-		v = g_new0(double, len);
+		v=y_vector_replace_cache(vec,len);
 		vecs->currlen = len;
-		vecs->cache = v;
 	} else {
-		v = vecs->cache;
+		v = y_vector_replace_cache(vec,vecs->currlen);
 	}
 	if (v == NULL)
 		return NULL;
@@ -502,10 +525,12 @@ y_vector_derived_get_property(GObject * object,
 {
 	YVectorDerived *v = Y_VECTOR_DERIVED(object);
 
+	gboolean found = derived_get_property(&v->der,property_id,value);
+	if(found) {
+		return;
+	}
+
 	switch (property_id) {
-	case PROP_AUTORUN:
-		g_value_set_boolean(value, v->der.autorun);
-		break;
 	default:
 		/* We don't have any other property... */
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -551,8 +576,6 @@ static void y_vector_derived_class_init(YVectorDerivedClass * slice_klass)
 
 static void y_vector_derived_init(YVectorDerived * der)
 {
-	der->der.input = NULL;
-	der->cache = NULL;
 }
 
 /**
@@ -776,10 +799,12 @@ y_derived_matrix_get_property(GObject * object,
 {
 	YDerivedMatrix *v = Y_DERIVED_MATRIX(object);
 
+	gboolean found = derived_get_property(&v->der,property_id,value);
+	if(found) {
+		return;
+	}
+
 	switch (property_id) {
-	case PROP_AUTORUN:
-		g_value_set_boolean(value, v->der.autorun);
-		break;
 	default:
 		/* We don't have any other property... */
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -825,8 +850,6 @@ static void y_derived_matrix_class_init(YDerivedMatrixClass * slice_klass)
 
 static void y_derived_matrix_init(YDerivedMatrix * der)
 {
-	der->der.input = NULL;
-	der->cache = NULL;
 }
 
 /**
