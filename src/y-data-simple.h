@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
- 
+
 #ifndef Y_DATA_SIMPLE_H
 #define Y_DATA_SIMPLE_H
 
@@ -28,40 +28,40 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(YVectorVal,y_vector_val,Y,VECTOR_VAL,YVector)
+G_DECLARE_FINAL_TYPE(YValVector,y_val_vector,Y,VAL_VECTOR,YVector)
 
-#define Y_TYPE_VECTOR_VAL  (y_vector_val_get_type ())
+#define Y_TYPE_VAL_VECTOR  (y_val_vector_get_type ())
 
-YData	*y_vector_val_new      (double *val, unsigned n, GDestroyNotify   notify);
-YData	*y_vector_val_new_alloc (unsigned n);
-YData	*y_vector_val_new_copy (const double *val, unsigned n);
+YData	*y_val_vector_new      (double *val, unsigned n, GDestroyNotify   notify);
+YData	*y_val_vector_new_alloc (unsigned n);
+YData	*y_val_vector_new_copy (const double *val, unsigned n);
 
-double *y_vector_val_get_array (YVectorVal *s);
-void y_vector_val_replace_array(YVectorVal *s, double *array, unsigned n, GDestroyNotify notify);
+double *y_val_vector_get_array (YValVector *s);
+void y_val_vector_replace_array(YValVector *s, double *array, unsigned n, GDestroyNotify notify);
 
-G_DECLARE_FINAL_TYPE(YMatrixVal,y_matrix_val,Y,MATRIX_VAL,YMatrix)
+G_DECLARE_FINAL_TYPE(YValMatrix,y_val_matrix,Y,VAL_MATRIX,YMatrix)
 
-#define Y_TYPE_MATRIX_VAL  (y_matrix_val_get_type ())
+#define Y_TYPE_VAL_MATRIX  (y_val_matrix_get_type ())
 
-YData	*y_matrix_val_new      (double *val, unsigned rows, unsigned columns, GDestroyNotify   notify);
-YData *y_matrix_val_new_copy (const double   *val,
+YData	*y_val_matrix_new      (double *val, unsigned rows, unsigned columns, GDestroyNotify   notify);
+YData *y_val_matrix_new_copy (const double   *val,
                                      unsigned  rows, unsigned columns);
-YData *y_matrix_val_new_alloc (unsigned rows, unsigned columns);
-                                     
-double *y_matrix_val_get_array (YMatrixVal *s);
-void y_matrix_val_replace_array(YMatrixVal *s, double *array, unsigned rows, unsigned columns, GDestroyNotify notify);
+YData *y_val_matrix_new_alloc (unsigned rows, unsigned columns);
 
-G_DECLARE_FINAL_TYPE(YThreeDArrayVal,y_three_d_array_val,Y,THREE_D_ARRAY_VAL,YThreeDArray)
+double *y_val_matrix_get_array (YValMatrix *s);
+void y_val_matrix_replace_array(YValMatrix *s, double *array, unsigned rows, unsigned columns, GDestroyNotify notify);
 
-#define Y_TYPE_THREE_D_ARRAY_VAL  (y_three_d_array_val_get_type ())
+G_DECLARE_FINAL_TYPE(YValThreeDArray,y_val_three_d_array,Y,VAL_THREE_D_ARRAY,YThreeDArray)
 
-YData	*y_three_d_array_val_new      (double *val, unsigned rows, unsigned columns, unsigned layers, GDestroyNotify   notify);
-YData *y_three_d_array_val_new_copy (double   *val,
+#define Y_TYPE_VAL_THREE_D_ARRAY  (y_val_three_d_array_get_type ())
+
+YData	*y_val_three_d_array_new      (double *val, unsigned rows, unsigned columns, unsigned layers, GDestroyNotify   notify);
+YData *y_val_three_d_array_new_copy (double   *val,
                                      unsigned  rows, unsigned columns, unsigned layers);
-YData *y_three_d_array_val_new_alloc (unsigned rows, unsigned columns, unsigned layers);
-                                     
-double *y_three_d_array_val_get_array (YThreeDArrayVal *s);
-                                     
+YData *y_val_three_d_array_new_alloc (unsigned rows, unsigned columns, unsigned layers);
+
+double *y_val_three_d_array_get_array (YValThreeDArray *s);
+
 G_END_DECLS
 
 #endif /* Y_DATA_SIMPLE_H */

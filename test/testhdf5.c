@@ -16,9 +16,9 @@ build_scalar_val (void)
   y = 3.4;
   z = 3.2;
 
-  d1 = y_scalar_val_new (x);
-  d2 = y_scalar_val_new (y);
-  d3 = y_scalar_val_new(z);
+  d1 = y_val_scalar_new (x);
+  d2 = y_val_scalar_new (y);
+  d3 = y_val_scalar_new(z);
 }
 
 static void
@@ -37,9 +37,9 @@ build_vector_val (void)
     y[i] = cos (3*t);
     z[i] = cos (5*t)*A;
   }
-  d1 = y_vector_val_new (x, DATA_COUNT, g_free);
-  d2 = y_vector_val_new (y, DATA_COUNT, g_free);
-  d3 = y_vector_val_new_copy (z, DATA_COUNT);
+  d1 = y_val_vector_new (x, DATA_COUNT, g_free);
+  d2 = y_val_vector_new (y, DATA_COUNT, g_free);
+  d3 = y_val_vector_new_copy (z, DATA_COUNT);
   g_free(z);
 }
 
@@ -61,9 +61,9 @@ build_matrix_val (void)
       z[i+j*DATA_COUNT] = cos (5*t)*A;
     }
   }
-  d1 = y_matrix_val_new (x, DATA_COUNT,100, g_free);
-  d2 = y_matrix_val_new (y, DATA_COUNT,100, g_free);
-  d3 = y_matrix_val_new_copy (z, DATA_COUNT,100);
+  d1 = y_val_matrix_new (x, DATA_COUNT,100, g_free);
+  d2 = y_val_matrix_new (y, DATA_COUNT,100, g_free);
+  d3 = y_val_matrix_new_copy (z, DATA_COUNT,100);
   g_free(z);
 }
 
@@ -102,15 +102,15 @@ main (int argc, char *argv[])
   /* test slice */
   YOperation *op1 = y_slice_operation_new(SLICE_ROW,50,10);
   YOperation *op2 = y_slice_operation_new(SLICE_COL,20,10);
-  YData *der1 = y_vector_derived_new(d1,op1);
-  YData *der2 = y_vector_derived_new(d2,op1);
-  YData *der3 = y_vector_derived_new(d2,op2);
+  YData *der1 = y_derived_vector_new(d1,op1);
+  YData *der2 = y_derived_vector_new(d2,op1);
+  YData *der3 = y_derived_vector_new(d2,op2);
 
   y_struct_set_data(s,"slice1",der1);
   y_struct_set_data(s,"slice2",der2);
   y_struct_set_data(s,"slice3",der3);
 
-  //y_vector_derived_set_autorun(Y_VECTOR_DERIVED(der3),TRUE);
+  //y_derived_vector_set_autorun(Y_VECTOR_DERIVED(der3),TRUE);
   y_data_emit_changed(d2);
 
   g_usleep(2000000);

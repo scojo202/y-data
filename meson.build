@@ -1,4 +1,4 @@
-project('y-data','c', version: '0.0.0', default_options: [
+project('y-data','c', version: '0.0.1', default_options: [
                      'c_std=gnu11'])
 
 gnome = import('gnome')
@@ -8,8 +8,8 @@ libgobj_dep = dependency('gobject-2.0', version: '>= 2.44')
 fftw_dep = dependency('fftw3', version: '>=3.2')
 
 comp = meson.get_compiler('c')
-hdf5 = [comp.find_library('hdf5_hl', required: false),comp.find_library('hdf5', required: false)]
 libm = comp.find_library('m', required: false)
+hdf5 = [comp.find_library('hdf5_hl', required: false),comp.find_library('hdf5', required: false)]
 
 conf = configuration_data()
 conf.set_quoted('PACKAGE_NAME', 'y-data')
@@ -31,5 +31,3 @@ subdir('test')
 if get_option('enable-gtk-doc')
   subdir('docs/reference')
 endif
-
-

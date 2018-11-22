@@ -92,12 +92,12 @@ Y_TYPE_STRUCT
 <FILE>y-data-derived</FILE>
 <TITLE>Derived Data</TITLE>
 y_derived_scalar_new
-y_vector_derived_new
+y_derived_vector_new
 YDerivedScalar
-YVectorDerived
+YDerivedVector
 <SUBSECTION Standard>
 Y_TYPE_DERIVED_SCALAR
-Y_TYPE_VECTOR_DERIVED
+Y_TYPE_DERIVED_VECTOR
 </SECTION>
 
 <SECTION>
@@ -107,30 +107,30 @@ y_data_attach_h5
 y_vector_attach_h5
 y_matrix_attach_h5
 y_vector_from_h5
-y_vector_val_replace_h5
+y_val_vector_replace_h5
 </SECTION>
 
 <SECTION>
 <FILE>y-data-simple</FILE>
 <TITLE>Simple array data objects</TITLE>
-y_scalar_val_new
-y_scalar_val_get_val
-y_vector_val_new
-y_vector_val_new_alloc
-y_vector_val_new_copy
-y_vector_val_get_array
-y_vector_val_replace_array
-y_matrix_val_new
-y_matrix_val_new_copy
-y_matrix_val_get_array
-y_matrix_val_replace_array
-YMatrixVal
-YScalarVal
-YVectorVal
+y_val_scalar_new
+y_val_scalar_get_val
+y_val_vector_new
+y_val_vector_new_alloc
+y_val_vector_new_copy
+y_val_vector_get_array
+y_val_vector_replace_array
+y_val_matrix_new
+y_val_matrix_new_copy
+y_val_matrix_get_array
+y_val_matrix_replace_array
+YValMatrix
+YValScalar
+YValVector
 <SUBSECTION Standard>
-Y_TYPE_SCALAR_VAL
-Y_TYPE_VECTOR_VAL
-Y_TYPE_MATRIX_VAL
+Y_TYPE_VAL_SCALAR
+Y_TYPE_VAL_VECTOR
+Y_TYPE_VAL_MATRIX
 </SECTION>
 
 <SECTION>
@@ -180,24 +180,24 @@ Y_TYPE_OPERATION
 
 <SECTION>
 <FILE>y-scalar-property</FILE>
-<TITLE>YScalarProperty</TITLE>
-y_scalar_property_new
-YScalarProperty
+<TITLE>YPropertyScalar</TITLE>
+y_property_scalar_new
+YPropertyScalar
 <SUBSECTION Standard>
-Y_TYPE_SCALAR_PROPERTY
+Y_TYPE_PROPERTY_SCALAR
 </SECTION>
 
 <SECTION>
 <FILE>y-vector-ring</FILE>
-<TITLE>YVectorRing</TITLE>
-y_vector_ring_new
-y_vector_ring_set_length
-y_vector_ring_append
-y_vector_ring_append_array
-y_vector_ring_set_source
-YVectorRing
+<TITLE>YRingVector</TITLE>
+y_ring_vector_new
+y_ring_vector_set_length
+y_ring_vector_append
+y_ring_vector_append_array
+y_ring_vector_set_source
+YRingVector
 <SUBSECTION Standard>
-Y_TYPE_VECTOR_RING
+Y_TYPE_RING_VECTOR
 </SECTION>
 
 <SECTION>

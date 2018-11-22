@@ -336,7 +336,7 @@ YData *y_vector_from_h5(hid_t group_id, const gchar * data_name)
 	double *d = g_new(double, current_dims[0]);
 	H5Dread(dataset_h5, H5T_NATIVE_DOUBLE, H5S_ALL, dspace_id, H5P_DEFAULT,
 		d);
-	YData *y = y_vector_val_new(d, current_dims[0], g_free);
+	YData *y = y_val_vector_new(d, current_dims[0], g_free);
 	return y;
 }
 
@@ -375,19 +375,19 @@ YData *y_matrix_from_h5(hid_t group_id, const gchar * data_name)
 	H5Dread(dataset_h5, H5T_NATIVE_DOUBLE, H5S_ALL, dspace_id, H5P_DEFAULT,
 		d);
 	YData *y =
-	    y_matrix_val_new(d, current_dims[0], current_dims[1], g_free);
+	    y_val_matrix_new(d, current_dims[0], current_dims[1], g_free);
 	return y;
 }
 
 /**
- * y_vector_val_replace_h5: (skip)
+ * y_val_vector_replace_h5: (skip)
  * @v: YVectorVal
  * @group_id: HDF5 group
  * @data_name: name
  *
  * Load contents of HDF5 dataset into a vector, replacing its contents.
  **/
-void y_vector_val_replace_h5(YVectorVal * v, hid_t group_id,
+void y_val_vector_replace_h5(YValVector * v, hid_t group_id,
 			     const gchar * data_name)
 {
 	g_return_if_fail(group_id != 0);
@@ -410,5 +410,5 @@ void y_vector_val_replace_h5(YVectorVal * v, hid_t group_id,
 	double *d = g_new(double, current_dims[0]);
 	H5Dread(dataset_h5, H5T_NATIVE_DOUBLE, H5S_ALL, dspace_id, H5P_DEFAULT,
 		d);
-	y_vector_val_replace_array(v, d, current_dims[0], g_free);
+	y_val_vector_replace_array(v, d, current_dims[0], g_free);
 }

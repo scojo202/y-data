@@ -14,7 +14,6 @@ src_public_headers += [
   'y-operation.h',
   'y-slice-operation.h',
   'y-hdf.h',
-  'y-data-tcp.h',
   'y-fft-operation.h',
   'y-simple-operation.h',
   'y-subset-operation.h'
@@ -30,7 +29,6 @@ src_public_sources += [
   'y-operation.c',
   'y-slice-operation.c',
   'y-hdf.c',
-  'y-data-tcp.c',
   'y-fft-operation.c',
   'y-simple-operation.c',
   'y-subset-operation.c'
@@ -78,4 +76,3 @@ if build_gir
                                     extra_args: gir_extra_args)
   ydata_dep_sources += ydata_gir
 endif
-

@@ -102,12 +102,12 @@ struct _YScalarClass {
 	double (*get_value) (YScalar * scalar);
 };
 
-G_DECLARE_FINAL_TYPE(YScalarVal, y_scalar_val, Y, SCALAR_VAL, YScalar)
+G_DECLARE_FINAL_TYPE(YValScalar, y_val_scalar, Y, VAL_SCALAR, YScalar)
 
-#define Y_TYPE_SCALAR_VAL	(y_scalar_val_get_type ())
+#define Y_TYPE_VAL_SCALAR	(y_val_scalar_get_type ())
 
-YData *y_scalar_val_new(double val);
-double *y_scalar_val_get_val(YScalarVal * s);
+YData *y_val_scalar_new(double val);
+double *y_val_scalar_get_val(YValScalar * s);
 
 G_DECLARE_DERIVABLE_TYPE(YVector, y_vector, Y, VECTOR, YData)
 
