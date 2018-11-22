@@ -214,7 +214,6 @@ unsigned int y_data_get_n_values(YData * data)
 	unsigned int n_values;
 	int n_dimensions;
 	unsigned int sizes[3];
-	unsigned int i;
 
 	g_return_val_if_fail(Y_IS_DATA(data), 0);
 
@@ -230,7 +229,7 @@ unsigned int y_data_get_n_values(YData * data)
 	g_return_val_if_fail(data_class->get_sizes != NULL, 0);
 
 	n_values = 1;
-	for (i = 0; i < n_dimensions; i++)
+	for (unsigned int i = 0; i < n_dimensions; i++)
 		n_values *= sizes[i];
 
 	return n_values;
@@ -477,12 +476,11 @@ static char *_vector_serialize(YData * dat, gpointer user)
 	YVectorPrivate *vpriv = y_vector_get_instance_private(vec);
 	GString *str;
 	char sep;
-	unsigned int i;
 
 	sep = '\t';
 	str = g_string_new(NULL);
 
-	for (i = 0; i < vpriv->len; i++) {
+	for (unsigned int i = 0; i < vpriv->len; i++) {
 		char *s = render_val(vpriv->values[i]);
 		if (i)
 			g_string_append_c(str, sep);
@@ -731,10 +729,13 @@ double * y_vector_replace_cache(YVector *vec, unsigned len)
 
 	/* if subclass has a replace_cache function, it is handling this */
 	if(klass->replace_cache) {
+		priv->flags &=
+		    ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE |
+		      Y_DATA_MINMAX_CACHED);
 		return (*klass->replace_cache) (vec, len);
 	}
 
-  if(vpriv->values !=NULL) {
+	if(vpriv->values !=NULL) {
 		g_free(vpriv->values);
 	}
 	vpriv->values = g_new0(double,len);
@@ -797,15 +798,14 @@ static char *_matrix_serialize(YData * dat, gpointer user)
 	YMatrix *mat = (YMatrix *) dat;
 	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
 	GString *str;
-	size_t c, r;
 	char col_sep = '\t';
 	char row_sep = '\n';
 
 	str = g_string_new(NULL);
-	for (r = 0; r < mpriv->size.rows; r++) {
+	for (size_t r = 0; r < mpriv->size.rows; r++) {
 		if (r)
 			g_string_append_c(str, row_sep);
-		for (c = 0; c < mpriv->size.columns; c++) {
+		for (size_t c = 0; c < mpriv->size.columns; c++) {
 			double val = mpriv->values[r * mpriv->size.columns + c];
 			char *s = render_val(val);
 			if (c)
