@@ -6,58 +6,58 @@
  * SECTION: y-scalar-property
  * @short_description: A scalar data object that reflects the value of a GObject property.
  *
- * Data classes #YScalarProperty
+ * Data classes #YPropertyScalar
  *
  */
 
 /**
- * YScalarProperty:
+ * YPropertyScalar:
  *
  * YScalar that changes when a property changes.
  **/
 
-struct _YScalarProperty {
+struct _YPropertyScalar {
 	YScalar base;
 	GObject *obj;
 	gchar *name;
 };
 
-G_DEFINE_TYPE (YScalarProperty, y_scalar_property, Y_TYPE_SCALAR);
+G_DEFINE_TYPE (YPropertyScalar, y_property_scalar, Y_TYPE_SCALAR);
 
 static void
-y_scalar_property_finalize (GObject *obj)
+y_property_scalar_finalize (GObject *obj)
 {
-	YScalarProperty *s = (YScalarProperty *)obj;
+	YPropertyScalar *s = (YPropertyScalar *)obj;
 	g_signal_handlers_disconnect_by_data(s->obj,s);
 	g_object_unref(s->obj);
 	g_free(s->name);
 
-	GObjectClass *obj_class = G_OBJECT_CLASS(y_scalar_property_parent_class);
+	GObjectClass *obj_class = G_OBJECT_CLASS(y_property_scalar_parent_class);
 	(*obj_class->finalize) (obj);
 }
 
 static double
-y_scalar_property_get_value (YScalar *dat)
+y_property_scalar_get_value (YScalar *dat)
 {
-	YScalarProperty const *sval = (YScalarProperty const *)dat;
+	YPropertyScalar const *sval = (YPropertyScalar const *)dat;
 	double val;
 	g_object_get(sval->obj,sval->name,&val,NULL);
 	return val;
 }
 
 static void
-y_scalar_property_class_init (YScalarPropertyClass *klass)
+y_property_scalar_class_init (YPropertyScalarClass *klass)
 {
 	GObjectClass *gobject_klass = (GObjectClass *) klass;
-	gobject_klass->finalize = y_scalar_property_finalize;
+	gobject_klass->finalize = y_property_scalar_finalize;
 	//YDataClass *ydata_klass = (YDataClass *) klass;
 	YScalarClass *scalar_klass = (YScalarClass *) klass;
-	//ydata_klass->dup  = y_scalar_property_dup;
-	scalar_klass->get_value  = y_scalar_property_get_value;
+	//ydata_klass->dup  = y_property_scalar_dup;
+	scalar_klass->get_value  = y_property_scalar_get_value;
 }
 
 static void
-y_scalar_property_init(YScalarProperty *val)
+y_property_scalar_init(YPropertyScalar *val)
 {}
 
 static
@@ -70,15 +70,15 @@ void on_notify (GObject    *gobject,
 }
 
 /**
- * y_scalar_property_new:
+ * y_property_scalar_new:
  * @obj: a GObject
  * @name: the property name
  *
- * Creates a new #YScalarProperty object. The property must be numeric.
+ * Creates a new #YPropertyScalar object. The property must be numeric.
  *
  * Returns: (transfer full): The new object.
  **/
-YScalarProperty	*y_scalar_property_new (GObject *obj, const gchar *name)
+YPropertyScalar	*y_property_scalar_new (GObject *obj, const gchar *name)
 {
 	/* check that there is a property with this name */
 	GObjectClass *class = G_OBJECT_GET_CLASS(obj);
@@ -88,7 +88,7 @@ YScalarProperty	*y_scalar_property_new (GObject *obj, const gchar *name)
 	GType type = G_PARAM_SPEC_VALUE_TYPE(spec);
 	g_return_val_if_fail(type==G_TYPE_DOUBLE || type==G_TYPE_FLOAT || type==G_TYPE_INT || type==G_TYPE_UINT,NULL);
 
-	YScalarProperty *p = g_object_new(Y_TYPE_SCALAR_PROPERTY,NULL);
+	YPropertyScalar *p = g_object_new(Y_TYPE_PROPERTY_SCALAR,NULL);
 	p->obj = g_object_ref(obj);
 	p->name = g_strdup(name);
 	/* connect to notify signal and emit changed */

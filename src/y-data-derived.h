@@ -44,11 +44,11 @@ G_DECLARE_FINAL_TYPE(YDerivedScalar,y_derived_scalar,Y,DERIVED_SCALAR,YScalar)
 
 YData	*y_derived_scalar_new      (YData *input, YOperation *op);
 
-G_DECLARE_FINAL_TYPE(YVectorDerived,y_vector_derived,Y,VECTOR_DERIVED,YVector)
+G_DECLARE_FINAL_TYPE(YDerivedVector,y_derived_vector,Y,DERIVED_VECTOR,YVector)
 
-#define Y_TYPE_VECTOR_DERIVED  (y_vector_derived_get_type ())
+#define Y_TYPE_DERIVED_VECTOR  (y_derived_vector_get_type ())
 
-YData	*y_vector_derived_new      (YData *input, YOperation *op);
+YData	*y_derived_vector_new      (YData *input, YOperation *op);
 
 G_DECLARE_FINAL_TYPE(YDerivedMatrix,y_derived_matrix,Y,DERIVED_MATRIX,YMatrix)
 
@@ -59,4 +59,3 @@ YData	*y_derived_matrix_new      (YData *input, YOperation *op);
 G_END_DECLS
 
 #endif
-

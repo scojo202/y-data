@@ -26,7 +26,6 @@
 #include <y-data-simple.h>
 #include <y-data-derived.h>
 #include <y-operation.h>
-#include <y-data-tcp.h>
 #include <y-hdf.h>
 #include <y-slice-operation.h>
 #include <y-linear-range.h>

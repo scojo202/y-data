@@ -102,12 +102,12 @@ struct _YScalarClass {
 	double (*get_value) (YScalar * scalar);
 };
 
-G_DECLARE_FINAL_TYPE(YScalarVal, y_scalar_val, Y, SCALAR_VAL, YScalar)
+G_DECLARE_FINAL_TYPE(YValScalar, y_val_scalar, Y, VAL_SCALAR, YScalar)
 
-#define Y_TYPE_SCALAR_VAL	(y_scalar_val_get_type ())
+#define Y_TYPE_VAL_SCALAR	(y_val_scalar_get_type ())
 
-YData *y_scalar_val_new(double val);
-double *y_scalar_val_get_val(YScalarVal * s);
+YData *y_val_scalar_new(double val);
+double *y_val_scalar_get_val(YValScalar * s);
 
 G_DECLARE_DERIVABLE_TYPE(YVector, y_vector, Y, VECTOR, YData)
 
@@ -119,6 +119,7 @@ G_DECLARE_DERIVABLE_TYPE(YVector, y_vector, Y, VECTOR, YData)
  * @load_len: loads the vector length and returns it.
  * @load_values: loads the values and returns them.
  * @get_value: gets a value.
+ * @replace_cache: replaces array cache
  *
  * Class for YVector.
  **/
@@ -129,6 +130,7 @@ struct _YVectorClass {
 	unsigned int (*load_len) (YVector * vec);
 	double *(*load_values) (YVector * vec);
 	double (*get_value) (YVector * vec, unsigned i);
+	double *(*replace_cache) (YVector *vec, unsigned len);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YMatrix, y_matrix, Y, MATRIX, YData)
@@ -200,6 +202,9 @@ double y_vector_get_value(YVector * vec, unsigned i);
 char *y_vector_get_str(YVector * vec, unsigned int i, const gchar * format);
 gboolean y_vector_is_varying_uniformly(YVector * data);
 void y_vector_get_minmax(YVector * vec, double *min, double *max);
+
+/* to be used only by subclasses */
+double* y_vector_replace_cache(YVector *vec, unsigned len);
 
 /*************************************************************************/
 

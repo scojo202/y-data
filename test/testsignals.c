@@ -3,8 +3,8 @@
 
 int i = 0;
 YMatrix *a;
-YVectorDerived *b;
-YVectorDerived *c;
+YDerivedVector *b;
+YDerivedVector *c;
 YOperation *s;
 YOperation *f;
 GMutex mutex;
@@ -40,7 +40,7 @@ feeder_thread(gpointer data)
   int j;
   while(i<10000) {
     g_mutex_lock(&mutex);
-    double *data = y_matrix_val_get_array(Y_MATRIX_VAL(a));
+    double *data = y_val_matrix_get_array(Y_VAL_MATRIX(a));
     for(j=0;j<y_matrix_get_rows(a)*y_matrix_get_columns(a);j++)
       {
         data[j]=g_random_double();
@@ -61,7 +61,7 @@ timeout(gpointer user_data)
 {
   int j;
   g_mutex_lock(&mutex);
-  double *data = y_matrix_val_get_array(a);
+  double *data = y_val_matrix_get_array(a);
   for(j=0;j<y_matrix_get_rows(a)*y_matrix_get_columns(a);j++)
       {
         data[j]=g_random_double();
@@ -92,11 +92,11 @@ main (int argc, char *argv[])
 {
   g_mutex_init(&mutex);
   /* make a chain of derived data */
-  a = Y_MATRIX(y_matrix_val_new_alloc(700,500));
+  a = Y_MATRIX(y_val_matrix_new_alloc(700,500));
   s = y_slice_operation_new(SLICE_ROW, 100, 1);
   f = y_fft_operation_new (FFT_MAG);
-  b = Y_VECTOR_DERIVED(y_vector_derived_new(Y_DATA(a),s));
-  c = Y_VECTOR_DERIVED(y_vector_derived_new(Y_DATA(b),f));
+  b = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(a),s));
+  c = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(b),f));
 
   g_idle_add(start,NULL);
 

@@ -35,22 +35,11 @@ struct _YLinearRangeVector {
 	double v0;
 	double dv;
 	unsigned n;
-	double *values;
 };
 
 G_DEFINE_TYPE (YLinearRangeVector, y_linear_range_vector, Y_TYPE_VECTOR);
 
 static GObjectClass *vector_parent_klass;
-
-static void
-linear_range_vector_finalize (GObject *obj)
-{
-	YLinearRangeVector *vec = (YLinearRangeVector *)obj;
-
-	g_free(vec->values);
-
-	(*vector_parent_klass->finalize) (obj);
-}
 
 static YData *
 linear_range_vector_dup (YData *src)
@@ -80,10 +69,12 @@ linear_range_vector_load_values (YVector *vec)
   g_assert(isfinite(val->v0));
   g_assert(isfinite(val->dv));
 
+	double *values = y_vector_replace_cache(vec,val->n);
+
 	while (i-- > 0) {
-		val->values[i]=get_val(val,i);
+		values[i]=get_val(val,i);
 	}
-	return val->values;
+	return values;
 }
 
 static double
@@ -113,7 +104,6 @@ y_linear_range_vector_class_init (YLinearRangeVectorClass *klass)
 	YVectorClass *vector_klass = (YVectorClass *) klass;
 
 	vector_parent_klass = g_type_class_peek_parent (gobject_klass);
-	gobject_klass->finalize = linear_range_vector_finalize;
 	ydata_klass->dup	= linear_range_vector_dup;
 	vector_klass->load_len    = linear_range_vector_load_len;
 	vector_klass->load_values = linear_range_vector_load_values;
@@ -135,9 +125,6 @@ void y_linear_range_vector_set_length(YLinearRangeVector *d, unsigned int n)
 
 	if(n!=d->n) {
 		d->n = n;
-		if(d->values!=NULL)
-			g_free(d->values);
-		d->values = g_new0(double, d->n);
 		y_data_emit_changed(Y_DATA(d));
 	}
 }
@@ -229,7 +216,6 @@ struct _YFourierLinearRangeVector {
 	YVector     base;
 	YLinearRangeVector *range;
 	unsigned int n;
-	double *values;
 	gboolean inverse;
 };
 
@@ -240,7 +226,8 @@ fourier_linear_range_vector_finalize (GObject *obj)
 {
 	YFourierLinearRangeVector *vec = (YFourierLinearRangeVector *)obj;
 
-	g_free(vec->values);
+	g_signal_handlers_disconnect_by_data(vec->range, obj);
+	g_object_unref(vec->range);
 
 	(*vector_parent_klass->finalize) (obj);
 }
@@ -271,15 +258,17 @@ fourier_linear_range_vector_load_values (YVector *vec)
 	g_assert(isfinite(range->v0));
 	g_assert(isfinite(range->dv));
 
+	double *values = y_vector_replace_cache(vec,range->n/2+1);
+
 	double df = 1./range->n/range->dv;
 	if(val->inverse) {
 		df *= 2*M_PI;
 	}
 
 	while (i-- > 0) {
-		val->values[i]=i*df;
+		values[i]=i*df;
 	}
-	return val->values;
+	return values;
 }
 
 static double
@@ -329,9 +318,7 @@ on_range_changed (YData *d, gpointer user_data)
 	g_assert(Y_IS_LINEAR_RANGE_VECTOR(res->range));
 	g_assert(d == Y_DATA(res->range));
 	if(res->n != res->range->n/2 + 1) {
-		g_free(res->values);
 		res->n = res->range->n/2 + 1;
-		res->values = g_new0(double, res->n);
 	}
 	y_data_emit_changed(dat);
 }
@@ -361,7 +348,6 @@ y_fourier_linear_range_vector_new (YLinearRangeVector *v)
 	g_assert(Y_IS_LINEAR_RANGE_VECTOR(v));
 	res->range = g_object_ref_sink(v);
 	res->n = res->range->n/2 + 1;
-	res->values = g_new0(double, res->n);
 	g_signal_connect_after(res->range,"changed",G_CALLBACK(on_range_changed),res);
 	return Y_DATA (res);
 }

@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
- 
+
 #ifndef Y_VECTOR_RING_H
 #define Y_VECTOR_RING_H
 
@@ -27,18 +27,18 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(YVectorRing,y_vector_ring,Y,VECTOR_RING,YVector)
+G_DECLARE_FINAL_TYPE(YRingVector,y_ring_vector,Y,RING_VECTOR,YVector)
 
-#define Y_TYPE_VECTOR_RING  (y_vector_ring_get_type ())
+#define Y_TYPE_RING_VECTOR  (y_ring_vector_get_type ())
 
-YData *y_vector_ring_new (unsigned nmax, unsigned n, gboolean track_timestamps);
-void y_vector_ring_set_length(YVectorRing *d, unsigned newlength);
-void y_vector_ring_append(YVectorRing *d, double val);
-void y_vector_ring_append_array(YVectorRing *d, double *arr, int len);
+YData *y_ring_vector_new (unsigned nmax, unsigned n, gboolean track_timestamps);
+void y_ring_vector_set_length(YRingVector *d, unsigned newlength);
+void y_ring_vector_append(YRingVector *d, double val);
+void y_ring_vector_append_array(YRingVector *d, double *arr, int len);
 
-void y_vector_ring_set_source(YVectorRing *d, YScalar *source);
+void y_ring_vector_set_source(YRingVector *d, YScalar *source);
 
-YVectorRing *y_vector_ring_get_timestamps(YVectorRing *d);
+YRingVector *y_ring_vector_get_timestamps(YRingVector *d);
 
 G_DECLARE_FINAL_TYPE(YRingMatrix,y_ring_matrix,Y,RING_MATRIX,YMatrix)
 
@@ -50,7 +50,7 @@ void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax);
 void y_ring_matrix_append(YRingMatrix *d, const double *values, unsigned len);
 void y_ring_matrix_set_source(YRingMatrix *d, YVector *source);
 
-YVectorRing *y_ring_matrix_get_timestamps(YRingMatrix *d);
+YRingVector *y_ring_matrix_get_timestamps(YRingMatrix *d);
 
 G_END_DECLS
 

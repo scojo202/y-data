@@ -111,16 +111,16 @@ YData *y_data_new_from_operation(YOperation *op, YData *input)
 	YData *out = NULL;
 	if(s==0) {
 		double *d = (double *) output;
-		out = y_scalar_val_new(*d);
+		out = y_val_scalar_new(*d);
 		g_free(output);
 	}
 	else if(s==1) {
 		double *d = (double *) output;
-		out = y_vector_val_new(d,dims[0],g_free);
+		out = y_val_vector_new(d,dims[0],g_free);
 	}
 	else if(s==2) {
 		double *d = (double *) output;
-		out = y_matrix_val_new(d,dims[0],dims[1],g_free);
+		out = y_val_matrix_new(d,dims[0],dims[1],g_free);
 	}
 	klass->op_data_free(input);
 	return out;

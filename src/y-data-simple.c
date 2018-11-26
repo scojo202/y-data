@@ -31,9 +31,9 @@
  * SECTION: y-data-simple
  * @short_description: Data objects based on simple arrays.
  *
- * Data classes #YScalarVal, #YVectorVal, and #YMatrixVal.
+ * Data classes #YValScalar, #YValVector, and #YValMatrix.
  *
- * In these objects, an array (or, in the case of a #YScalarVal, a single double
+ * In these objects, an array (or, in the case of a #YValScalar, a single double
  * precision value) is maintained that is also the data cache. Therefore, the
  * array should not be freed.
  */
@@ -41,7 +41,7 @@
 /*****************************************************************************/
 
 /**
- * YVectorVal:
+ * YValVector:
  * @base: base.
  * @n: the length of the vector.
  * @val: the array
@@ -50,30 +50,30 @@
  * Object holding a one-dimensional array of double precision numbers.
  **/
 
-struct _YVectorVal {
+struct _YValVector {
 	YVector base;
 	unsigned n;
 	double *val;
 	GDestroyNotify notify;
 };
 
-G_DEFINE_TYPE(YVectorVal, y_vector_val, Y_TYPE_VECTOR);
+G_DEFINE_TYPE(YValVector, y_val_vector, Y_TYPE_VECTOR);
 
-static void y_vector_val_finalize(GObject * obj)
+static void y_val_vector_finalize(GObject * obj)
 {
-	YVectorVal *vec = (YVectorVal *) obj;
+	YValVector *vec = (YValVector *) obj;
 	if (vec->notify && vec->val)
 		(*vec->notify) (vec->val);
 
-	GObjectClass *obj_class = G_OBJECT_CLASS(y_vector_val_parent_class);
+	GObjectClass *obj_class = G_OBJECT_CLASS(y_val_vector_parent_class);
 
 	(*obj_class->finalize) (obj);
 }
 
-static YData *y_vector_val_dup(YData * src)
+static YData *y_val_vector_dup(YData * src)
 {
-	YVectorVal *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
-	YVectorVal const *src_val = (YVectorVal const *)src;
+	YValVector *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
+	YValVector const *src_val = (YValVector const *)src;
 	if (src_val->notify) {
 		dst->val = g_new0(double, src_val->n);
 		memcpy(dst->val, src_val->val, src_val->n * sizeof(double));
@@ -84,57 +84,69 @@ static YData *y_vector_val_dup(YData * src)
 	return Y_DATA(dst);
 }
 
-static unsigned int y_vector_val_load_len(YVector * vec)
+static unsigned int y_val_vector_load_len(YVector * vec)
 {
-	return ((YVectorVal *) vec)->n;
+	return ((YValVector *) vec)->n;
 }
 
-static double *y_vector_val_load_values(YVector * vec)
+static double *y_val_vector_load_values(YVector * vec)
 {
-	YVectorVal const *val = (YVectorVal const *)vec;
+	YValVector const *val = (YValVector const *)vec;
 
 	return val->val;
 }
 
-static double y_vector_val_get_value(YVector * vec, unsigned i)
+static double y_val_vector_get_value(YVector * vec, unsigned i)
 {
-	YVectorVal const *val = (YVectorVal const *)vec;
+	YValVector const *val = (YValVector const *)vec;
 	g_return_val_if_fail(val != NULL && val->val != NULL
 			     && i < val->n, NAN);
 	return val->val[i];
 }
 
-static void y_vector_val_class_init(YVectorValClass * val_klass)
+static double *
+y_val_vector_replace_cache(YVector *vec, unsigned len)
+{
+	YValVector const *val = (YValVector const *)vec;
+
+	if(len!=val->n) {
+		g_warning("Trying to replace cache in YValVector.");
+	}
+	return val->val;
+}
+
+static void y_val_vector_class_init(YValVectorClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	YVectorClass *vector_klass = (YVectorClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
-	gobject_klass->finalize = y_vector_val_finalize;
-	ydata_klass->dup = y_vector_val_dup;
-	vector_klass->load_len = y_vector_val_load_len;
-	vector_klass->load_values = y_vector_val_load_values;
-	vector_klass->get_value = y_vector_val_get_value;
+	gobject_klass->finalize = y_val_vector_finalize;
+	ydata_klass->dup = y_val_vector_dup;
+	vector_klass->load_len = y_val_vector_load_len;
+	vector_klass->load_values = y_val_vector_load_values;
+	vector_klass->get_value = y_val_vector_get_value;
+	vector_klass->replace_cache = y_val_vector_replace_cache;
 }
 
-static void y_vector_val_init(YVectorVal * val)
+static void y_val_vector_init(YValVector * val)
 {
 }
 
 /**
- * y_vector_val_new: (skip)
+ * y_val_vector_new: (skip)
  * @val: (array length=n): array of doubles
  * @n: length of array
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
- * Create a new #YVectorVal from an existing array.
+ * Create a new #YValVector from an existing array.
  *
  * Returns: a #YData
  **/
 
-YData *y_vector_val_new(double *val, unsigned n, GDestroyNotify notify)
+YData *y_val_vector_new(double *val, unsigned n, GDestroyNotify notify)
 {
-	YVectorVal *res = g_object_new(Y_TYPE_VECTOR_VAL, NULL);
+	YValVector *res = g_object_new(Y_TYPE_VAL_VECTOR, NULL);
 	res->val = val;
 	res->n = n;
 	res->notify = notify;
@@ -142,16 +154,16 @@ YData *y_vector_val_new(double *val, unsigned n, GDestroyNotify notify)
 }
 
 /**
- * y_vector_val_new_alloc:
+ * y_val_vector_new_alloc:
  * @n: length of array
  *
- * Create a new #YVectorVal of length @n, initialized to zeros.
+ * Create a new #YValVector of length @n, initialized to zeros.
  *
  * Returns: a #YData
  **/
-YData *y_vector_val_new_alloc(unsigned n)
+YData *y_val_vector_new_alloc(unsigned n)
 {
-	YVectorVal *res = g_object_new(Y_TYPE_VECTOR_VAL, NULL);
+	YValVector *res = g_object_new(Y_TYPE_VAL_VECTOR, NULL);
 	res->val = g_malloc0(sizeof(double) * n);
 	res->n = n;
 	res->notify = g_free;
@@ -159,35 +171,35 @@ YData *y_vector_val_new_alloc(unsigned n)
 }
 
 /**
- * y_vector_val_new_copy:
+ * y_val_vector_new_copy:
  * @val: (array length=n): array of doubles
  * @n: length of array
  *
- * Create a new #YVectorVal, copying from an existing array.
+ * Create a new #YValVector, copying from an existing array.
  *
  * Returns: a #YData
  **/
 
-YData *y_vector_val_new_copy(const double *val, unsigned n)
+YData *y_val_vector_new_copy(const double *val, unsigned n)
 {
 	g_assert(val!=NULL);
 	double *val2 = g_memdup(val, sizeof(double) * n);
-	return y_vector_val_new(val2, n, g_free);
+	return y_val_vector_new(val2, n, g_free);
 }
 
 /**
- * y_vector_val_replace_array :
- * @s: #YVectorVal
+ * y_val_vector_replace_array :
+ * @s: #YValVector
  * @array: (array length=n): array of doubles
  * @n: length of array
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
  * Replace the array of values of @s.
  **/
-void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
+void y_val_vector_replace_array(YValVector * s, double *array, unsigned n,
 				GDestroyNotify notify)
 {
-	g_assert(Y_IS_VECTOR_VAL(s));
+	g_assert(Y_IS_VAL_VECTOR(s));
 	if (s->val && s->notify)
 		(*s->notify) (s->val);
 	s->val = array;
@@ -197,23 +209,23 @@ void y_vector_val_replace_array(YVectorVal * s, double *array, unsigned n,
 }
 
 /**
- * y_vector_val_get_array :
- * @s: #YVectorVal
+ * y_val_vector_get_array :
+ * @s: #YValVector
  *
  * Get the array of values of @vec.
  *
  * Returns: an array. Should not be freed.
  **/
-double *y_vector_val_get_array(YVectorVal * s)
+double *y_val_vector_get_array(YValVector * s)
 {
-	g_assert(Y_IS_VECTOR_VAL(s));
+	g_assert(Y_IS_VAL_VECTOR(s));
 	return s->val;
 }
 
 /*****************************************************************************/
 
 /**
- * YMatrixVal:
+ * YValMatrix:
  * @base: base.
  * @size: the size of the matrix.
  * @val: the array
@@ -222,28 +234,28 @@ double *y_vector_val_get_array(YVectorVal * s)
  * Object holding a two-dimensional array of double precision numbers.
  **/
 
-struct _YMatrixVal {
+struct _YValMatrix {
 	YMatrix base;
 	YMatrixSize size;
 	double *val;
 	GDestroyNotify notify;
 };
 
-G_DEFINE_TYPE(YMatrixVal, y_matrix_val, Y_TYPE_MATRIX);
+G_DEFINE_TYPE(YValMatrix, y_val_matrix, Y_TYPE_MATRIX);
 
-static void y_matrix_val_finalize(GObject * obj)
+static void y_val_matrix_finalize(GObject * obj)
 {
-	YMatrixVal *mat = (YMatrixVal *) obj;
+	YValMatrix *mat = (YValMatrix *) obj;
 	if (mat->notify && mat->val)
 		(*mat->notify) (mat->val);
 
-	G_OBJECT_CLASS(y_matrix_val_parent_class)->finalize(obj);
+	G_OBJECT_CLASS(y_val_matrix_parent_class)->finalize(obj);
 }
 
-static YData *y_matrix_val_dup(YData * src)
+static YData *y_val_matrix_dup(YData * src)
 {
-	YMatrixVal *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
-	YMatrixVal const *src_val = (YMatrixVal const *)src;
+	YValMatrix *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
+	YValMatrix const *src_val = (YValMatrix const *)src;
 	if (src_val->notify) {
 		dst->val =
 		    g_new(double, src_val->size.rows * src_val->size.columns);
@@ -257,56 +269,56 @@ static YData *y_matrix_val_dup(YData * src)
 	return Y_DATA(dst);
 }
 
-static YMatrixSize y_matrix_val_load_size(YMatrix * mat)
+static YMatrixSize y_val_matrix_load_size(YMatrix * mat)
 {
-	return ((YMatrixVal *) mat)->size;
+	return ((YValMatrix *) mat)->size;
 }
 
-static double *y_matrix_val_load_values(YMatrix * mat)
+static double *y_val_matrix_load_values(YMatrix * mat)
 {
-	YMatrixVal const *val = (YMatrixVal const *)mat;
+	YValMatrix const *val = (YValMatrix const *)mat;
 	return val->val;
 }
 
-static double y_matrix_val_get_value(YMatrix * mat, unsigned i, unsigned j)
+static double y_val_matrix_get_value(YMatrix * mat, unsigned i, unsigned j)
 {
-	YMatrixVal const *val = (YMatrixVal const *)mat;
+	YValMatrix const *val = (YValMatrix const *)mat;
 
 	return val->val[i * val->size.columns + j];
 }
 
-static void y_matrix_val_class_init(YMatrixValClass * val_klass)
+static void y_val_matrix_class_init(YValMatrixClass * val_klass)
 {
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 	YDataClass *ydata_klass = (YDataClass *) gobject_klass;
 	YMatrixClass *matrix_klass = (YMatrixClass *) gobject_klass;
 
-	gobject_klass->finalize = y_matrix_val_finalize;
-	ydata_klass->dup = y_matrix_val_dup;
-	matrix_klass->load_size = y_matrix_val_load_size;
-	matrix_klass->load_values = y_matrix_val_load_values;
-	matrix_klass->get_value = y_matrix_val_get_value;
+	gobject_klass->finalize = y_val_matrix_finalize;
+	ydata_klass->dup = y_val_matrix_dup;
+	matrix_klass->load_size = y_val_matrix_load_size;
+	matrix_klass->load_values = y_val_matrix_load_values;
+	matrix_klass->get_value = y_val_matrix_get_value;
 }
 
-static void y_matrix_val_init(YMatrixVal * val)
+static void y_val_matrix_init(YValMatrix * val)
 {
 }
 
 /**
- * y_matrix_val_new: (skip)
+ * y_val_matrix_new: (skip)
  * @val: array of doubles
  * @rows: number of rows
  * @columns: number of columns
  * @notify: (nullable): the function to be called to free the array when the #YData is unreferenced, or %NULL
  *
- * Create a new #YMatrixVal using an existing array.
+ * Create a new #YValMatrix using an existing array.
  *
  * Returns: a #YData
  **/
-YData *y_matrix_val_new(double *val, unsigned rows, unsigned columns,
+YData *y_val_matrix_new(double *val, unsigned rows, unsigned columns,
 			GDestroyNotify notify)
 {
-	YMatrixVal *res = g_object_new(Y_TYPE_MATRIX_VAL, NULL);
+	YValMatrix *res = g_object_new(Y_TYPE_VAL_MATRIX, NULL);
 	res->val = val;
 	res->size.rows = rows;
 	res->size.columns = columns;
@@ -315,34 +327,34 @@ YData *y_matrix_val_new(double *val, unsigned rows, unsigned columns,
 }
 
 /**
- * y_matrix_val_new_copy:
+ * y_val_matrix_new_copy:
  * @val: array of doubles with at least @rows*@columns elements
  * @rows: number of rows
  * @columns: number of columns
  *
- * Create a new #YMatrixVal, copying from an existing array.
+ * Create a new #YValMatrix, copying from an existing array.
  *
  * Returns: a #YData
  **/
-YData *y_matrix_val_new_copy(const double *val, unsigned rows, unsigned columns)
+YData *y_val_matrix_new_copy(const double *val, unsigned rows, unsigned columns)
 {
 	g_assert(val!=NULL);
-	return y_matrix_val_new(g_memdup(val, sizeof(double) * rows * columns),
+	return y_val_matrix_new(g_memdup(val, sizeof(double) * rows * columns),
 				rows, columns, g_free);
 }
 
 /**
- * y_matrix_val_new_alloc:
+ * y_val_matrix_new_alloc:
  * @rows: number of rows
  * @columns: number of columns
  *
- * Allocate a new array with @rows rows and @columns columns and use it in a new #YMatrixVal.
+ * Allocate a new array with @rows rows and @columns columns and use it in a new #YValMatrix.
  *
  * Returns: a #YData
  **/
-YData *y_matrix_val_new_alloc(unsigned rows, unsigned columns)
+YData *y_val_matrix_new_alloc(unsigned rows, unsigned columns)
 {
-	YMatrixVal *res = g_object_new(Y_TYPE_MATRIX_VAL, NULL);
+	YValMatrix *res = g_object_new(Y_TYPE_VAL_MATRIX, NULL);
 	res->val = g_new0(double, rows * columns);
 	res->size.rows = rows;
 	res->size.columns = columns;
@@ -351,23 +363,23 @@ YData *y_matrix_val_new_alloc(unsigned rows, unsigned columns)
 }
 
 /**
- * y_matrix_val_get_array :
- * @s: #YVectorVal
+ * y_val_matrix_get_array :
+ * @s: #YValVector
  *
  * Get the array of values of @s.
  *
  * Returns: an array. Should not be freed.
  **/
 
-double *y_matrix_val_get_array(YMatrixVal * s)
+double *y_val_matrix_get_array(YValMatrix * s)
 {
-	g_assert(Y_IS_MATRIX_VAL(s));
+	g_assert(Y_IS_VAL_MATRIX(s));
 	return s->val;
 }
 
 /**
- * y_matrix_val_replace_array : (skip)
- * @s: #YMatrixVal
+ * y_val_matrix_replace_array : (skip)
+ * @s: #YValMatrix
  * @array: array of doubles
  * @rows: number of rows
  * @columns: number of columns
@@ -376,10 +388,10 @@ double *y_matrix_val_get_array(YMatrixVal * s)
  * Get the array of values of @s.
  *
  **/
-void y_matrix_val_replace_array(YMatrixVal * s, double *array, unsigned rows,
+void y_val_matrix_replace_array(YValMatrix * s, double *array, unsigned rows,
 				unsigned columns, GDestroyNotify notify)
 {
-	g_assert(Y_IS_MATRIX_VAL(s));
+	g_assert(Y_IS_VAL_MATRIX(s));
 	if (s->val && s->notify)
 		(*s->notify) (s->val);
 	s->val = array;
@@ -405,15 +417,15 @@ YData *y_data_dup_to_simple(YData * src)
 	YData *d = NULL;
 	if (Y_IS_SCALAR(src)) {
 		double v = y_scalar_get_value(Y_SCALAR(src));
-		d = Y_DATA(y_scalar_val_new(v));
+		d = Y_DATA(y_val_scalar_new(v));
 	} else if (Y_IS_VECTOR(src)) {
 		const double *v = y_vector_get_values(Y_VECTOR(src));
-		d = Y_DATA(y_vector_val_new_copy
+		d = Y_DATA(y_val_vector_new_copy
 			(v, y_vector_get_len(Y_VECTOR(src))));
 	} else if (Y_IS_MATRIX(src)) {
 		const double *v = y_matrix_get_values(Y_MATRIX(src));
 		YMatrixSize s = y_matrix_get_size(Y_MATRIX(src));
-		d = Y_DATA(y_matrix_val_new_copy(v, s.rows, s.columns));
+		d = Y_DATA(y_val_matrix_new_copy(v, s.rows, s.columns));
 	} else if (Y_IS_THREE_D_ARRAY(src)) {
 		g_error("dup to simple not yet implemented for 3D arrays.");
 	}
@@ -423,7 +435,7 @@ YData *y_data_dup_to_simple(YData * src)
 /*****************************************************************************/
 
 /**
- * YThreeDArrayVal:
+ * YValThreeDArray:
  * @base: base.
  * @size: the length of the vector.
  * @val: the array
@@ -432,28 +444,28 @@ YData *y_data_dup_to_simple(YData * src)
  * Object holding a three-dimensional array of double precision numbers.
  **/
 
-struct _YThreeDArrayVal {
+struct _YValThreeDArray {
 	YThreeDArray base;
 	YThreeDArraySize size;
 	double *val;
 	GDestroyNotify notify;
 };
 
-G_DEFINE_TYPE(YThreeDArrayVal, y_three_d_array_val, Y_TYPE_THREE_D_ARRAY);
+G_DEFINE_TYPE(YValThreeDArray, y_val_three_d_array, Y_TYPE_THREE_D_ARRAY);
 
-static void y_three_d_array_val_finalize(GObject * obj)
+static void y_val_three_d_array_finalize(GObject * obj)
 {
-	YThreeDArrayVal *mat = (YThreeDArrayVal *) obj;
+	YValThreeDArray *mat = (YValThreeDArray *) obj;
 	if (mat->notify && mat->val)
 		(*mat->notify) (mat->val);
 
-	G_OBJECT_CLASS(y_three_d_array_val_parent_class)->finalize(obj);
+	G_OBJECT_CLASS(y_val_three_d_array_parent_class)->finalize(obj);
 }
 
-static YData *y_three_d_array_val_dup(YData * src)
+static YData *y_val_three_d_array_dup(YData * src)
 {
-	YThreeDArrayVal *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
-	YThreeDArrayVal const *src_val = (YThreeDArrayVal const *)src;
+	YValThreeDArray *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
+	YValThreeDArray const *src_val = (YValThreeDArray const *)src;
 	if (src_val->notify) {
 		dst->val =
 		    g_new(double,
@@ -469,46 +481,46 @@ static YData *y_three_d_array_val_dup(YData * src)
 	return Y_DATA(dst);
 }
 
-static YThreeDArraySize y_three_d_array_val_load_size(YThreeDArray * mat)
+static YThreeDArraySize y_val_three_d_array_load_size(YThreeDArray * mat)
 {
-	return ((YThreeDArrayVal *) mat)->size;
+	return ((YValThreeDArray *) mat)->size;
 }
 
-static double *y_three_d_array_val_load_values(YThreeDArray * mat)
+static double *y_val_three_d_array_load_values(YThreeDArray * mat)
 {
-	YThreeDArrayVal const *val = (YThreeDArrayVal const *)mat;
+	YValThreeDArray const *val = (YValThreeDArray const *)mat;
 	return val->val;
 }
 
 static double
-y_three_d_array_val_get_value(YThreeDArray * mat, unsigned i, unsigned j,
+y_val_three_d_array_get_value(YThreeDArray * mat, unsigned i, unsigned j,
 			      unsigned k)
 {
-	YThreeDArrayVal const *val = (YThreeDArrayVal const *)mat;
+	YValThreeDArray const *val = (YValThreeDArray const *)mat;
 
 	return val->val[i * val->size.columns * val->size.rows +
 			j * val->size.columns + k];
 }
 
-static void y_three_d_array_val_class_init(YThreeDArrayValClass * val_klass)
+static void y_val_three_d_array_class_init(YValThreeDArrayClass * val_klass)
 {
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 	YDataClass *ydata_klass = (YDataClass *) gobject_klass;
 	YThreeDArrayClass *matrix_klass = (YThreeDArrayClass *) gobject_klass;
 
-	gobject_klass->finalize = y_three_d_array_val_finalize;
-	ydata_klass->dup = y_three_d_array_val_dup;
-	matrix_klass->load_size = y_three_d_array_val_load_size;
-	matrix_klass->load_values = y_three_d_array_val_load_values;
-	matrix_klass->get_value = y_three_d_array_val_get_value;
+	gobject_klass->finalize = y_val_three_d_array_finalize;
+	ydata_klass->dup = y_val_three_d_array_dup;
+	matrix_klass->load_size = y_val_three_d_array_load_size;
+	matrix_klass->load_values = y_val_three_d_array_load_values;
+	matrix_klass->get_value = y_val_three_d_array_get_value;
 }
 
-static void y_three_d_array_val_init(YThreeDArrayVal * val)
+static void y_val_three_d_array_init(YValThreeDArray * val)
 {
 }
 
 /**
- * y_three_d_array_val_new: (skip)
+ * y_val_three_d_array_new: (skip)
  * @val: array of doubles
  * @rows: number of rows
  * @columns: number of columns
@@ -519,10 +531,10 @@ static void y_three_d_array_val_init(YThreeDArrayVal * val)
  *
  * Returns: a #YData
  **/
-YData *y_three_d_array_val_new(double *val, unsigned rows, unsigned columns,
+YData *y_val_three_d_array_new(double *val, unsigned rows, unsigned columns,
 			       unsigned layers, GDestroyNotify notify)
 {
-	YThreeDArrayVal *res = g_object_new(Y_TYPE_THREE_D_ARRAY_VAL, NULL);
+	YValThreeDArray *res = g_object_new(Y_TYPE_VAL_THREE_D_ARRAY, NULL);
 	res->val = val;
 	res->size.rows = rows;
 	res->size.columns = columns;
@@ -532,7 +544,7 @@ YData *y_three_d_array_val_new(double *val, unsigned rows, unsigned columns,
 }
 
 /**
- * y_three_d_array_val_new_copy:
+ * y_val_three_d_array_new_copy:
  * @val: array of doubles with at least @rows*@columns elements
  * @rows: number of rows
  * @columns: number of columns
@@ -542,31 +554,31 @@ YData *y_three_d_array_val_new(double *val, unsigned rows, unsigned columns,
  *
  * Returns: a #YData
  **/
-YData *y_three_d_array_val_new_copy(double *val,
+YData *y_val_three_d_array_new_copy(double *val,
 				    unsigned rows, unsigned columns,
 				    unsigned layers)
 {
 	return
-	    y_three_d_array_val_new(g_memdup
+	    y_val_three_d_array_new(g_memdup
 				    (val,
 				     sizeof(double) * rows * columns * layers),
 				    rows, columns, layers, g_free);
 }
 
 /**
- * y_three_d_array_val_new_alloc:
+ * y_val_three_d_array_new_alloc:
  * @rows: number of rows
  * @columns: number of columns
  * @layers: number of layers
  *
- * Allocate a new array with @rows rows and @columns columns and use it in a new #YThreeDArrayVal.
+ * Allocate a new array with @rows rows and @columns columns and use it in a new #YValThreeDArray.
  *
  * Returns: a #YData
  **/
-YData *y_three_d_array_val_new_alloc(unsigned rows, unsigned columns,
+YData *y_val_three_d_array_new_alloc(unsigned rows, unsigned columns,
 				     unsigned layers)
 {
-	YThreeDArrayVal *res = g_object_new(Y_TYPE_THREE_D_ARRAY_VAL, NULL);
+	YValThreeDArray *res = g_object_new(Y_TYPE_VAL_THREE_D_ARRAY, NULL);
 	res->val = g_new0(double, rows * columns);
 	res->size.rows = rows;
 	res->size.columns = columns;
@@ -576,15 +588,15 @@ YData *y_three_d_array_val_new_alloc(unsigned rows, unsigned columns,
 }
 
 /**
- * y_three_d_array_val_get_array :
- * @s: #YThreeDArrayVal
+ * y_val_three_d_array_get_array :
+ * @s: #YValThreeDArray
  *
  * Get the array of values of @s.
  *
  * Returns: an array. Should not be freed.
  **/
 
-double *y_three_d_array_val_get_array(YThreeDArrayVal * s)
+double *y_val_three_d_array_get_array(YValThreeDArray * s)
 {
 	return s->val;
 }

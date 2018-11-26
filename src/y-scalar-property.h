@@ -26,13 +26,12 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(YScalarProperty,y_scalar_property,Y,SCALAR_PROPERTY,YScalar)
+G_DECLARE_FINAL_TYPE(YPropertyScalar,y_property_scalar,Y,PROPERTY_SCALAR,YScalar)
 
-#define Y_TYPE_SCALAR_PROPERTY	(y_scalar_property_get_type ())
+#define Y_TYPE_PROPERTY_SCALAR	(y_property_scalar_get_type ())
 
-YScalarProperty	*y_scalar_property_new      (GObject *obj, const gchar *name);
+YPropertyScalar	*y_property_scalar_new      (GObject *obj, const gchar *name);
 
 G_END_DECLS
 
 #endif
-

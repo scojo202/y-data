@@ -32,31 +32,31 @@
  * maximum length, after which it throws away the first elements to make room
  * for more.
  *
- * Data class #YVectorRing
+ * Data class #YRingVector
  *
  */
 
 /**
- * YVectorRing:
+ * YRingVector:
  *
  * A YVector that grows up to a maximum length @nmax.
  **/
 
-struct _YVectorRing {
+struct _YRingVector {
 	YVector base;
 	unsigned n;
 	unsigned int nmax;
 	double *val;
 	YScalar *source;
 	gulong handler;
-	YVectorRing *timestamps;
+	YRingVector *timestamps;
 };
 
-G_DEFINE_TYPE(YVectorRing, y_vector_ring, Y_TYPE_VECTOR);
+G_DEFINE_TYPE(YRingVector, y_ring_vector, Y_TYPE_VECTOR);
 
-static void y_vector_ring_finalize(GObject * obj)
+static void y_ring_vector_finalize(GObject * obj)
 {
-	YVectorRing *vec = (YVectorRing *) obj;
+	YRingVector *vec = (YRingVector *) obj;
 	if (vec->val)
 		g_free(vec->val);
 	if (vec->source) {
@@ -64,60 +64,72 @@ static void y_vector_ring_finalize(GObject * obj)
 		g_signal_handler_disconnect(vec->source, vec->handler);
 	}
 
-	GObjectClass *obj_class = G_OBJECT_CLASS(y_vector_ring_parent_class);
+	GObjectClass *obj_class = G_OBJECT_CLASS(y_ring_vector_parent_class);
 
 	(*obj_class->finalize) (obj);
 }
 
-static YData *y_vector_ring_dup(YData * src)
+static YData *y_ring_vector_dup(YData * src)
 {
-	YVectorRing *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
-	YVectorRing const *src_val = (YVectorRing const *)src;
+	YRingVector *dst = g_object_new(G_OBJECT_TYPE(src), NULL);
+	YRingVector const *src_val = (YRingVector const *)src;
 	dst->val = g_new0(double, src_val->nmax);
 	memcpy(dst->val, src_val->val, src_val->n * sizeof(double));
 	dst->n = src_val->n;
 	return Y_DATA(dst);
 }
 
-static unsigned int y_vector_ring_load_len(YVector * vec)
+static unsigned int y_ring_vector_load_len(YVector * vec)
 {
-	return ((YVectorRing *) vec)->n;
+	return ((YRingVector *) vec)->n;
 }
 
-static double *y_vector_ring_load_values(YVector * vec)
+static double *y_ring_vector_load_values(YVector * vec)
 {
-	YVectorRing const *val = (YVectorRing const *)vec;
+	YRingVector const *val = (YRingVector const *)vec;
 
 	return val->val;
 }
 
-static double y_vector_ring_get_value(YVector * vec, unsigned i)
+static double y_ring_vector_get_value(YVector * vec, unsigned i)
 {
-	YVectorRing const *val = (YVectorRing const *)vec;
+	YRingVector const *val = (YRingVector const *)vec;
 	g_return_val_if_fail(val != NULL && val->val != NULL
 			     && i < val->n, NAN);
 	return val->val[i];
 }
 
-static void y_vector_ring_class_init(YVectorRingClass * val_klass)
+static double *
+y_ring_vector_replace_cache(YVector *vec, unsigned len)
+{
+	YRingVector const *r = (YRingVector const *)vec;
+
+	if(len!=r->n) {
+		g_warning("Trying to replace cache in YRingVector.");
+	}
+	return r->val;
+}
+
+static void y_ring_vector_class_init(YRingVectorClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
 	YVectorClass *vector_klass = (YVectorClass *) val_klass;
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
 
-	gobject_klass->finalize = y_vector_ring_finalize;
-	ydata_klass->dup = y_vector_ring_dup;
-	vector_klass->load_len = y_vector_ring_load_len;
-	vector_klass->load_values = y_vector_ring_load_values;
-	vector_klass->get_value = y_vector_ring_get_value;
+	gobject_klass->finalize = y_ring_vector_finalize;
+	ydata_klass->dup = y_ring_vector_dup;
+	vector_klass->load_len = y_ring_vector_load_len;
+	vector_klass->load_values = y_ring_vector_load_values;
+	vector_klass->get_value = y_ring_vector_get_value;
+	vector_klass->replace_cache = y_ring_vector_replace_cache;
 }
 
-static void y_vector_ring_init(YVectorRing * val)
+static void y_ring_vector_init(YRingVector * val)
 {
 }
 
 /**
- * y_vector_ring_new:
+ * y_ring_vector_new:
  * @nmax: maximum length of array
  * @n: initial length of array
  * @track_timestamps: whether to save timestamps for each element
@@ -127,34 +139,34 @@ static void y_vector_ring_init(YVectorRing * val)
  * Returns: a #YData
  *
  **/
-YData *y_vector_ring_new(unsigned nmax, unsigned n, gboolean track_timestamps)
+YData *y_ring_vector_new(unsigned nmax, unsigned n, gboolean track_timestamps)
 {
-	YVectorRing *res = g_object_new(Y_TYPE_VECTOR_RING, NULL);
+	YRingVector *res = g_object_new(Y_TYPE_RING_VECTOR, NULL);
 	res->val = g_new0(double, nmax);
 	res->n = n;
 	res->nmax = nmax;
 	if(track_timestamps) {
-		res->timestamps = g_object_ref_sink(y_vector_ring_new(nmax,n,FALSE));
+		res->timestamps = g_object_ref_sink(y_ring_vector_new(nmax,n,FALSE));
 	}
 	return Y_DATA(res);
 }
 
 /**
- * y_vector_ring_append :
- * @d: #YVectorRing
+ * y_ring_vector_append :
+ * @d: #YRingVector
  * @val: new value
  *
  * Append a new value to the vector.
  *
  **/
-void y_vector_ring_append(YVectorRing * d, double val)
+void y_ring_vector_append(YRingVector * d, double val)
 {
-	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(Y_IS_RING_VECTOR(d));
 	unsigned int l = MIN(d->nmax, y_vector_get_len(Y_VECTOR(d)));
 	double *frames = d->val;
 	if (l < d->nmax) {
 		frames[l] = val;
-		y_vector_ring_set_length(d, l + 1);
+		y_ring_vector_set_length(d, l + 1);
 	}
 	else if (l == d->nmax) {
 		memmove(frames, &frames[1], (l - 1) * sizeof(double));
@@ -164,23 +176,23 @@ void y_vector_ring_append(YVectorRing * d, double val)
 		return;
 	}
 	if(d->timestamps) {
-		y_vector_ring_append(d->timestamps,((double)g_get_real_time())/1e6);
+		y_ring_vector_append(d->timestamps,((double)g_get_real_time())/1e6);
 	}
 	y_data_emit_changed(Y_DATA(d));
 }
 
 /**
- * y_vector_ring_append_array :
- * @d: #YVectorRing
+ * y_ring_vector_append_array :
+ * @d: #YRingVector
  * @arr: (array length=len): array
  * @len: array length
  *
  * Append a new array of values @arr to the vector.
  *
  **/
-void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
+void y_ring_vector_append_array(YRingVector * d, double *arr, int len)
 {
-	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(Y_IS_RING_VECTOR(d));
 	g_assert(arr);
 	g_assert(len>=0);
 	unsigned int l = MIN(d->nmax, y_vector_get_len(Y_VECTOR(d)));
@@ -191,10 +203,10 @@ void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
 		for (i = 0; i < len; i++) {
 			frames[i + l] = arr[i];
 			if(d->timestamps) {
-				y_vector_ring_append(d->timestamps,now);
+				y_ring_vector_append(d->timestamps,now);
 			}
 		}
-		y_vector_ring_set_length(d, l + len);
+		y_ring_vector_set_length(d, l + len);
 	}
 	/*else {
 	   memmove(frames, &frames[1], (l-1)*sizeof(double));
@@ -207,22 +219,22 @@ void y_vector_ring_append_array(YVectorRing * d, double *arr, int len)
 
 static void on_source_changed(YData * data, gpointer user_data)
 {
-	YVectorRing *d = Y_VECTOR_RING(user_data);
+	YRingVector *d = Y_RING_VECTOR(user_data);
 	YScalar *source = Y_SCALAR(data);
-	y_vector_ring_append(d, y_scalar_get_value(source));
+	y_ring_vector_append(d, y_scalar_get_value(source));
 }
 
 /**
- * y_vector_ring_set_source :
- * @d: #YVectorRing
+ * y_ring_vector_set_source :
+ * @d: #YRingVector
  * @source: a #YScalar
  *
- * Set a source for the #YVectorRing. When the source emits a "changed" signal,
+ * Set a source for the #YRingVector. When the source emits a "changed" signal,
  * a new value will be appended to the vector.
  **/
-void y_vector_ring_set_source(YVectorRing * d, YScalar * source)
+void y_ring_vector_set_source(YRingVector * d, YScalar * source)
 {
-	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(Y_IS_RING_VECTOR(d));
 	g_assert(Y_IS_SCALAR(source));
 	if (d->source) {
 		g_object_unref(d->source);
@@ -240,39 +252,39 @@ void y_vector_ring_set_source(YVectorRing * d, YScalar * source)
 }
 
 /**
- * y_vector_ring_set_length :
- * @d: #YVectorRing
+ * y_ring_vector_set_length :
+ * @d: #YRingVector
  * @newlength: new length of array
  *
- * Set the current length of the #YVectorRing to a new value. If the new
+ * Set the current length of the #YRingVector to a new value. If the new
  * length is longer than the previous length, tailing elements are set to
  * zero.
  **/
-void y_vector_ring_set_length(YVectorRing * d, unsigned newlength)
+void y_ring_vector_set_length(YRingVector * d, unsigned newlength)
 {
-	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(Y_IS_RING_VECTOR(d));
 	if (newlength <= d->nmax) {
 		d->n = newlength;
 		y_data_emit_changed(Y_DATA(d));
 		if(d->timestamps) {
-			y_vector_ring_set_length(d->timestamps,newlength);
+			y_ring_vector_set_length(d->timestamps,newlength);
 		}
 	}
 	/* TODO: set tailing elements to zero */
 }
 
 /**
- * y_vector_ring_get_timestamps :
- * @d: #YVectorRing
+ * y_ring_vector_get_timestamps :
+ * @d: #YRingVector
  *
  * Get timestamps for when each element was added.
  *
  * Returns: (transfer none): The timestamps.
  **/
 
-YVectorRing *y_vector_ring_get_timestamps(YVectorRing *d)
+YRingVector *y_ring_vector_get_timestamps(YRingVector *d)
 {
-	g_assert(Y_IS_VECTOR_RING(d));
+	g_assert(Y_IS_RING_VECTOR(d));
 	return d->timestamps;
 }
 
@@ -291,7 +303,7 @@ struct _YRingMatrix {
 	double *val;
 	YVector *source;
 	gulong handler;
-	YVectorRing *timestamps;
+	YRingVector *timestamps;
 };
 
 G_DEFINE_TYPE(YRingMatrix, y_ring_matrix, Y_TYPE_MATRIX);
@@ -384,7 +396,7 @@ YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r, gboolean track_t
 	res->nc = c;
 	res->rmax = rmax;
 	if(track_timestamps) {
-		res->timestamps = g_object_ref_sink(y_vector_ring_new(rmax,r,FALSE));
+		res->timestamps = g_object_ref_sink(y_ring_vector_new(rmax,r,FALSE));
 	}
 	return Y_DATA(res);
 }
@@ -422,7 +434,7 @@ void y_ring_matrix_append(YRingMatrix * d, const double *values, unsigned len)
 			return;
 	}
 	if(d->timestamps) {
-		y_vector_ring_append(d->timestamps,((double)g_get_real_time())/1e6);
+		y_ring_vector_append(d->timestamps,((double)g_get_real_time())/1e6);
 	}
 	y_data_emit_changed(Y_DATA(d));
 }
@@ -478,7 +490,7 @@ void y_ring_matrix_set_rows(YRingMatrix * d, unsigned r)
 		d->nr = r;
 		y_data_emit_changed(Y_DATA(d));
 		if(d->timestamps) {
-			y_vector_ring_set_length(d->timestamps,r);
+			y_ring_vector_set_length(d->timestamps,r);
 		}
 	}
 }
@@ -519,7 +531,7 @@ void y_ring_matrix_set_max_rows(YRingMatrix *d, unsigned rmax)
  * Returns: (transfer none): The timestamps.
  **/
 
-YVectorRing *y_ring_matrix_get_timestamps(YRingMatrix *d)
+YRingVector *y_ring_matrix_get_timestamps(YRingMatrix *d)
 {
 	g_assert(Y_IS_RING_MATRIX(d));
 	return d->timestamps;
