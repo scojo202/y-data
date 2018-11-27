@@ -287,6 +287,17 @@ static double y_val_matrix_get_value(YMatrix * mat, unsigned i, unsigned j)
 	return val->val[i * val->size.columns + j];
 }
 
+static double *
+y_val_matrix_replace_cache(YMatrix *mat, unsigned len)
+{
+	YValMatrix const *val = (YValMatrix const *)mat;
+
+	if(len!=val->size.rows*val->size.columns) {
+		g_warning("Trying to replace cache in YValMatrix.");
+	}
+	return val->val;
+}
+
 static void y_val_matrix_class_init(YValMatrixClass * val_klass)
 {
 	GObjectClass *gobject_klass = (GObjectClass *) val_klass;
@@ -298,6 +309,7 @@ static void y_val_matrix_class_init(YValMatrixClass * val_klass)
 	matrix_klass->load_size = y_val_matrix_load_size;
 	matrix_klass->load_values = y_val_matrix_load_values;
 	matrix_klass->get_value = y_val_matrix_get_value;
+	matrix_klass->replace_cache = y_val_matrix_replace_cache;
 }
 
 static void y_val_matrix_init(YValMatrix * val)

@@ -257,6 +257,8 @@ fourier_linear_range_vector_load_values (YVector *vec)
 
 	g_assert(isfinite(range->v0));
 	g_assert(isfinite(range->dv));
+	if(range->n ==0 )
+		return NULL;
 
 	double *values = y_vector_replace_cache(vec,range->n/2+1);
 

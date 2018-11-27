@@ -146,7 +146,7 @@ YData *y_ring_vector_new(unsigned nmax, unsigned n, gboolean track_timestamps)
 	res->n = n;
 	res->nmax = nmax;
 	if(track_timestamps) {
-		res->timestamps = g_object_ref_sink(y_ring_vector_new(nmax,n,FALSE));
+		res->timestamps = Y_RING_VECTOR(g_object_ref_sink(y_ring_vector_new(nmax,n,FALSE)));
 	}
 	return Y_DATA(res);
 }
@@ -359,6 +359,17 @@ static double ring_matrix_get_value(YMatrix * vec, unsigned i, unsigned j)
 	return val->val[i * val->nc + j];
 }
 
+static double *
+y_ring_matrix_replace_cache(YMatrix *mat, unsigned len)
+{
+	YRingMatrix const *r = (YRingMatrix const *)mat;
+
+	if(len!=r->nr*r->nc) {
+		g_warning("Trying to replace cache in YRingMatrix.");
+	}
+	return r->val;
+}
+
 static void y_ring_matrix_class_init(YRingMatrixClass * val_klass)
 {
 	YDataClass *ydata_klass = (YDataClass *) val_klass;
@@ -370,6 +381,7 @@ static void y_ring_matrix_class_init(YRingMatrixClass * val_klass)
 	matrix_klass->load_size = ring_matrix_load_size;
 	matrix_klass->load_values = ring_matrix_load_values;
 	matrix_klass->get_value = ring_matrix_get_value;
+	matrix_klass->replace_cache = y_ring_matrix_replace_cache;
 }
 
 static void y_ring_matrix_init(YRingMatrix * val)
@@ -396,7 +408,7 @@ YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r, gboolean track_t
 	res->nc = c;
 	res->rmax = rmax;
 	if(track_timestamps) {
-		res->timestamps = g_object_ref_sink(y_ring_vector_new(rmax,r,FALSE));
+		res->timestamps = Y_RING_VECTOR(g_object_ref_sink(y_ring_vector_new(rmax,r,FALSE)));
 	}
 	return Y_DATA(res);
 }

@@ -9,10 +9,12 @@ fftw_dep = dependency('fftw3', version: '>=3.2')
 
 comp = meson.get_compiler('c')
 libm = comp.find_library('m', required: false)
-hdf5 = [comp.find_library('hdf5_hl', required: false),comp.find_library('hdf5', required: false)]
+hdf5 = [comp.find_library('hdf5_hl', required: true),comp.find_library('hdf5', required: true)]
 
 conf = configuration_data()
 conf.set_quoted('PACKAGE_NAME', 'y-data')
+
+add_project_arguments('-Wall', language : 'c')
 
 if get_option('enable-introspection')
   gir = find_program('g-ir-scanner', required: false)

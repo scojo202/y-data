@@ -153,6 +153,7 @@ struct _YMatrixClass {
 	YMatrixSize(*load_size) (YMatrix * vec);
 	double *(*load_values) (YMatrix * vec);
 	double (*get_value) (YMatrix * mat, unsigned i, unsigned j);
+	double *(*replace_cache) (YMatrix *vec, unsigned len);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YThreeDArray, y_three_d_array, Y, THREE_D_ARRAY, YData)
@@ -217,6 +218,9 @@ char *y_matrix_get_str(YMatrix * mat, unsigned i, unsigned j,
 		       const gchar * format);
 void y_matrix_get_minmax(YMatrix * mat, double *min, double *max);
 
+/* to be used only by subclasses */
+double* y_matrix_replace_cache(YMatrix *vec, unsigned len);
+
 /*************************************************************************/
 
 YThreeDArraySize y_three_d_array_get_size(YThreeDArray * mat);
@@ -229,23 +233,6 @@ double y_three_d_array_get_value(YThreeDArray * mat, unsigned i, unsigned j,
 char *y_three_d_array_get_str(YThreeDArray * mat, unsigned i, unsigned j,
 			      unsigned k, const gchar * format);
 void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max);
-
-/*************************************************************************/
-
-G_DECLARE_DERIVABLE_TYPE(YStruct, y_struct, Y, STRUCT, YData)
-
-#define Y_TYPE_STRUCT (y_struct_get_type())
-
-struct _YStructClass {
-	YDataClass base;
-
-	/* signals */
-	void (*subdata_changed) (YStruct * dat);
-};
-
-YData *y_struct_get_data(YStruct * s, const gchar * name);
-void y_struct_set_data(YStruct * s, const gchar * name, YData * d);
-void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data);
 
 G_END_DECLS
 
