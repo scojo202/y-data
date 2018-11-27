@@ -146,7 +146,7 @@ YData *y_ring_vector_new(unsigned nmax, unsigned n, gboolean track_timestamps)
 	res->n = n;
 	res->nmax = nmax;
 	if(track_timestamps) {
-		res->timestamps = g_object_ref_sink(y_ring_vector_new(nmax,n,FALSE));
+		res->timestamps = Y_RING_VECTOR(g_object_ref_sink(y_ring_vector_new(nmax,n,FALSE)));
 	}
 	return Y_DATA(res);
 }
@@ -396,7 +396,7 @@ YData *y_ring_matrix_new(unsigned c, unsigned rmax, unsigned r, gboolean track_t
 	res->nc = c;
 	res->rmax = rmax;
 	if(track_timestamps) {
-		res->timestamps = g_object_ref_sink(y_ring_vector_new(rmax,r,FALSE));
+		res->timestamps = Y_RING_VECTOR(g_object_ref_sink(y_ring_vector_new(rmax,r,FALSE)));
 	}
 	return Y_DATA(res);
 }
