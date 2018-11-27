@@ -22,6 +22,7 @@
 #include <memory.h>
 #include <math.h>
 #include "y-subset-operation.h"
+#include "y-struct.h"
 
 /**
  * SECTION: y-subset-operation

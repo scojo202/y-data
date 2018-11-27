@@ -21,6 +21,7 @@
 
 #include <gio/gio.h>
 #include <y-hdf.h>
+#include "y-struct.h"
 
 #define DEFLATE_LEVEL 5
 

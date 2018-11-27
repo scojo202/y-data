@@ -22,6 +22,7 @@
 #include <memory.h>
 #include <math.h>
 #include "y-slice-operation.h"
+#include "y-struct.h"
 
 /**
  * SECTION: y-slice-operation

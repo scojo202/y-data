@@ -230,23 +230,6 @@ char *y_three_d_array_get_str(YThreeDArray * mat, unsigned i, unsigned j,
 			      unsigned k, const gchar * format);
 void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max);
 
-/*************************************************************************/
-
-G_DECLARE_DERIVABLE_TYPE(YStruct, y_struct, Y, STRUCT, YData)
-
-#define Y_TYPE_STRUCT (y_struct_get_type())
-
-struct _YStructClass {
-	YDataClass base;
-
-	/* signals */
-	void (*subdata_changed) (YStruct * dat);
-};
-
-YData *y_struct_get_data(YStruct * s, const gchar * name);
-void y_struct_set_data(YStruct * s, const gchar * name, YData * d);
-void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data);
-
 G_END_DECLS
 
 #endif				/* Y_DATA_H */

@@ -1,7 +1,7 @@
 /*
- * y-data.h :
+ * y-struct.h :
  *
- * Copyright (C) 2016 Scott O. Johnson (scojo202@gmail.com)
+ * Copyright (C) 2018 Scott O. Johnson (scojo202@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,19 +19,29 @@
  * USA
  */
 
-#ifndef Y_DATA_H
-#define Y_DATA_H
+#ifndef Y_STRUCT_H
+#define Y_STRUCT_H
 
+#include <glib-object.h>
 #include <y-data-class.h>
-#include <y-struct.h>
-#include <y-data-simple.h>
-#include <y-data-derived.h>
-#include <y-operation.h>
-#include <y-hdf.h>
-#include <y-slice-operation.h>
-#include <y-linear-range.h>
-#include <y-scalar-property.h>
-#include <y-vector-ring.h>
-#include <y-fft-operation.h>
 
-#endif
+G_BEGIN_DECLS
+
+G_DECLARE_DERIVABLE_TYPE(YStruct, y_struct, Y, STRUCT, YData)
+
+#define Y_TYPE_STRUCT (y_struct_get_type())
+
+struct _YStructClass {
+	YDataClass base;
+
+	/* signals */
+	void (*subdata_changed) (YStruct * dat);
+};
+
+YData *y_struct_get_data(YStruct * s, const gchar * name);
+void y_struct_set_data(YStruct * s, const gchar * name, YData * d);
+void y_struct_foreach(YStruct * s, GHFunc f, gpointer user_data);
+
+G_END_DECLS
+
+#endif				/* Y_DATA_H */
