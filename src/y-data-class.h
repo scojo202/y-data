@@ -153,6 +153,7 @@ struct _YMatrixClass {
 	YMatrixSize(*load_size) (YMatrix * vec);
 	double *(*load_values) (YMatrix * vec);
 	double (*get_value) (YMatrix * mat, unsigned i, unsigned j);
+	double *(*replace_cache) (YMatrix *vec, unsigned len);
 };
 
 G_DECLARE_DERIVABLE_TYPE(YThreeDArray, y_three_d_array, Y, THREE_D_ARRAY, YData)
@@ -216,6 +217,9 @@ double y_matrix_get_value(YMatrix * mat, unsigned i, unsigned j);
 char *y_matrix_get_str(YMatrix * mat, unsigned i, unsigned j,
 		       const gchar * format);
 void y_matrix_get_minmax(YMatrix * mat, double *min, double *max);
+
+/* to be used only by subclasses */
+double* y_matrix_replace_cache(YMatrix *vec, unsigned len);
 
 /*************************************************************************/
 

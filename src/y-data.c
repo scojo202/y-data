@@ -818,9 +818,25 @@ static char *_matrix_serialize(YData * dat, gpointer user)
 	return g_string_free(str, FALSE);
 }
 
+static void _matrix_finalize(GObject *dat)
+{
+	YMatrix *mat = (YMatrix *) dat;
+	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
+	YMatrixClass *mat_class = Y_MATRIX_GET_CLASS(dat);
+
+	if(mat_class->replace_cache == NULL) {
+	  if(mpriv->values) {
+		  g_free(mpriv->values);
+	  }
+	}
+}
+
 static void y_matrix_class_init(YMatrixClass * mat_class)
 {
+	GObjectClass *gobj_class = (GObjectClass *) mat_class;
 	YDataClass *data_class = Y_DATA_CLASS(mat_class);
+
+	gobj_class->finalize = _matrix_finalize;
 
 	data_class->emit_changed = _data_array_emit_changed;
 	data_class->get_sizes = _data_matrix_get_sizes;
@@ -1023,6 +1039,41 @@ void y_matrix_get_minmax(YMatrix * mat, double *min, double *max)
 		*min = mpriv->minimum;
 	if (max != NULL)
 		*max = mpriv->maximum;
+}
+
+double * y_matrix_replace_cache(YMatrix *mat, unsigned len)
+{
+	YData *data = Y_DATA(mat);
+	YDataPrivate *priv = y_data_get_instance_private(data);
+	YMatrixPrivate *mpriv = y_matrix_get_instance_private(mat);
+
+	YMatrixClass const *klass = Y_MATRIX_GET_CLASS(mat);
+	g_return_val_if_fail(klass != NULL, NULL);
+
+	YMatrixSize s = y_matrix_get_size(mat);
+
+	if(mpriv->values!=NULL && s.rows*s.columns == len) {
+		return mpriv->values;
+	}
+
+	/* if subclass has a replace_cache function, it is handling this */
+	if(klass->replace_cache) {
+		priv->flags &=
+		    ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE |
+		      Y_DATA_MINMAX_CACHED);
+		return (*klass->replace_cache) (mat, len);
+	}
+
+	if(mpriv->values !=NULL) {
+		g_free(mpriv->values);
+	}
+	mpriv->values = g_new0(double,len);
+
+	priv->flags &=
+	    ~(Y_DATA_CACHE_IS_VALID | Y_DATA_SIZE_CACHED | Y_DATA_HAS_VALUE |
+	      Y_DATA_MINMAX_CACHED);
+
+	return mpriv->values;
 }
 
 /**********************/
@@ -1334,4 +1385,3 @@ void y_three_d_array_get_minmax(YThreeDArray * mat, double *min, double *max)
 	if (max != NULL)
 		*max = mpriv->maximum;
 }
-
