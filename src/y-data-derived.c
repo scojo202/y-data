@@ -158,8 +158,13 @@ static double scalar_derived_get_value(YScalar * sca)
 	if (sca == NULL)
 		return NAN;
 
-	/* call op */
 	YOperationClass *klass = Y_OPERATION_GET_CLASS(scas->der.op);
+
+	unsigned int dims[3];
+
+	g_return_val_if_fail(klass->op_size(scas->der.op,scas->der.input, dims)==0,NAN);
+
+	/* call op */
 	if (scas->der.task_data == NULL) {
 		scas->der.task_data =
 		    y_operation_create_task_data(scas->der.op, scas->der.input);
@@ -580,7 +585,7 @@ static void y_derived_vector_init(YDerivedVector * der)
 
 /**
  * y_derived_vector_new:
- * @input: an input array
+ * @input: an input array (nullable)
  * @op: an operation
  *
  * Create a new #YDerivedVector based on an input #YData and a #YOperation.
@@ -854,7 +859,7 @@ static void y_derived_matrix_init(YDerivedMatrix * der)
 
 /**
  * y_derived_matrix_new:
- * @input: an input array
+ * @input: an input array (nullable)
  * @op: an operation
  *
  * Create a new #YDerivedMatrix based on an input #YData and a #YOperation.

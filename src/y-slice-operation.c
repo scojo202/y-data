@@ -30,7 +30,7 @@
  *
  * This operation slices elements out of an array, yielding an array with one less dimension.
  *
- * 
+ *
  */
 
 enum {
@@ -172,6 +172,7 @@ gpointer vector_slice_op_create_data(YOperation * op, gpointer data,
 		    y_create_input_array_from_vector(vec, neu, d->size.columns,
 						     d->input);
 		d->size.columns = y_vector_get_len(vec);
+		d->size.rows = 0; /* special case for an input vector */
 		if (d->output_len != 1) {
 			if (d->output)
 				g_free(d->output);
@@ -218,7 +219,7 @@ gpointer vector_slice_op(gpointer input)
 
 	double *v = d->output;
 
-	if (Y_IS_VECTOR(input)) {	/* output will be scalar */
+	if (d->size.rows==0) {	/* output will be scalar */
 		if (d->sop.type == SLICE_ELEMENT) {
 			*v = m[d->sop.index];
 		} else if (d->sop.type == SLICE_SUMELEMENTS) {

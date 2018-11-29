@@ -150,8 +150,38 @@ test_ring_vector(void)
 }
 
 static void
-test_derived_vector(void)
+test_derived_scalar_slice(void)
 {
+  YOperation *op = y_slice_operation_new(SLICE_ROW, 50, 1);
+  YData *v = y_val_vector_new_alloc(100);
+  double *d = y_val_vector_get_array(Y_VAL_VECTOR(v));
+  for (int i=0;i<100;i++) {
+    d[i]=(double)i;
+  }
+  YDerivedScalar *s = Y_DERIVED_SCALAR(y_derived_scalar_new(Y_DATA(v),op));
+  g_assert_cmpfloat(50.0, ==, y_scalar_get_value(Y_SCALAR(s)));
+  d[50]=137.0;
+  y_data_emit_changed(v);
+  g_assert_cmpfloat(137.0, ==, y_scalar_get_value(Y_SCALAR(s)));
+  g_object_unref(s);
+}
+
+static void
+test_derived_vector_slice(void)
+{
+  YOperation *op = y_slice_operation_new(SLICE_ROW, 50, 1);
+  YData *m = y_val_matrix_new_alloc(100,100);
+  double *d = y_val_matrix_get_array(Y_VAL_MATRIX(m));
+  for (int i=0;i<100*100;i++) {
+    d[i]=(double)i;
+  }
+  YDerivedVector *v = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(m),op));
+  g_assert_cmpuint(100,==,y_vector_get_len(Y_VECTOR(v)));
+  g_assert_cmpfloat(50*100+50, ==, y_vector_get_value(Y_VECTOR(v),50));
+  d[50*100+50]=137.0;
+  y_data_emit_changed(m);
+  g_assert_cmpfloat(137.0, ==, y_vector_get_value(Y_VECTOR(v),50));
+  g_object_unref(v);
 }
 
 int
@@ -163,9 +193,10 @@ main (int argc, char *argv[])
   g_test_add_func("/YData/simple/vector_new",test_simple_vector_new);
   g_test_add_func("/YData/simple/vector_alloc",test_simple_vector_alloc);
   g_test_add_func("/YData/simple/vector_copy",test_simple_vector_copy);
-  g_test_add_func("/YData/range/range",test_range_vectors);
+  g_test_add_func("/YData/range",test_range_vectors);
   g_test_add_func("/YData/ring/vector",test_ring_vector);
-  g_test_add_func("/YData/derived/vector",test_derived_vector);
+  g_test_add_func("/YData/derived/scalar/slice",test_derived_scalar_slice);
+  g_test_add_func("/YData/derived/vector/slice",test_derived_vector_slice);
 
   return g_test_run();
 }
