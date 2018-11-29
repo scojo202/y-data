@@ -79,9 +79,10 @@ gpointer vector_simple_op_create_data(YOperation * op, gpointer data,
 	unsigned int old_len = d->len;
 	d->input = y_create_input_array_from_vector(vec, neu, d->len, d->input);
 	d->len = y_vector_get_len(vec);
+	d->func = sop->func;
 	if (d->len == 0)
 		return NULL;
-	unsigned int dims[1];
+	unsigned int dims[3];
 	vector_simple_size(op, input, dims);
 	if (d->len != old_len) {
 		if (d->output)
@@ -110,8 +111,6 @@ gpointer vector_simple_op(gpointer input)
 
 	if (d == NULL)
 		return NULL;
-
-	//g_message("task data: index %d, width %d, type %u, input %p, nrow %u, ncol %u",d->index,d->width,d->type,d->input,d->nrow,d->ncol);
 
 	int i;
 	for (i = 0; i < d->len; i++) {

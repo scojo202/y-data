@@ -167,6 +167,24 @@ test_derived_scalar_slice(void)
 }
 
 static void
+test_derived_vector_simple(void)
+{
+  YOperation *op = y_simple_operation_new(log);
+  YData *input = y_val_vector_new_alloc(100);
+  double *d = y_val_vector_get_array(Y_VAL_VECTOR(input));
+  for (int i=1;i<101;i++) {
+    d[i-1]=(double)i;
+  }
+  YDerivedVector *v = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(input),op));
+  g_assert_cmpuint(100,==,y_vector_get_len(Y_VECTOR(v)));
+  g_assert_cmpfloat(log(50), ==, y_vector_get_value(Y_VECTOR(v),50-1));
+  d[50-1]=137.0;
+  y_data_emit_changed(input);
+  g_assert_cmpfloat(log(137.0), ==, y_vector_get_value(Y_VECTOR(v),50-1));
+  g_object_unref(v);
+}
+
+static void
 test_derived_vector_slice(void)
 {
   YOperation *op = y_slice_operation_new(SLICE_ROW, 50, 1);
@@ -196,6 +214,7 @@ main (int argc, char *argv[])
   g_test_add_func("/YData/range",test_range_vectors);
   g_test_add_func("/YData/ring/vector",test_ring_vector);
   g_test_add_func("/YData/derived/scalar/slice",test_derived_scalar_slice);
+  g_test_add_func("/YData/derived/vector/simple",test_derived_vector_simple);
   g_test_add_func("/YData/derived/vector/slice",test_derived_vector_slice);
 
   return g_test_run();
