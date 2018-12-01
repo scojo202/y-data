@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include <y-scalar-property.h>
 
@@ -39,9 +40,29 @@ y_property_scalar_finalize (GObject *obj)
 static double
 y_property_scalar_get_value (YScalar *dat)
 {
-	YPropertyScalar const *sval = (YPropertyScalar const *)dat;
-	double val;
-	g_object_get(sval->obj,sval->name,&val,NULL);
+	YPropertyScalar const *ps = (YPropertyScalar const *)dat;
+	g_return_val_if_fail(ps->obj,NAN);
+	GObjectClass *klass = G_OBJECT_GET_CLASS(ps->obj);
+	GParamSpec *spec = g_object_class_find_property(klass,ps->name);
+	double val = NAN;
+	if(spec->value_type == G_TYPE_DOUBLE) {
+		g_object_get(ps->obj,ps->name,&val,NULL);
+	}
+	if(spec->value_type == G_TYPE_FLOAT) {
+		float fval;
+		g_object_get(ps->obj,ps->name,&fval,NULL);
+		val = (double)fval;
+	}
+	if(spec->value_type == G_TYPE_INT) {
+		int ival;
+		g_object_get(ps->obj,ps->name,&ival,NULL);
+		val = (double)ival;
+	}
+	if(spec->value_type == G_TYPE_UINT) {
+		unsigned int uval;
+		g_object_get(ps->obj,ps->name,&uval,NULL);
+		val = (double)uval;
+	}
 	return val;
 }
 

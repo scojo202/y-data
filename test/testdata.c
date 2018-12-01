@@ -150,6 +150,17 @@ test_ring_vector(void)
 }
 
 static void
+test_property_scalar(void)
+{
+  YOperation *op = y_slice_operation_new(SLICE_ROW, 50, 1);
+  YPropertyScalar *s = y_property_scalar_new(op,"index");
+  g_assert_cmpfloat(50.0, ==, y_scalar_get_value(Y_SCALAR(s)));
+  g_object_set(op,"index",30,NULL);
+  g_assert_cmpfloat(30.0, ==, y_scalar_get_value(Y_SCALAR(s)));
+  g_object_unref(s);
+}
+
+static void
 test_derived_scalar_slice(void)
 {
   YOperation *op = y_slice_operation_new(SLICE_ROW, 50, 1);
@@ -213,6 +224,7 @@ main (int argc, char *argv[])
   g_test_add_func("/YData/simple/vector_copy",test_simple_vector_copy);
   g_test_add_func("/YData/range",test_range_vectors);
   g_test_add_func("/YData/ring/vector",test_ring_vector);
+  g_test_add_func("/Ydata/property/scalar",test_property_scalar);
   g_test_add_func("/YData/derived/scalar/slice",test_derived_scalar_slice);
   g_test_add_func("/YData/derived/vector/simple",test_derived_vector_simple);
   g_test_add_func("/YData/derived/vector/slice",test_derived_vector_slice);
