@@ -408,6 +408,14 @@ double *y_val_scalar_get_val(YValScalar * s)
 	return &priv->value;
 }
 
+void y_val_scalar_set_val(YValScalar *s, double val)
+{
+	YScalarPrivate *priv = y_scalar_get_instance_private(Y_SCALAR(s));
+	priv->value = val;
+	y_data_emit_changed(Y_DATA(s));
+}
+
+
 /*************************************************************************/
 
 /**

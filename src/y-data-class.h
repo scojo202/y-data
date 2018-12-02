@@ -108,6 +108,7 @@ G_DECLARE_FINAL_TYPE(YValScalar, y_val_scalar, Y, VAL_SCALAR, YScalar)
 
 YData *y_val_scalar_new(double val);
 double *y_val_scalar_get_val(YValScalar * s);
+void y_val_scalar_set_val(YValScalar *s, double val);
 
 G_DECLARE_DERIVABLE_TYPE(YVector, y_vector, Y, VECTOR, YData)
 
