@@ -231,6 +231,36 @@ test_derived_vector_simple(void)
 }
 
 static void
+test_derived_vector_FFT_mag(void)
+{
+  YOperation *op = y_fft_operation_new(FFT_MAG);
+  YData *input = y_val_vector_new_alloc(100);
+  double *d = y_val_vector_get_array(Y_VAL_VECTOR(input));
+  for (int i=0;i<100;i++) {
+    d[i]=1.0;
+  }
+  YDerivedVector *v = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(input),op));
+  g_assert_cmpuint(100/2+1,==,y_vector_get_len(Y_VECTOR(v)));
+  g_assert_cmpfloat(0.0, ==, y_vector_get_value(Y_VECTOR(v),2));
+  g_object_unref(v);
+}
+
+static void
+test_derived_vector_FFT_phase(void)
+{
+  YOperation *op = y_fft_operation_new(FFT_PHASE);
+  YData *input = y_val_vector_new_alloc(100);
+  double *d = y_val_vector_get_array(Y_VAL_VECTOR(input));
+  for (int i=0;i<100;i++) {
+    d[i]=1.0;
+  }
+  YDerivedVector *v = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(input),op));
+  g_assert_cmpuint(100/2+1,==,y_vector_get_len(Y_VECTOR(v)));
+  g_assert_cmpfloat(0.0, ==, y_vector_get_value(Y_VECTOR(v),1));
+  g_object_unref(v);
+}
+
+static void
 test_derived_vector_slice(void)
 {
   YOperation *op = y_slice_operation_new(SLICE_ROW, 50, 1);
@@ -245,6 +275,21 @@ test_derived_vector_slice(void)
   d[50*100+50]=137.0;
   y_data_emit_changed(m);
   g_assert_cmpfloat(137.0, ==, y_vector_get_value(Y_VECTOR(v),50));
+  g_object_unref(v);
+}
+
+static void
+test_derived_vector_subset(void)
+{
+  YOperation *op = g_object_new(Y_TYPE_SUBSET_OPERATION,"start1",5,"length1",20,NULL);
+  YData *m = y_val_vector_new_alloc(100);
+  double *d = y_val_vector_get_array(Y_VAL_VECTOR(m));
+  for (int i=0;i<100;i++) {
+    d[i]=(double)i;
+  }
+  YDerivedVector *v = Y_DERIVED_VECTOR(y_derived_vector_new(Y_DATA(m),op));
+  g_assert_cmpuint(20,==,y_vector_get_len(Y_VECTOR(v)));
+  g_assert_cmpfloat(5.0, ==, y_vector_get_value(Y_VECTOR(v),0));
   g_object_unref(v);
 }
 
@@ -271,6 +316,24 @@ test_derived_matrix_simple(void)
   g_object_unref(v);
 }
 
+static void
+test_derived_matrix_subset(void)
+{
+  YOperation *op = g_object_new(Y_TYPE_SUBSET_OPERATION,"start1",5,"length1",20,"start2",5,"length2",25,NULL);
+  YData *input = y_val_matrix_new_alloc(100,100);
+  double *d = y_val_matrix_get_array(Y_VAL_MATRIX(input));
+  for (int i=0;i<100;i++) {
+    for(int j=0;j<100;j++) {
+      d[i+100*j]=(double)(i+j);
+    }
+  }
+  YDerivedMatrix *v = Y_DERIVED_MATRIX(y_derived_matrix_new(Y_DATA(input),op));
+  g_assert_cmpuint(25,==,y_matrix_get_rows(Y_MATRIX(v)));
+  g_assert_cmpuint(20,==,y_matrix_get_columns(Y_MATRIX(v)));
+  g_assert_cmpfloat(10.0, ==, y_matrix_get_value(Y_MATRIX(v),0,0));
+  g_object_unref(v);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -287,10 +350,11 @@ main (int argc, char *argv[])
   g_test_add_func("/YData/derived/scalar/simple",test_derived_scalar_simple);
   g_test_add_func("/YData/derived/scalar/slice",test_derived_scalar_slice);
   g_test_add_func("/YData/derived/vector/simple",test_derived_vector_simple);
-  //g_test_add_func("/YData/derived/vector/subset",test_derived_vector_simple);
-  //g_test_add_func("/YData/derived/vector/FFT",test_derived_vector_simple);
+  g_test_add_func("/YData/derived/vector/subset",test_derived_vector_subset);
+  g_test_add_func("/YData/derived/vector/FFT/mag",test_derived_vector_FFT_mag);
+  g_test_add_func("/YData/derived/vector/FFT/phase",test_derived_vector_FFT_phase);
   g_test_add_func("/YData/derived/vector/slice",test_derived_vector_slice);
   g_test_add_func("/YData/derived/matrix/simple",test_derived_matrix_simple);
-  //g_test_add_func("/YData/struct",test_ring_vector);
+  g_test_add_func("/YData/derived/matrix/subset",test_derived_matrix_subset);
   return g_test_run();
 }

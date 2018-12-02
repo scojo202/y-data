@@ -789,8 +789,8 @@ static char _data_matrix_get_sizes(YData * data, unsigned int *sizes)
 
 	sizes[0] = size.columns;
 	sizes[1] = size.rows;
-    }
-    return 2;
+	}
+	return 2;
 }
 
 static gboolean _matrix_has_value(YData *dat)

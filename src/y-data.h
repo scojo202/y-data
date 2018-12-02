@@ -29,6 +29,7 @@
 #include <y-operation.h>
 #include <y-hdf.h>
 #include <y-simple-operation.h>
+#include <y-subset-operation.h>
 #include <y-slice-operation.h>
 #include <y-linear-range.h>
 #include <y-scalar-property.h>

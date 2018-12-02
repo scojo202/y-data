@@ -205,11 +205,11 @@ gpointer subset_op(gpointer input)
 	double *v = d->output;
 	unsigned int i, j;
 
-	if (Y_IS_VECTOR(input)) {
+	if (d->size.rows==0) {
 		for (j = 0; j < d->sop.length1; j++) {
 			v[j] = m[j + d->sop.start1];
 		}
-	} else if (Y_IS_MATRIX(input)) {
+	} else {
 		for (j = 0; j < d->sop.length1; j++) {
 			for (i = 0; i < d->sop.length2; i++) {
 				v[i * d->sop.length1 + j] =
